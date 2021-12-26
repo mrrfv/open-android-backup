@@ -37,7 +37,7 @@ list_input "What do you want to do?" actions selected_action
 
 if [ $selected_action = 'Backup' ]
 then
-  mkdir -p backup-tmp
+  mkdir -p backup-tmp/
 
   echo "Linux Android Backup will install a companion app on your device, which will allow for contacts to be backed up."
   echo "Downloading companion app"
@@ -49,11 +49,16 @@ then
   echo "Please open the companion app, and press the 'Export Data' button. This will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
   wait_for_enter
 
-  # Export app list
-  echo "Exporting installed app list."
-  apps=$(adb shell pm list packages -3)
-  apps=$(sed 's/package://g' <<< "$apps")
-  echo $apps > backup-tmp/Apps.txt
+  echo "Uninstalling companion app."
+  adb uninstall com.example.companion_app
+
+  # Export apps (.apk files)
+  echo "Exporting apps."
+  mkdir backup-tmp/Apps
+  for app in $(adb shell pm list packages -3 -f)
+  do
+    adb pull $( echo $app | sed "s/^package://" | sed "s/base.apk=/base.apk /").apk backup-tmp/Apps/$RANDOM$RANDOM$RANDOM.apk
+  done
 
   # Export contacts
   # TODO: This doesn't always work as expected (the companion app causes this, not the script itself)
@@ -85,17 +90,14 @@ then
   7z e $archive_path -obackup-tmp
 
   # Restore applications
-  apps=$(cat ./backup-tmp/apps.txt)
-  separator=' ' read -r -a app_array <<< "$apps"
-  for app in $apps; do
-    clear
-    echo "Step 1 of 3 - Restoring Apps"
-    echo "Installing app: $app"
-    adb shell am start -a android.intent.action.VIEW -d "market://details?id=$app" > /dev/null
-    echo "Google Play Store has been opened on your device to install this app. Click the install button and press Enter to go to the next app."
-    echo "If the app doesn't exist on the Play Store, ignore it."
-    wait_for_enter
+  echo "Restoring applications."
+  # We don't want a single app to break the whole script
+  set +e
+  for file in ./backup-tmp/Apps; do
+    echo "Installing app: $file"
+    adb install $file
   done
+  set -e
 
   # Restore internal storage
   echo "Restoring internal storage."
@@ -105,6 +107,12 @@ then
   echo "Restoring contacts."
   adb push ./backup-tmp/Contacts /storage/emulated/0/Contacts_Backup
 
-  echo "Data restored - however, you need to manually import your contacts."
-  echo "Open a File manager on your device, navigate to 'Contacts_Backup' and import each file."
+  echo "Attempting to auto-restore contacts. Please check your device and see if it's asking for confirmation (if it's requesting confirmation multiple times, that's normal)."
+  for file in ./backup-tmp/Contacts; do
+    adb shell am start -t "text/x-vcard" -d "file:///storage/emulated/0/Contacts_Backup/$file" -a android.intent.action.VIEW com.android.contacts
+  done
+
+  echo "Data restored!"
+  echo "If this script helped you, then don't forget to star the GitHub repository. It helps a lot."
+  echo "Warning: The automatic restoration of contacts might not work on every device. If your contacts have not been restored, open a file manager, navigate to 'Contacts_Backup' and import the vCard files manually."
 fi
