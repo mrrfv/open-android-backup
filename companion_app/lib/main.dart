@@ -69,6 +69,40 @@ class Home extends StatelessWidget {
     }
   }
 
+  Future<void> autoRestoreContacts(BuildContext context) async {
+    // Requests contacts & internal storage permissions
+    if (await FlutterContacts.requestPermission() &&
+        (await Permission.storage.request().isGranted ||
+            await Permission.manageExternalStorage.request().isGranted)) {
+      final contactsDir = Directory("/storage/emulated/0/Contacts_Backup");
+      if (await contactsDir.exists()) {
+        // List directory contents
+        final List<FileSystemEntity> files = await contactsDir.list().toList();
+
+        // Loop over the contents
+        for (var i = 0; i < files.length; i++) {
+          if (files[i] is File) {
+            // If the entity is a file, read its contents as a vCard and insert it into Android's contact database
+            final vcard = await (files[i] as File).readAsString();
+            final contact = Contact.fromVCard(vcard);
+            await contact.insert();
+          }
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("The contact backup directory couldn't be found."),
+        ));
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content:
+            Text("Storage and/or contacts permissions have not been granted."),
+      ));
+
+      await openAppSettings();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,13 +114,23 @@ class Home extends StatelessWidget {
         child: Column(
           children: <Widget>[
             const Text(
-                "The Linux Android Backup companion app allows for backups of your contacts, with more to come. It doesn't upload your data to a remote server: data is saved to the internal storage and then read by the script running on your computer."),
+              "The Linux Android Backup companion app allows for backups of your contacts, with more to come. It doesn't upload your data to a remote server: data is saved to the internal storage and then read by the script running on your computer.",
+            ),
             ElevatedButton(
-                onPressed: () {
-                  backup(context);
-                },
-                child: const Text("Export Data"),
-                style: ElevatedButton.styleFrom(primary: Colors.green))
+              onPressed: () {
+                backup(context);
+              },
+              child: const Text("Export Data"),
+            ),
+            const Text(
+              "Upon restoring a backup, press the button below to automatically import all contacts.",
+            ),
+            ElevatedButton(
+              onPressed: () {
+                autoRestoreContacts(context);
+              },
+              child: const Text("Auto-restore contacts"),
+            )
           ],
         ),
       ),
