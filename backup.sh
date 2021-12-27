@@ -20,61 +20,71 @@ function wait_for_enter() {
   read -p "" </dev/tty
 }
 
+# "cecho" makes output messages yellow
+function cecho() {
+  echo $(tput setaf 11)$1
+}
+
 function check_adb_connection() {
-  echo "Please enable developer options on your device, connect it to your computer and set it to file transfer mode. Then, press Enter to continue."
+  cecho "Please enable developer options on your device, connect it to your computer and set it to file transfer mode. Then, press Enter to continue."
   wait_for_enter
   adb devices > /dev/null
-  echo "If you have connected your device correctly, you should now see a message asking for access to your phone. Allow it, then press Enter to go to the last step."
+  cecho "If you have connected your device correctly, you should now see a message asking for access to your phone. Allow it, then press Enter to go to the last step."
   wait_for_enter
   adb devices
-  echo "Can you see your device in the list above, and does it say 'device' next to it? If not, quit this script (ctrl+c) and try again."
+  cecho "Can you see your device in the list above, and does it say 'device' next to it? If not, quit this script (ctrl+c) and try again."
 }
+# ---
 
 check_adb_connection
 
 actions=( 'Backup' 'Restore' )
 list_input "What do you want to do?" actions selected_action
 
+# The companion app is required regardless of whether we're backing up the device or not,
+# so we're installing it before the if statement
+cecho "Linux Android Backup will install a companion app on your device, which will allow for contacts to be backed up and restored."
+cecho "The companion app is open-source, and you can see what it's doing under the hood on GitHub."
+if [ ! -f linux-android-backup-companion.apk ]; then
+  cecho "Downloading companion app."
+  # -L makes curl follow redirects
+  curl -L -o linux-android-backup-companion.apk https://github.com/mrrfv/linux-android-backup/releases/download/latest/app-release.apk
+else
+  cecho "Companion app already downloaded."
+fi
+cecho "Installing companion app."
+adb install -r linux-android-backup-companion.apk
+
 if [ $selected_action = 'Backup' ]
 then
   mkdir -p backup-tmp/
 
-  echo "Linux Android Backup will install a companion app on your device, which will allow for contacts to be backed up."
-  echo "Downloading companion app."
-  # -L makes curl follow redirects
-  curl -L -o app-release.apk https://github.com/mrrfv/linux-android-backup/releases/download/latest/app-release.apk
-  echo "Installing companion app."
-  adb install -r app-release.apk
   adb shell am start -n com.example.companion_app/.MainActivity
-  echo "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
+  cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
   wait_for_enter
 
-  echo "Uninstalling companion app."
-  adb uninstall com.example.companion_app
-
   # Export apps (.apk files)
-  echo "Exporting apps."
+  cecho "Exporting apps."
   mkdir -p backup-tmp/Apps
   for app in $(adb shell pm list packages -3 -f)
   do
     declare output=backup-tmp/Apps/$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM/ # There's a better way to do this, but I'm lazy
     mkdir -p $output
-    echo $( echo $app | sed "s/package://" | sed "s/base.apk=/base.apk /" | sed "s/\([[:blank:]]\).*/\1/").apk $output
+    cecho $( cecho $app | sed "s/package://" | sed "s/base.apk=/base.apk /" | sed "s/\([[:blank:]]\).*/\1/").apk $output
   done
 
   # Export contacts
-  # TODO: This doesn't always work as expected (the companion app causes this, not the script itself)
-  echo "Exporting contacts (as vCard)."
+  cecho "Exporting contacts (as vCard)."
   adb pull /storage/emulated/0/linux-android-backup-temp ./backup-tmp/Contacts
-  echo "Removing temporary files created by the companion app."
+  cecho "Removing temporary files created by the companion app."
   adb shell rm -rfv /storage/emulated/0/linux-android-backup-temp
 
   # Export internal storage
-  echo "Exporting internal storage - this will take a while."
+  cecho "Exporting internal storage - this will take a while."
   adb pull /storage/emulated/0 ./backup-tmp/Storage
 
   # Compress
-  echo "Compressing & encrypting data - this will take a while."
+  cecho "Compressing & encrypting data - this will take a while."
   # -p: encrypt backup
   # -mhe=on: encrypt headers (metadata)
   # -mx=9: ultra compression
@@ -82,39 +92,34 @@ then
   # -sdel: delete files after compression
   7z a -p -mhe=on -mx=9 -bb3 -sdel linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
 
-  echo "Backed up successfully."
+  cecho "Backed up successfully."
   rm -rf backup-tmp > /dev/null
 elif [ $selected_action = 'Restore' ]
 then
   text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
 
-  echo "Extracting archive."
+  cecho "Extracting archive."
   7z e $archive_path -obackup-tmp
 
   # Restore applications
-  echo "Restoring applications."
+  cecho "Restoring applications."
   # We don't want a single app to break the whole script
   set +e
   for file in ./backup-tmp/Apps/**/*.apk; do
-    echo "Installing app: $file"
+    cecho "Installing app: $file"
     adb install $file
   done
   set -e
 
   # Restore internal storage
-  echo "Restoring internal storage."
+  cecho "Restoring internal storage."
   adb push ./backup-tmp/Storage /storage/emulated/0
 
   # Restore contacts
-  echo "Restoring contacts."
+  cecho "Pushing backed up contacts to device."
   adb push ./backup-tmp/Contacts /storage/emulated/0/Contacts_Backup
 
-  echo "Attempting to auto-restore contacts. Please check your device and see if it's asking for confirmation (if it's requesting confirmation multiple times, that's normal)."
-  for file in ./backup-tmp/Contacts; do
-    adb shell am start -t "text/x-vcard" -d "file:///storage/emulated/0/Contacts_Backup/$file" -a android.intent.action.VIEW com.android.contacts
-  done
-
-  echo "Data restored!"
-  echo "If this script helped you, then don't forget to star the GitHub repository. It helps a lot."
-  echo "Warning: The automatic restoration of contacts might not work on every device. If your contacts have not been restored, open a file manager, navigate to 'Contacts_Backup' and import the vCard files manually."
+  cecho "Data restored!"
+  cecho "If this script helped you, then don't forget to star the GitHub repository. It helps a lot."
+  cecho "WARNING: Contacts have been only copied to your device. You need to open the companion app to restore them."
 fi
