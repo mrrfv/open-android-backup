@@ -40,13 +40,13 @@ then
   mkdir -p backup-tmp/
 
   echo "Linux Android Backup will install a companion app on your device, which will allow for contacts to be backed up."
-  echo "Downloading companion app"
+  echo "Downloading companion app."
   # -L makes curl follow redirects
   curl -L -o app-release.apk https://github.com/mrrfv/linux-android-backup/releases/download/latest/app-release.apk
-  echo "Installing companion app"
+  echo "Installing companion app."
   adb install -r app-release.apk
-
-  echo "Please open the companion app, and press the 'Export Data' button. This will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
+  adb shell am start -n com.example.companion_app/.MainActivity
+  echo "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
   wait_for_enter
 
   echo "Uninstalling companion app."
@@ -54,10 +54,12 @@ then
 
   # Export apps (.apk files)
   echo "Exporting apps."
-  mkdir backup-tmp/Apps
+  mkdir -p backup-tmp/Apps
   for app in $(adb shell pm list packages -3 -f)
   do
-    adb pull $( echo $app | sed "s/^package://" | sed "s/base.apk=/base.apk /").apk backup-tmp/Apps/$RANDOM$RANDOM$RANDOM.apk
+    declare output=backup-tmp/Apps/$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM/ # There's a better way to do this, but I'm lazy
+    mkdir -p $output
+    echo $( echo $app | sed "s/package://" | sed "s/base.apk=/base.apk /" | sed "s/\([[:blank:]]\).*/\1/").apk $output
   done
 
   # Export contacts
@@ -93,7 +95,7 @@ then
   echo "Restoring applications."
   # We don't want a single app to break the whole script
   set +e
-  for file in ./backup-tmp/Apps; do
+  for file in ./backup-tmp/Apps/**/*.apk; do
     echo "Installing app: $file"
     adb install $file
   done
