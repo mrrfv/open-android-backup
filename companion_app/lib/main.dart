@@ -30,7 +30,8 @@ class Home extends StatelessWidget {
   Future<void> backup(BuildContext context) async {
     // Requests contacts & internal storage permissions
     if (await FlutterContacts.requestPermission() &&
-        await Permission.manageExternalStorage.request().isGranted) {
+        (await Permission.storage.request().isGranted ||
+            await Permission.manageExternalStorage.request().isGranted)) {
       // Get all contacts
       List<Contact> contacts = await FlutterContacts.getContacts(
           withProperties: true, withPhoto: true, withGroups: true);
@@ -63,6 +64,8 @@ class Home extends StatelessWidget {
             Text("Storage and/or contacts permissions have not been granted."),
         duration: Duration(seconds: 5),
       ));
+
+      await openAppSettings();
     }
   }
 
