@@ -11,8 +11,8 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 PARENT_DIR=$(dirname "$DIR")
-source $DIR/dist/list_input.sh
-source $DIR/dist/text_input.sh
+source $DIR/inquirer-sh/list_input.sh
+source $DIR/inquirer-sh/text_input.sh
 # ---
 
 # Helper functions

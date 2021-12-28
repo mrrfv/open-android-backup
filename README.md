@@ -33,10 +33,6 @@ These 3 things are the majority of what anyone would want to keep safe, but we a
 1. Install the [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install) and a distro (Debian or Ubuntu is recommended).
 2. Continue with the steps above.
 
-## License
-
-This software is licensed under the "Linux Android Backup License", a license based on the BSD 3-Clause license, but with another clause preventing the use of this software by law enforcement.
-
 ## TODO
 
 Sorted by importance. PRs are appreciated.
@@ -45,3 +41,18 @@ Sorted by importance. PRs are appreciated.
 - Create a desktop GUI for newcomers (using Flutter maybe?)
 - Improve mobile app by fixing bugs and making it more appealing
 - Clean up the code
+
+## License
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
