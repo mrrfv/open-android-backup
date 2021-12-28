@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:super_easy_permissions/super_easy_permissions.dart';
 import "dart:io";
 
 void main() {
@@ -30,14 +30,18 @@ class Home extends StatelessWidget {
   Future<void> backup(BuildContext context) async {
     // Requests contacts & internal storage permissions
     if (await FlutterContacts.requestPermission() &&
-        (await Permission.storage.request().isGranted ||
-            await Permission.manageExternalStorage.request().isGranted)) {
+        await SuperEasyPermissions.askPermission(Permissions.storage)) {
+      // Show a snackbar notifying the user that the export has started
+      // (provides feedback just in case there are a lot of contacts to export)
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Exporting data...")));
+
       // Get all contacts
       List<Contact> contacts = await FlutterContacts.getContacts(
           withProperties: true, withPhoto: true, withGroups: true);
 
       // Recreate the temp directory if it already exists.
-      var directory =
+      final Directory directory =
           Directory("/storage/emulated/0/linux-android-backup-temp");
       if (await directory.exists()) {
         await directory.delete(recursive: true);
@@ -46,8 +50,8 @@ class Home extends StatelessWidget {
 
       // Loop over the contacts and save them as a vCard.
       for (var i = 0; i < contacts.length; i++) {
-        String vCard = contacts[i].toVCard(withPhoto: true);
-        File file = File(
+        final String vCard = contacts[i].toVCard(withPhoto: true);
+        final File file = File(
             "/storage/emulated/0/linux-android-backup-temp/linux-android-backup-contact-$i.vcf");
         file.writeAsString(vCard);
       }
@@ -64,18 +68,20 @@ class Home extends StatelessWidget {
             Text("Storage and/or contacts permissions have not been granted."),
         duration: Duration(seconds: 5),
       ));
-
-      await openAppSettings();
     }
   }
 
   Future<void> autoRestoreContacts(BuildContext context) async {
     // Requests contacts & internal storage permissions
     if (await FlutterContacts.requestPermission() &&
-        (await Permission.storage.request().isGranted ||
-            await Permission.manageExternalStorage.request().isGranted)) {
+        await SuperEasyPermissions.askPermission(Permissions.storage)) {
       final contactsDir = Directory("/storage/emulated/0/Contacts_Backup");
       if (await contactsDir.exists()) {
+        // Show a snackbar notifying the user that the import has started
+        // (provides feedback just in case there are a lot of contacts to import)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Importing data...")));
+
         // List directory contents
         final List<FileSystemEntity> files = await contactsDir.list().toList();
 
@@ -83,8 +89,8 @@ class Home extends StatelessWidget {
         for (var i = 0; i < files.length; i++) {
           if (files[i] is File) {
             // If the entity is a file, read its contents as a vCard and insert it into Android's contact database
-            final vcard = await (files[i] as File).readAsString();
-            final contact = Contact.fromVCard(vcard);
+            final String vcard = await (files[i] as File).readAsString();
+            final Contact contact = Contact.fromVCard(vcard);
             await contact.insert();
           }
         }
@@ -98,8 +104,6 @@ class Home extends StatelessWidget {
         content:
             Text("Storage and/or contacts permissions have not been granted."),
       ));
-
-      await openAppSettings();
     }
   }
 
