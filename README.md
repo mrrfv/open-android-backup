@@ -78,6 +78,7 @@ Sorted by importance. PRs are appreciated.
 - Create a desktop GUI for newcomers (using Flutter maybe?)
 - Improve mobile app by fixing bugs and making it more appealing
 - Clean up the code
+- Migrate companion app to the Storage Access Framework API for forward compatibility (waiting for Flutter packages providing this functionality to become stable).
 
 ## License
 

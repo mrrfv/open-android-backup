@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
-import 'package:super_easy_permissions/super_easy_permissions.dart';
+import 'package:permission_handler/permission_handler.dart';
 import "dart:io";
+
+import 'package:device_info_plus/device_info_plus.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,14 +32,21 @@ class Home extends StatelessWidget {
   Future<void> backup(BuildContext context) async {
     // Requests contacts & internal storage permissions
     if (await FlutterContacts.requestPermission() &&
-        await SuperEasyPermissions.askPermission(Permissions.storage)) {
+        await Permission.storage.request().isGranted) {
+      // On Android 11 and later, request additional permissions.
+      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt! > 29 &&
+          !await Permission.manageExternalStorage.request().isGranted) {
+        // Open app settings if the permission wasn't granted
+        await openAppSettings();
+      }
+
       // Show a snackbar notifying the user that the export has started
       // (provides feedback just in case there are a lot of contacts to export)
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Exporting data...")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Data export has started.")));
 
       // Get all contacts
-      List<Contact> contacts = await FlutterContacts.getContacts(
+      final List<Contact> contacts = await FlutterContacts.getContacts(
           withProperties: true, withPhoto: true, withGroups: true);
 
       // Recreate the temp directory if it already exists.
@@ -64,8 +73,8 @@ class Home extends StatelessWidget {
       ));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content:
-            Text("Storage and/or contacts permissions have not been granted."),
+        content: const Text(
+            "Storage and/or contacts permissions have not been granted."),
         duration: Duration(seconds: 5),
       ));
     }
@@ -74,13 +83,20 @@ class Home extends StatelessWidget {
   Future<void> autoRestoreContacts(BuildContext context) async {
     // Requests contacts & internal storage permissions
     if (await FlutterContacts.requestPermission() &&
-        await SuperEasyPermissions.askPermission(Permissions.storage)) {
+        await Permission.storage.request().isGranted) {
+      // On Android 11 and later, request additional permissions.
+      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt! > 29 &&
+          !await Permission.manageExternalStorage.request().isGranted) {
+        // Open app settings if the permission wasn't granted
+        await openAppSettings();
+      }
+
       final contactsDir = Directory("/storage/emulated/0/Contacts_Backup");
       if (await contactsDir.exists()) {
         // Show a snackbar notifying the user that the import has started
         // (provides feedback just in case there are a lot of contacts to import)
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Importing data...")));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Data import has started.")));
 
         // List directory contents
         final List<FileSystemEntity> files = await contactsDir.list().toList();
