@@ -30,6 +30,7 @@ function check_adb_connection() {
   wait_for_enter
   adb devices > /dev/null
   cecho "If you have connected your device correctly, you should now see a message asking for access to your phone. Allow it, then press Enter to go to the last step."
+  cecho "Tip: If this is not the first time you're using this script, you might not need to allow anything."
   wait_for_enter
   adb devices
   cecho "Can you see your device in the list above, and does it say 'device' next to it? If not, quit this script (ctrl+c) and try again."
