@@ -53,6 +53,12 @@ if [ ! -f linux-android-backup-companion.apk ]; then
 else
   cecho "Companion app already downloaded."
 fi
+cecho "Attempting to uninstall companion app."
+{
+  set +e
+  adb uninstall com.example.companion_app
+  set -e
+} &> /dev/null
 cecho "Installing companion app."
 adb install -r linux-android-backup-companion.apk
 
