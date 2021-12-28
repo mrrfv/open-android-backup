@@ -33,6 +33,12 @@ These 3 things are the majority of what anyone would want to keep safe, but we a
 1. Install the [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install) and a distro (Debian or Ubuntu is recommended).
 2. Continue with the steps above.
 
+## Building companion app
+
+1. Install Flutter and Android Studio.
+2. Run `flutter doctor` and `flutter doctor --android-licenses`.
+3. Run `cd companion_app/` and `flutter build apk`.
+
 ## TODO
 
 Sorted by importance. PRs are appreciated.
