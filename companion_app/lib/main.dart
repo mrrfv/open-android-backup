@@ -20,6 +20,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
+      darkTheme:
+          ThemeData(primarySwatch: Colors.green, brightness: Brightness.dark),
       themeMode: ThemeMode.system,
       home: const Home(),
     );
@@ -73,8 +75,8 @@ class Home extends StatelessWidget {
       ));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: const Text(
-            "Storage and/or contacts permissions have not been granted."),
+        content:
+            Text("Storage and/or contacts permissions have not been granted."),
         duration: Duration(seconds: 5),
       ));
     }
