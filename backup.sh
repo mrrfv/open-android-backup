@@ -56,6 +56,11 @@ fi
 cecho "Installing companion app."
 adb install -r linux-android-backup-companion.apk
 
+if [ -d backup-tmp ]; then
+  cecho "Cleaning up after previous backup/restore..."
+  rm -rf backup-tmp
+fi
+
 if [ $selected_action = 'Backup' ]
 then
   mkdir -p backup-tmp/
