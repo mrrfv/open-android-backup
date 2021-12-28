@@ -57,7 +57,7 @@ brew install curl
 
 1. Install the [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install#install), a compatibility layer allowing you to run Linux applications (such as this one) on Windows. You only need to follow the `Install` step.
 2. Open an app called "Ubuntu" or "Debian". It should be in your start menu.
-3. Navigate to your desktop by running `cd ~/Desktop`. *(optional)*
+3. Navigate to your desktop by running `cd Desktop`. *(optional)*
 4. Follow all steps from the install guide for Linux.
 
 </details>
