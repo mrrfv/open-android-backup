@@ -22,7 +22,7 @@ function wait_for_enter() {
 
 # "cecho" makes output messages yellow
 function cecho() {
-  echo $(tput setaf 11)$1
+  echo $(tput setaf 11)$1$(tput init)
 }
 
 function check_adb_connection() {
@@ -64,13 +64,13 @@ adb install -r linux-android-backup-companion.apk
 
 if [ -d backup-tmp ]; then
   cecho "Cleaning up after previous backup/restore..."
-  rm -rf backup-tmp
+  rm -rfv backup-tmp
 fi
+
+mkdir backup-tmp
 
 if [ $selected_action = 'Backup' ]
 then
-  mkdir -p backup-tmp/
-
   adb shell am start -n com.example.companion_app/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
   wait_for_enter
@@ -111,16 +111,13 @@ then
   text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
 
   cecho "Extracting archive."
-  7z e $archive_path -obackup-tmp
+  7z x $archive_path # -obackup-tmp isn't needed
 
   # Restore applications
   cecho "Restoring applications."
   # We don't want a single app to break the whole script
   set +e
-  for file in ./backup-tmp/Apps/**/*.apk; do
-    cecho "Installing app: $file"
-    adb install $file
-  done
+  find ./backup-tmp/Apps -type f -name "*.apk" -exec adb install {} \;
   set -e
 
   # Restore internal storage
