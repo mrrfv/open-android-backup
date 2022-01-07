@@ -112,6 +112,12 @@ class Home extends StatelessWidget {
             await contact.insert();
           }
         }
+
+        await contactsDir.delete();
+
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Data imported."),
+        ));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("The contact backup directory couldn't be found."),
