@@ -1,6 +1,8 @@
 # Linux Android Backup
 
-Linux Android Backup is a tiny shell script & Flutter app that makes securely backing up Android devices on Linux and macOS easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated `adb backup` command.
+Linux Android Backup is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated `adb backup` command.
+
+Despite its name, this project works on Windows, macOS and Linux (see [issue #2](https://github.com/mrrfv/linux-android-backup/issues/2)).
 
 **Status:** Works, albeit testers are needed (my testbench broke).
 
@@ -15,7 +17,7 @@ These 3 things are the majority of what anyone would want to keep safe, but we a
 ## Features
 
 - Automatically restores backed up data.
-- Works on macOS & Linux (including WSL), and supports *any* Android device.
+- Works on the 3 major operating systems, and supports *any* Android device.
 - Backs up data not normally accessible through ADB using a native companion app.
 - Tiny - the script is 5KB in size, and the companion app is around 15 megabytes.
 - Doesn't use proprietary formats: your data is safe even if this script ever gets lost. Simply open archives created by this script using 7-Zip.
