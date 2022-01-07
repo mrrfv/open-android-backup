@@ -56,8 +56,8 @@ class Home extends StatelessWidget {
           Directory("/storage/emulated/0/linux-android-backup-temp");
       if (await directory.exists()) {
         await directory.delete(recursive: true);
-        await directory.create();
       }
+      await directory.create();
 
       // Loop over the contacts and save them as a vCard.
       for (var i = 0; i < contacts.length; i++) {
