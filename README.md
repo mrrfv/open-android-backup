@@ -28,7 +28,7 @@ These 3 things are the majority of what anyone would want to keep safe, but we a
 
 ### Linux
 
-1. Install p7zip, adb and curl (if you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl`).
+1. Install p7zip, adb, curl and bc (if you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl bc`).
 2. Clone or [download](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) this repository.
 3. Enable [developer options](https://www.androidauthority.com/enable-developer-options-569223/) and USB debugging on your device and run `backup.sh` in a terminal.
 
