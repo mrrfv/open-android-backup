@@ -122,7 +122,7 @@ then
 
   # Restore internal storage
   cecho "Restoring internal storage."
-  adb push ./backup-tmp/Storage /storage/emulated/0
+  adb push ./backup-tmp/Storage/* /storage/emulated/0
 
   # Restore contacts
   cecho "Pushing backed up contacts to device."
