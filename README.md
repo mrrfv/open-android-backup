@@ -24,19 +24,15 @@ These 3 things are the majority of what anyone would want to keep safe, but we a
 
 ## Installation
 
-<details>
-<summary>Linux</summary>
+### Linux
 
 1. Install p7zip, adb and curl (if you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl`).
 2. Clone or [download](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) this repository.
 3. Enable [developer options](https://www.androidauthority.com/enable-developer-options-569223/) and USB debugging on your device and run `backup.sh` in a terminal.
 
-</details>
+### macOS
 
-<details>
-<summary>macOS</summary>
-
-- Install p7zip, adb and curl using [Homebrew](https://brew.sh/):
+1. Install p7zip, adb and curl using [Homebrew](https://brew.sh/):
 
 ```bash
 # Tip: Run these commands in the built-in Terminal app (or iTerm if you have that installed).
@@ -48,19 +44,14 @@ brew install p7zip
 brew install curl
 ```
 
-- Follow the steps 2 and 3 from the install guide for Linux.
+2. Follow the steps 2 and 3 from the install guide for Linux.
 
-</details>
-
-<details>
-<summary>Windows</summary>
+### Windows
 
 1. Install the [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install#install), a compatibility layer allowing you to run Linux applications (such as this one) on Windows. You only need to follow the `Install` step.
 2. Open an app called "Ubuntu" or "Debian". It should be in your start menu.
 3. Navigate to your desktop by running `cd Desktop`. *(optional)*
 4. Follow all steps from the install guide for Linux.
-
-</details>
 
 ## Building companion app
 
