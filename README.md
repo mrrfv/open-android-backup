@@ -6,6 +6,8 @@ Despite its name, this project works on Windows, macOS and Linux (see [issue #2]
 
 **Status:** Works, albeit testers are needed (my testbench broke).
 
+![Demo](.github/images/demo.gif)
+
 ## Data backed up
 
 - Apps (.apk files of installed apps)
