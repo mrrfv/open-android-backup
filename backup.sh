@@ -35,6 +35,15 @@ function check_adb_connection() {
   adb devices
   cecho "Can you see your device in the list above, and does it say 'device' next to it? If not, quit this script (ctrl+c) and try again."
 }
+
+function uninstall_companion_app() {
+  cecho "Attempting to uninstall companion app."
+  {
+    set +e
+    adb uninstall com.example.companion_app
+    set -e
+  } &> /dev/null
+}
 # ---
 
 check_adb_connection
@@ -53,12 +62,7 @@ if [ ! -f linux-android-backup-companion.apk ]; then
 else
   cecho "Companion app already downloaded."
 fi
-cecho "Attempting to uninstall companion app."
-{
-  set +e
-  adb uninstall com.example.companion_app
-  set -e
-} &> /dev/null
+uninstall_companion_app
 cecho "Installing companion app."
 adb install -r linux-android-backup-companion.apk
 
@@ -74,6 +78,7 @@ then
   adb shell am start -n com.example.companion_app/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
   wait_for_enter
+  uninstall_companion_app # we're uninstalling it so that it isn't included in the backup
 
   # Export apps (.apk files)
   cecho "Exporting apps."
@@ -82,7 +87,7 @@ then
   do
     declare output=backup-tmp/Apps/$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM/ # There's a better way to do this, but I'm lazy
     mkdir -p $output
-    cecho $( cecho $app | sed "s/package://" | sed "s/base.apk=/base.apk /" | sed "s/\([[:blank:]]\).*/\1/").apk $output
+    (cd $output && adb pull $( echo $app | sed "s/package://" | sed "s/base.apk=/base.apk /" | sed "s/\([[:blank:]]\).*/\1/" ).apk)
   done
 
   # Export contacts
