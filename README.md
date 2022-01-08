@@ -4,7 +4,7 @@ Linux Android Backup is a tiny shell script & Flutter app that makes securely ba
 
 **Status:** Works, but not all bugs have been fleshed out yet. If you spot a bug, please create an issue on GitHub.
 
-![Demo](.github/images/demo.gif)
+![Demo](https://github.com/mrrfv/linux-android-backup/raw/c86602f9e5dbc501e0eacc43fe781c352998e712/.github/images/demo.gif)
 
 ## Data backed up
 
