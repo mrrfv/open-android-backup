@@ -93,7 +93,7 @@ then
   do
     declare output=backup-tmp/Apps/$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM/ # There's a better way to do this, but I'm lazy
     mkdir -p $output
-    (cd $output && adb pull $( echo $app | sed "s/package://" | sed "s/base.apk=/base.apk /" | sed "s/\([[:blank:]]\).*/\1/" ).apk)
+    (cd $output && adb pull $( echo $app | sed "s/package://" | sed "s/.apk=/.apk /" | sed "s/\([[:blank:]]\).*/\1/" ).apk)
   done
 
   # Export contacts
@@ -113,6 +113,7 @@ then
   # -mx=9: ultra compression
   # -bb3: verbose logging
   # -sdel: delete files after compression
+  # The undefined variable is set by the user 
   7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
 
   cecho "Backed up successfully."
