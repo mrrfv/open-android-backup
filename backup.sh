@@ -89,7 +89,7 @@ then
   cecho "Exporting contacts (as vCard)."
   adb pull /storage/emulated/0/linux-android-backup-temp ./backup-tmp/Contacts
   cecho "Removing temporary files created by the companion app."
-  adb shell rm -rfv /storage/emulated/0/linux-android-backup-temp
+  adb shell rm -rf /storage/emulated/0/linux-android-backup-temp
 
   # Export internal storage
   cecho "Exporting internal storage - this will take a while."
