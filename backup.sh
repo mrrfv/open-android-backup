@@ -17,7 +17,11 @@ source $DIR/inquirer-sh/text_input.sh
 
 # Helper functions
 function wait_for_enter() {
-  read -p "" </dev/tty
+  if [ ! -v unattended_mode ]; then
+    read -p "" </dev/tty
+  else
+    sleep 10s
+  fi
 }
 
 # "cecho" makes output messages yellow
@@ -48,8 +52,10 @@ function uninstall_companion_app() {
 
 check_adb_connection
 
-actions=( 'Backup' 'Restore' )
-list_input "What do you want to do?" actions selected_action
+if [ ! -v selected_action ]; then
+  actions=( 'Backup' 'Restore' )
+  list_input "What do you want to do?" actions selected_action
+fi
 
 # The companion app is required regardless of whether we're backing up the device or not,
 # so we're installing it before the if statement
@@ -107,13 +113,15 @@ then
   # -mx=9: ultra compression
   # -bb3: verbose logging
   # -sdel: delete files after compression
-  7z a -p -mhe=on -mx=9 -bb3 -sdel linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
+  7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
 
   cecho "Backed up successfully."
   rm -rf backup-tmp > /dev/null
 elif [ $selected_action = 'Restore' ]
 then
-  text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
+  if [ ! -v archive_path ]; then
+    text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
+  fi
 
   cecho "Extracting archive."
   7z x $archive_path # -obackup-tmp isn't needed
@@ -134,6 +142,7 @@ then
   adb push ./backup-tmp/Contacts /storage/emulated/0/Contacts_Backup
 
   cecho "Data restored!"
-  cecho "If this script helped you, then don't forget to star the GitHub repository. It helps a lot."
   cecho "WARNING: Contacts have been only copied to your device. You need to open the companion app to restore them."
 fi
+
+cecho "If this project helped you, please star the GitHub repository. It lets me know that there are people using this script and I should continue working on it."

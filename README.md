@@ -55,6 +55,21 @@ brew install curl
 3. Navigate to your desktop by running `cd Desktop`. *(optional)*
 4. Follow all steps from the install guide for Linux.
 
+## Usage
+
+Just run `backup.sh` and the script will walk you through the process. This section covers advanced usage of this program.
+
+### Automation/Unattended Backups
+
+Please keep in mind that this project has minimal support for automation and very little support will be provided.
+
+There are 4 environment variables that control what the script does without user input:
+
+1. `unattended_mode` - Instead of waiting for a key press, sleeps for 10 seconds. Can be any value.
+2. `selected_action` - What the script should do when run. Possible values are `Backup` and `Restore` (case sensitive).
+3. `archive_path` - Path to the backup that should be restored.
+4. `archive_password` - Backup password.
+
 ## Building companion app
 
 **Note:** You don't need to do this, as the precompiled companion app is automatically downloaded at runtime from GitHub Releases.
