@@ -1,10 +1,8 @@
 # Linux Android Backup
 
-Linux Android Backup is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated `adb backup` command.
+Linux Android Backup is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated `adb backup` command. Despite its name, this project works on Windows, macOS and Linux (see [issue #2](https://github.com/mrrfv/linux-android-backup/issues/2)).
 
-Despite its name, this project works on Windows, macOS and Linux (see [issue #2](https://github.com/mrrfv/linux-android-backup/issues/2)).
-
-**Status:** Works, albeit testers are needed (my testbench broke).
+**Status:** Works, but not all bugs have been fleshed out yet. If you spot a bug, please create an issue on GitHub.
 
 ![Demo](.github/images/demo.gif)
 
@@ -63,7 +61,7 @@ Just run `backup.sh` and the script will walk you through the process. This sect
 
 ### Automation/Unattended Backups
 
-Please keep in mind that this project has minimal support for automation and very little support will be provided.
+Please keep in mind that this project has minimal support for automation and very little support will be provided. In order to export contacts, you still need to have physical access to the device you're backing up as an "unattended mode" for the companion app hasn't been implemented yet.
 
 There are 4 environment variables that control what the script does without user input:
 
@@ -84,11 +82,9 @@ There are 4 environment variables that control what the script does without user
 
 Sorted by importance. PRs are appreciated.
 
-- Write usage instructions
 - Create a desktop GUI for newcomers (using Flutter maybe?)
-- Improve mobile app by fixing bugs and making it more appealing
-- Clean up the code
-- Migrate companion app to the Storage Access Framework API for forward compatibility (waiting for Flutter packages providing this functionality to become stable).
+- Improve mobile app by properly handling errors and making it more appealing
+- Migrate the companion app to the Storage Access Framework API for forward compatibility (waiting for Flutter packages providing this functionality to become stable).
 
 ## License
 
