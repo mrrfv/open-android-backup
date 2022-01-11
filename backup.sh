@@ -72,36 +72,15 @@ uninstall_companion_app
 cecho "Installing companion app."
 adb install -r linux-android-backup-companion.apk
 cecho "Granting required permissions to companion app."
-# Permissions we can grant regardless of the SDK (android) version
-compat_permissions=(
+permissions=(
   'android.permission.READ_CONTACTS'
   'android.permission.WRITE_CONTACTS'
-)
-# Permissions we can grant on Android 10 and earlier
-android_10_permissions=(
-  'android.permission.READ_EXTERNAL_STORAGE'
-  'android.permission.WRITE_EXTERNAL_STORAGE'
-)
-# Permissions we can grant on Android 11 and later
-android_11_permissions=(
   'android.permission.READ_EXTERNAL_STORAGE'
 )
-# Grant compat permissions
-for permission in "${compat_permissions[@]}"; do
+# Grant permissions
+for permission in "${permissions[@]}"; do
   adb shell pm grant com.example.companion_app $permission
 done
-# Grant OS version-specific permissions
-if [ $(adb shell getprop ro.build.version.sdk) = "30" ]; then
-  echo "Android 11 (or later) detected."
-  for permission in "${android_11_permissions[@]}"; do
-    adb shell pm grant com.example.companion_app $permission
-  done
-else
-  for permission in "${android_10_permissions[@]}"; do
-    echo "Android 10 (or earlier) detected."
-    adb shell pm grant com.example.companion_app $permission
-  done
-fi
 
 if [ -d backup-tmp ]; then
   cecho "Cleaning up after previous backup/restore..."
