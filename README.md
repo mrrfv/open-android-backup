@@ -67,7 +67,7 @@ There are 4 environment variables that control what the script does without user
 
 1. `unattended_mode` - Instead of waiting for a key press, sleeps for 10 seconds. Can be any value.
 2. `selected_action` - What the script should do when run. Possible values are `Backup` and `Restore` (case sensitive).
-3. `archive_path` - Path to the backup that should be restored.
+3. `archive_path` - Path to the backup. Works for both actions.
 4. `archive_password` - Backup password.
 
 ## Building companion app
