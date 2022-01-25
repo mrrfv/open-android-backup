@@ -91,6 +91,10 @@ mkdir backup-tmp
 
 if [ $selected_action = 'Backup' ]
 then
+  if [ ! -v backup_location ]; then
+    text_input "Please enter the backup location. Enter '.' for the current working directory." backup_location "."
+  fi
+
   adb shell am start -n com.example.companion_app/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
   wait_for_enter
@@ -124,7 +128,7 @@ then
   # -bb3: verbose logging
   # -sdel: delete files after compression
   # The undefined variable is set by the user 
-  7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
+  7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $backup_location/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
 
   cecho "Backed up successfully."
   rm -rf backup-tmp > /dev/null
