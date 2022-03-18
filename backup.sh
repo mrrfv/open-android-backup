@@ -104,10 +104,21 @@ then
   cecho "Exporting apps."
   mkdir -p backup-tmp/Apps
   for app in $(adb shell pm list packages -3 -f)
+  #   -f: see their associated file
+  #   -3: filter to only show third party packages
   do
-    declare output=backup-tmp/Apps/$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM/ # There's a better way to do this, but I'm lazy
-    mkdir -p $output
-    (cd $output && adb pull $( echo $app | sed "s/package://" | sed "s/.apk=/.apk /" | sed "s/\([[:blank:]]\).*/\1/" ).apk)
+    declare output=backup-tmp/Apps
+    (
+      apk_path=${app%=*}                # apk path on device
+      apk_path=${apk_path/package:}     # stip "package:"
+      apk_base=${app##*=}.apk           # base apk name
+      # e.g.:
+      # app=package:/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk=com.whatsapp
+      # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
+      # apk_base=com.whatsapp.apk
+      cd $output \
+       && adb pull $apk_path $apk_base
+    )
   done
 
   # Export contacts
