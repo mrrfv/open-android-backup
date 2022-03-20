@@ -40,7 +40,7 @@ These 3 things are the majority of what anyone would want to keep safe, but we a
 # Tip: Run these commands in the built-in Terminal app (or iTerm if you have that installed).
 # Install Homebrew if you haven't yet
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-# If you already have Homebrew installed, just run these 3 commands:
+# If you already have Homebrew installed, just run these 2 commands:
 brew install --cask android-platform-tools
 brew install p7zip
 ```
