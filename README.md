@@ -34,7 +34,7 @@ These 3 things are the majority of what anyone would want to keep safe, but we a
 
 ### macOS
 
-1. Install p7zip, adb and curl using [Homebrew](https://brew.sh/):
+1. Install p7zip and adb using [Homebrew](https://brew.sh/):
 
 ```bash
 # Tip: Run these commands in the built-in Terminal app (or iTerm if you have that installed).
@@ -43,7 +43,6 @@ These 3 things are the majority of what anyone would want to keep safe, but we a
 # If you already have Homebrew installed, just run these 3 commands:
 brew install --cask android-platform-tools
 brew install p7zip
-brew install curl
 ```
 
 2. Follow the steps 2 and 3 from the install guide for Linux.
