@@ -67,18 +67,12 @@ class Home extends StatelessWidget {
         file.writeAsString(vCard);
       }
 
-      // Show a snackbar if the export is complete
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text(
-            "Data exported - please continue the backup process on your computer."),
-        duration: Duration(seconds: 60),
-      ));
+      // Show a dialog if the export is complete
+      showInfoDialog(context, "Data Exported",
+          "Please continue the backup process on your computer.");
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content:
-            Text("Storage and/or contacts permissions have not been granted."),
-        duration: Duration(seconds: 5),
-      ));
+      showInfoDialog(context, "Error",
+          "Storage and/or contacts permissions have not been granted.");
     }
   }
 
@@ -115,20 +109,31 @@ class Home extends StatelessWidget {
 
         await contactsDir.delete();
 
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Data imported."),
-        ));
+        showInfoDialog(context, "Success", "Data has been imported.");
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("The contact backup directory couldn't be found."),
-        ));
+        showInfoDialog(context, "Error",
+            "The contact backup directory couldn't be found.");
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content:
-            Text("Storage and/or contacts permissions have not been granted."),
-      ));
+      showInfoDialog(context, "Error",
+          "Storage and/or contacts permissions have not been granted.");
     }
+  }
+
+  void showInfoDialog(BuildContext context, String title, String description) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(title),
+        content: Text(description),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Close'),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
