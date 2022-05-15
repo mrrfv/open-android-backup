@@ -49,7 +49,7 @@ brew install p7zip
 
 ### Windows
 
-1. Install the [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install#install), a compatibility layer allowing you to run Linux applications (such as this one) on Windows. You only need to follow the `Install` step.
+1. Install the [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install#install), a compatibility layer allowing you to run Linux applications (such as this one) on Windows. You only need to follow the `Install` step. **IMPORTANT: WSL 2 doesn't play nice with adb, so I suggest you to use WSL 1 for now.**
 2. Open an app called "Ubuntu" or "Debian". It should be in your start menu.
 3. Navigate to your desktop by running `cd Desktop`. *(optional)*
 4. Follow all steps from the install guide for Linux.
