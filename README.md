@@ -2,7 +2,7 @@
 
 Linux Android Backup is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated `adb backup` command. Despite its name, this project works on Windows, macOS and Linux (see [issue #2](https://github.com/mrrfv/linux-android-backup/issues/2)).
 
-**Status:** Works, but not all bugs have been fleshed out yet. If you spot a bug, please create an issue on GitHub.
+**Status:** Works, but not all bugs have been fixed yet. If you spot a bug, please create an issue on GitHub.
 
 ![Demo](https://github.com/mrrfv/linux-android-backup/raw/c86602f9e5dbc501e0eacc43fe781c352998e712/.github/images/demo.gif)
 
@@ -49,10 +49,9 @@ brew install p7zip
 
 ### Windows
 
-1. Install the [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install#install), a compatibility layer allowing you to run Linux applications (such as this one) on Windows. You only need to follow the `Install` step. **IMPORTANT: WSL 2 doesn't play nice with adb, so I suggest you to use WSL 1 for now.**
-2. Open an app called "Ubuntu" or "Debian". It should be in your start menu.
-3. Navigate to your desktop by running `cd Desktop`. *(optional)*
-4. Follow all steps from the install guide for Linux.
+1. Install the [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install#install), a compatibility layer allowing you to run Linux applications (such as this one) on Windows. You only need to follow the `Install` step.
+2. Clone or [download](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) this repository.
+3. Open the repository in the file explorer. Right click on a file called `backup-windows.ps1`, and click on "Run with PowerShell". **IMPORTANT: If you see an error after running the script, search for "Developer Settings" in the Settings app, and apply the settings related to PowerShell.**
 
 ## Usage
 
