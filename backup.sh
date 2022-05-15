@@ -92,6 +92,7 @@ mkdir backup-tmp
 if [ $selected_action = 'Backup' ]
 then
   if [ ! -v archive_path ]; then
+    echo "Note: Backups will first be made on the drive this script is located in, and then will be copied to the specified location."
     text_input "Please enter the backup location. Enter '.' for the current working directory." archive_path "."
   fi
 
@@ -111,11 +112,11 @@ then
     (
       apk_path=${app%=*}                # apk path on device
       apk_path=${apk_path/package:}     # stip "package:"
-      apk_base=${app##*=}.apk           # base apk name
+      apk_base=$RANDOM$RANDOM$RANDOM.apk           # base apk name
       # e.g.:
       # app=package:/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk=com.whatsapp
       # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
-      # apk_base=com.whatsapp.apk
+      # apk_base=896745.apk
       cd $output \
        && adb pull $apk_path $apk_base
     )
