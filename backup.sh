@@ -150,6 +150,11 @@ then
     text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
   fi
 
+  if [ ! -f "$archive_path" ]; then
+      cecho "The specified backup location doesn't exist or isn't a file."
+      exit 1
+  fi
+
   cecho "Extracting archive."
   7z x $archive_path # -obackup-tmp isn't needed
 
