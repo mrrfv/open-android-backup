@@ -34,6 +34,8 @@ These 3 things are the majority of what anyone would want to keep safe, but we a
 
 ### macOS
 
+**Warning:** I've recently switched to an AMD CPU+NVIDIA GPU rig, making it impossible for me to test this script on macOS without buying a Mac. Whilst there is nothing that could prevent this script from running on macOS, you are on your own and support will be very limited.
+
 1. Install p7zip and adb using [Homebrew](https://brew.sh/):
 
 ```bash
