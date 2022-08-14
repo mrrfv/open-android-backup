@@ -70,6 +70,15 @@ There are 4 environment variables that control what the script does without user
 3. `archive_path` - Path to the backup. Works for both actions.
 4. `archive_password` - Backup password.
 
+Examples:
+
+```bash
+# Enable unattended mode, backup the device to the working directory and use the password "123"
+$ unattended_mode="yes" selected_action="Backup" archive_path="." archive_password="123" ./backup.sh
+# Keep unattended mode disabled, but automatically use the password "456"
+$ archive_password="456" ./backup.sh
+```
+
 ## Building companion app
 
 **Note:** You don't need to do this, as the precompiled companion app is automatically downloaded at runtime from GitHub Releases.
