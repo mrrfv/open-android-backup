@@ -107,8 +107,6 @@ class Home extends StatelessWidget {
           }
         }
 
-        await contactsDir.delete();
-
         showInfoDialog(context, "Success", "Data has been imported.");
       } else {
         showInfoDialog(context, "Error",

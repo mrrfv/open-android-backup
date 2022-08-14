@@ -112,25 +112,32 @@ then
     (
       apk_path=${app%=*}                # apk path on device
       apk_path=${apk_path/package:}     # stip "package:"
-      apk_base=$RANDOM$RANDOM$RANDOM.apk           # base apk name
+      apk_base=$RANDOM$RANDOM$RANDOM$RANDOM.apk           # base apk name
       # e.g.:
       # app=package:/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk=com.whatsapp
       # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
-      # apk_base=896745.apk
-      cd $output \
-       && adb pull $apk_path $apk_base
+      # apk_base=47856542.apk
+      adb exec-out "tar -c -C $(dirname $apk_path) $(basename $apk_path) 2> /dev/null" | pv -p --timer --rate --bytes | tar -C ./backup-tmp/Apps -xf -
+      mv ./backup-tmp/Apps/base.apk ./backup-tmp/Apps/$apk_base
     )
   done
 
   # Export contacts
   cecho "Exporting contacts (as vCard)."
-  adb pull /storage/emulated/0/linux-android-backup-temp ./backup-tmp/Contacts
+  mkdir ./backup-tmp/Contacts
+  adb exec-out "tar -c -C /storage/emulated/0/linux-android-backup-temp . 2> /dev/null" | pv -p --timer --rate --bytes | tar -C ./backup-tmp/Contacts -xf -
   cecho "Removing temporary files created by the companion app."
   adb shell rm -rf /storage/emulated/0/linux-android-backup-temp
 
-  # Export internal storage
+  # Export internal storage. We're not using adb pull due to reliability issues
   cecho "Exporting internal storage - this will take a while."
-  adb pull /storage/emulated/0 ./backup-tmp/Storage
+  mkdir ./backup-tmp/Storage
+  adb exec-out "tar -c -C /storage/emulated/0 . 2> /dev/null" | pv -p --timer --rate --bytes | tar -C ./backup-tmp/Storage -xf -
+
+  # All data has been collected and the phone can now be unplugged
+  cecho "---"
+  cecho "All required data has been copied from your device and it can now be unplugged."
+  cecho "---"
 
   # Compress
   cecho "Compressing & encrypting data - this will take a while."
@@ -162,8 +169,16 @@ then
   cecho "Restoring applications."
   # We don't want a single app to break the whole script
   set +e
-  find ./backup-tmp/Apps -type f -name "*.apk" -exec adb install {} \;
+  if [[ $(grep microsoft /proc/version) ]]; then
+    cecho "Windows/WSL detected"
+    find ./backup-tmp/Apps -type f -name "*.apk" -exec ./windows-dependencies/adb.exe install {} \;
+  else
+    cecho "macOS/Linux detected"
+    find ./backup-tmp/Apps -type f -name "*.apk" -exec adb install {} \;
+  fi
   set -e
+
+  # TODO: use tar to restore data to internal storage instead of adb push
 
   # Restore internal storage
   cecho "Restoring internal storage."
@@ -173,8 +188,14 @@ then
   cecho "Pushing backed up contacts to device."
   adb push ./backup-tmp/Contacts /storage/emulated/0/Contacts_Backup
 
+  adb shell am start -n com.example.companion_app/.MainActivity
+  cecho "The companion app has been opened on your device. Please press the 'Auto-restore contacts' button - this will import your contacts to the device's contact database. Press Enter to continue."
+  wait_for_enter
+
+  cecho "Cleaning up..."
+  adb shell rm -rfv /storage/emulated/0/Contacts_Backup
+
   cecho "Data restored!"
-  cecho "WARNING: Contacts have been only copied to your device. You need to open the companion app to restore them."
 fi
 
 cecho "If this project helped you, please star the GitHub repository. It lets me know that there are people using this script and I should continue working on it."
