@@ -24,9 +24,13 @@ function wait_for_enter() {
   fi
 }
 
-# "cecho" makes output messages yellow
+# "cecho" makes output messages yellow, if possible
 function cecho() {
-  echo $(tput setaf 11)$1$(tput init)
+  if [ ! -v TERM ]; then
+    echo $1
+  else
+    echo $(tput setaf 11)$1$(tput init)
+  fi
 }
 
 function check_adb_connection() {
