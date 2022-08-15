@@ -1,0 +1,22 @@
+name: Test on macOS
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-12
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-java@v2
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+    - run: brew install --cask android-platform-tools
+    - run: brew install p7zip pv
+    - run: chmod +x ./.github/test-script.sh
+
+    - uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 29
+        script: 'bash ./.github/test-script.sh'
