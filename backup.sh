@@ -26,10 +26,10 @@ function wait_for_enter() {
 
 # "cecho" makes output messages yellow, if possible
 function cecho() {
-  if [ ! -v TERM ]; then
-    echo $1
-  else
+  if [ ! -v CI ]; then
     echo $(tput setaf 11)$1$(tput init)
+  else
+    echo $1
   fi
 }
 
