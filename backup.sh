@@ -52,6 +52,22 @@ function uninstall_companion_app() {
     set -e
   } &> /dev/null
 }
+
+function retry() {
+    local -r -i max_attempts="$1"; shift
+    local -i attempt_num=1
+    until "$@"
+    do
+        if ((attempt_num==max_attempts))
+        then
+            echo "Attempt $attempt_num failed and there are no more attempts left!"
+            return 1
+        else
+            echo "Attempt $attempt_num failed! Trying again in $attempt_num seconds..."
+            sleep $((attempt_num++))
+        fi
+    done
+}
 # ---
 
 check_adb_connection
@@ -151,7 +167,7 @@ then
   # -bb3: verbose logging
   # -sdel: delete files after compression
   # The undefined variable is set by the user 
-  7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
+  retry 5 7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
 
   cecho "Backed up successfully."
   rm -rf backup-tmp > /dev/null
