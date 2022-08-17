@@ -122,7 +122,7 @@ then
       # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
       # apk_base=47856542.apk
       adb exec-out "tar -c -C $(dirname $apk_path) $(basename $apk_path) 2> /dev/null" | pv -p --timer --rate --bytes | tar -C ./backup-tmp/Apps -xf -
-      mv ./backup-tmp/Apps/base.apk ./backup-tmp/Apps/$apk_base
+      mv ./backup-tmp/Apps/$(basename $apk_path) ./backup-tmp/Apps/$apk_base
     )
   done
 
