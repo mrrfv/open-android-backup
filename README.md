@@ -18,6 +18,7 @@ These 3 things are the majority of what anyone would want to keep safe, but we a
 
 - Automatically restores backed up data.
 - Works on the 3 major operating systems, and supports *any* Android device.
+- Wireless backups that allow you to normally use your phone while it's being backed up.
 - Backs up data not normally accessible through ADB using a native companion app.
 - Tiny - the script is 5KB in size, and the companion app is around 15 megabytes.
 - Doesn't use proprietary formats: your data is safe even if this script ever gets lost. Simply open archives created by this script using 7-Zip.
@@ -63,12 +64,13 @@ Just run `backup.sh` and the script will walk you through the process. This sect
 
 Please keep in mind that this project has minimal support for automation and very little support will be provided. In order to export contacts, you still need to have physical access to the device you're backing up as an "unattended mode" for the companion app hasn't been implemented yet.
 
-There are 4 environment variables that control what the script does without user input:
+There are 5 environment variables that control what the script does without user input:
 
 1. `unattended_mode` - Instead of waiting for a key press, sleeps for 10 seconds. Can be any value.
 2. `selected_action` - What the script should do when run. Possible values are `Backup` and `Restore` (case sensitive).
 3. `archive_path` - Path to the backup. Works for both actions.
 4. `archive_password` - Backup password.
+5. `mode` - How the script should connect to the device. Possible values are `Wired` and `Wireless` (case sensitive).
 
 Examples:
 

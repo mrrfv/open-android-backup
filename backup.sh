@@ -72,6 +72,31 @@ function retry() {
 
 check_adb_connection
 
+if [ ! -v mode ]; then
+  modes=( 'Wired' 'Wireless' )
+  list_input "Connection method:" modes mode
+fi
+
+if [ "$mode" = 'Wireless' ]; then
+  cecho "Warnings:"
+  cecho "1. Wireless backups are experimental and might not work on all devices."
+  cecho "2. Your computer and phone need to be connected to the same WiFi network."
+  cecho "3. Keep your phone connected to the PC until the connection is established."
+  cecho "Press Enter to continue."
+  wait_for_enter
+
+  cecho "Establishing connection..."
+  adb tcpip 5353
+  sleep 5
+  adb connect $(adb shell ip addr show wlan0 | grep 'inet ' | cut -d ' ' -f 6 | cut -d / -f 1):5353
+
+  cecho "Please unplug your device from the computer, and press Enter to continue."
+  wait_for_enter
+  adb devices
+  cecho "If you can see an IP address in the list above, and it says 'device' next to it, then you have successfully established a connection to the phone."
+  cecho "If it says 'unauthorized' or similar, then you need to unlock your device and approve the connection before continuing."
+fi
+
 if [ ! -v selected_action ]; then
   actions=( 'Backup' 'Restore' )
   list_input "What do you want to do?" actions selected_action
@@ -216,6 +241,11 @@ then
   adb shell rm -rfv /storage/emulated/0/Contacts_Backup
 
   cecho "Data restored!"
+fi
+
+if [ "$mode" = 'Wireless' ]; then
+  cecho "Disconnecting from device..."
+  adb disconnect
 fi
 
 cecho "If this project helped you, please star the GitHub repository. It lets me know that there are people using this script and I should continue working on it."
