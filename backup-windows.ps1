@@ -6,7 +6,7 @@ pause
 Write-Output "Installing dependencies and setting up environment..."
 wsl sudo apt update
 wsl sudo apt install p7zip-full curl bc dos2unix pv -y
-wsl find ./ -type f -print0 | wsl xargs -0 dos2unix --
+wsl sudo find ./ -type f -print0 | wsl xargs -0 sudo dos2unix --
 Clear-Host
 Write-Output "Ready to run the backup script."
 pause

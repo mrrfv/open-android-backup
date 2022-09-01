@@ -68,6 +68,15 @@ function retry() {
         fi
     done
 }
+
+# Usage: get_file <directory> <file> <destination>
+function get_file() {
+  if [ "$export_method" = 'tar' ]; then
+    adb exec-out "tar -c -C $1 $2 2> /dev/null" | pv -p --timer --rate --bytes | tar -C $3 -xf -
+  else # we're falling back to adb pull if the variable is empty/unset
+    adb pull $1/$2 $3
+  fi
+}
 # ---
 
 check_adb_connection
@@ -95,6 +104,15 @@ if [ "$mode" = 'Wireless' ]; then
   adb devices
   cecho "If you can see an IP address in the list above, and it says 'device' next to it, then you have successfully established a connection to the phone."
   cecho "If it says 'unauthorized' or similar, then you need to unlock your device and approve the connection before continuing."
+fi
+
+if [ ! -v export_method ]; then
+  cecho "Choose the exporting method."
+  cecho "- Pick 'tar' first, as it is fast and most reliable, but might not work on all devices."
+  cecho "- If the script crashes, pick 'adb' instead, which works on all devices."
+
+  export_methods=( 'tar' 'adb' )
+  list_input "Exporting method:" export_methods export_method
 fi
 
 if [ ! -v selected_action ]; then
@@ -162,7 +180,7 @@ then
       # app=package:/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk=com.whatsapp
       # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
       # apk_base=47856542.apk
-      adb exec-out "tar -c -C $(dirname $apk_path) $(basename $apk_path) 2> /dev/null" | pv -p --timer --rate --bytes | tar -C ./backup-tmp/Apps -xf -
+      get_file $(dirname $apk_path) $(basename $apk_path) ./backup-tmp/Apps
       mv ./backup-tmp/Apps/$(basename $apk_path) ./backup-tmp/Apps/$apk_base
     )
   done
@@ -170,14 +188,14 @@ then
   # Export contacts
   cecho "Exporting contacts (as vCard)."
   mkdir ./backup-tmp/Contacts
-  adb exec-out "tar -c -C /storage/emulated/0/linux-android-backup-temp . 2> /dev/null" | pv -p --timer --rate --bytes | tar -C ./backup-tmp/Contacts -xf -
+  get_file /storage/emulated/0/linux-android-backup-temp . ./backup-tmp/Contacts
   cecho "Removing temporary files created by the companion app."
   adb shell rm -rf /storage/emulated/0/linux-android-backup-temp
 
   # Export internal storage. We're not using adb pull due to reliability issues
   cecho "Exporting internal storage - this will take a while."
   mkdir ./backup-tmp/Storage
-  adb exec-out "tar -c -C /storage/emulated/0 . 2> /dev/null" | pv -p --timer --rate --bytes | tar -C ./backup-tmp/Storage -xf -
+  get_file /storage/emulated/0 . ./backup-tmp/Storage
 
   # All data has been collected and the phone can now be unplugged
   cecho "---"
