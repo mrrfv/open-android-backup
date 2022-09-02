@@ -1,8 +1,6 @@
 # Linux Android Backup
 
-Linux Android Backup is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated `adb backup` command. Despite its name, this project works on Windows, macOS and Linux (see [issue #2](https://github.com/mrrfv/linux-android-backup/issues/2)).
-
-**Status:** Works, but not all bugs have been fixed yet. If you spot a bug, please create an issue on GitHub.
+Linux Android Backup is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated `adb backup` command. Despite its name, this project works on Windows, macOS and Linux.
 
 ![Demo](https://github.com/mrrfv/linux-android-backup/raw/c86602f9e5dbc501e0eacc43fe781c352998e712/.github/images/demo.gif)
 
@@ -12,26 +10,26 @@ Linux Android Backup is a tiny shell script & Flutter app that makes securely ba
 - Internal storage (pictures, downloads, videos, Signal backups if enabled, etc)
 - Contacts (exported in vCard format)
 
-These 3 things are the majority of what anyone would want to keep safe, but we all have different expectations and requirements, so suggestions are welcome.
+These 3 things are the majority of what most people would want to keep safe, but everybody has different expectations and requirements, so suggestions are welcome.
 
 ## Features
 
 - Automatically restores backed up data.
-- Works on the 3 major operating systems, and supports *any* Android device.
+- Works on the 3 major operating systems, and supports *any* modern Android device.
 - Wireless backups that allow you to normally use your phone while it's being backed up.
 - Backs up data not normally accessible through ADB using a native companion app.
 - Tiny - the script is 5KB in size, and the companion app is around 15 megabytes.
-- Doesn't use proprietary formats: your data is safe even if this script ever gets lost. Simply open archives created by this script using 7-Zip.
-- Encryption is *forced* - you can't disable it.
+- Doesn't use proprietary formats - your data is safe even if you can't run the script. Simply open archives created by this script using 7-Zip.
+- Backups are encrypted along with their metadata.
 - All data is compressed using 7-Zip with maximum compression settings.
 
 ## Installation
 
 ### Linux
 
-1. Install p7zip, adb, curl, bc and pv (if you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl bc pv`).
+1. Install p7zip, adb, curl, bc and pv. If you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl bc pv`.
 2. Clone or [download](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) this repository.
-3. Enable [developer options](https://www.androidauthority.com/enable-developer-options-569223/) and USB debugging on your device and run `backup.sh` in a terminal.
+3. Enable [developer options](https://developer.android.com/studio/debug/dev-options#enable) and USB debugging on your device and run `backup.sh` in a terminal.
 
 ### macOS
 
@@ -64,19 +62,20 @@ Just run `backup.sh` and the script will walk you through the process. This sect
 
 Please keep in mind that this project has minimal support for automation and very little support will be provided. In order to export contacts, you still need to have physical access to the device you're backing up as an "unattended mode" for the companion app hasn't been implemented yet.
 
-There are 5 environment variables that control what the script does without user input:
+There are 6 environment variables that control what the script does without user input:
 
-1. `unattended_mode` - Instead of waiting for a key press, sleeps for 10 seconds. Can be any value.
+1. `unattended_mode` - Instead of waiting for a key press, sleeps for 5 seconds. Can be any value.
 2. `selected_action` - What the script should do when run. Possible values are `Backup` and `Restore` (case sensitive).
 3. `archive_path` - Path to the backup. Works for both actions.
 4. `archive_password` - Backup password.
 5. `mode` - How the script should connect to the device. Possible values are `Wired` and `Wireless` (case sensitive).
+6. `export_method` - The method Linux Android Backup should use to export data from the device. Possible values are `tar` and `adb` (case sensitive) - the former is fast & very stable but might not work on all devices, and the latter is widely compatible but has stability issues.
 
 Examples:
 
 ```bash
-# Enable unattended mode, backup the device to the working directory and use the password "123"
-$ unattended_mode="yes" selected_action="Backup" archive_path="." archive_password="123" ./backup.sh
+# Enable unattended mode, backup the device over the wire to the working directory and use the password "123"
+$ unattended_mode="yes" selected_action="Backup" mode="Wired" export_method="tar" archive_path="." archive_password="123" ./backup.sh
 # Keep unattended mode disabled, but automatically use the password "456"
 $ archive_password="456" ./backup.sh
 ```
@@ -91,11 +90,11 @@ $ archive_password="456" ./backup.sh
 
 ## TODO
 
-Sorted by importance. PRs are appreciated.
+PRs are appreciated.
 
-- Create a desktop GUI for newcomers (using Flutter maybe?)
-- Improve mobile app by properly handling errors and making it more appealing
 - Migrate the companion app to the Storage Access Framework API for forward compatibility (waiting for Flutter packages providing this functionality to become stable).
+- Improve the error handling and design of the mobile app.
+- Export the calendar and other data.
 
 ## License
 

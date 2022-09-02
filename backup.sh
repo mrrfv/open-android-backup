@@ -20,7 +20,7 @@ function wait_for_enter() {
   if [ ! -v unattended_mode ]; then
     read -p "" </dev/tty
   else
-    sleep 10s
+    sleep 5s
   fi
 }
 
