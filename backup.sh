@@ -77,6 +77,22 @@ function get_file() {
     adb pull $1/$2 $3
   fi
 }
+
+# Usage: directory_ok <directory>
+# Returns 0 (true) or 1 (false)
+function directory_ok() {
+    if [ ! -d "$1" ]; then
+      cecho "Can't find directory '$1'"
+      echo "Please re-enter the path, or hit ^C to exit"
+      return 1
+    fi
+    if [ ! -w "$1" ]; then
+      cecho "No write permission for directory '$1'"
+      echo "Please enter  a new path, or hit ^C to exit"
+      return 1
+    fi
+    return 0
+}
 # ---
 
 check_adb_connection
@@ -154,10 +170,14 @@ mkdir backup-tmp
 
 if [ $selected_action = 'Backup' ]
 then
-  if [ ! -v archive_path ]; then
-    echo "Note: Backups will first be made on the drive this script is located in, and then will be copied to the specified location."
-    text_input "Please enter the backup location. Enter '.' for the current working directory." archive_path "."
-  fi
+  while true; do
+    if [ ! -v archive_path ]; then
+      echo "Note: Backups will first be made on the drive this script is located in, and then will be copied to the specified location."
+      text_input "Please enter the backup location. Enter '.' for the current working directory." archive_path "."
+    fi
+    directory_ok "$archive_path" && break
+    unset archive_path
+  done
 
   adb shell am start -n com.example.companion_app/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
