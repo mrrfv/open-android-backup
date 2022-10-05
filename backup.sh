@@ -11,8 +11,8 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 PARENT_DIR=$(dirname "$DIR")
-source $DIR/inquirer-sh/list_input.sh
-source $DIR/inquirer-sh/text_input.sh
+source "$DIR"/inquirer-sh/list_input.sh
+source "$DIR"/inquirer-sh/text_input.sh
 # ---
 
 # Helper functions
@@ -27,9 +27,9 @@ function wait_for_enter() {
 # "cecho" makes output messages yellow, if possible
 function cecho() {
   if [ ! -v CI ]; then
-    echo $(tput setaf 11)$1$(tput init)
+    echo $(tput setaf 11)"$1"$(tput init)
   else
-    echo $1
+    echo "$1"
   fi
 }
 
@@ -72,9 +72,9 @@ function retry() {
 # Usage: get_file <directory> <file> <destination>
 function get_file() {
   if [ "$export_method" = 'tar' ]; then
-    adb exec-out "tar -c -C $1 $2 2> /dev/null" | pv -p --timer --rate --bytes | tar -C $3 -xf -
+    adb exec-out "tar -c -C $1 $2 2> /dev/null" | pv -p --timer --rate --bytes | tar -C "$3" -xf -
   else # we're falling back to adb pull if the variable is empty/unset
-    adb pull $1/$2 $3
+    adb pull "$1"/"$2" "$3"
   fi
 }
 
@@ -158,7 +158,7 @@ permissions=(
 )
 # Grant permissions
 for permission in "${permissions[@]}"; do
-  adb shell pm grant com.example.companion_app $permission
+  adb shell pm grant com.example.companion_app "$permission"
 done
 
 if [ -d backup-tmp ]; then
@@ -168,7 +168,7 @@ fi
 
 mkdir backup-tmp
 
-if [ $selected_action = 'Backup' ]
+if [ "$selected_action" = 'Backup' ]
 then
   while true; do
     if [ ! -v archive_path ]; then
@@ -200,8 +200,8 @@ then
       # app=package:/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk=com.whatsapp
       # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
       # apk_base=47856542.apk
-      get_file $(dirname $apk_path) $(basename $apk_path) ./backup-tmp/Apps
-      mv ./backup-tmp/Apps/$(basename $apk_path) ./backup-tmp/Apps/$apk_base
+      get_file $(dirname "$apk_path") $(basename "$apk_path") ./backup-tmp/Apps
+      mv ./backup-tmp/Apps/$(basename "$apk_path") ./backup-tmp/Apps/$apk_base
     )
   done
 
@@ -230,11 +230,11 @@ then
   # -bb3: verbose logging
   # -sdel: delete files after compression
   # The undefined variable is set by the user 
-  retry 5 7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
+  retry 5 7z a -p"$archive_password" -mhe=on -mx=9 -bb3 -sdel "$archive_path"/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
 
   cecho "Backed up successfully."
   rm -rf backup-tmp > /dev/null
-elif [ $selected_action = 'Restore' ]
+elif [ "$selected_action" = 'Restore' ]
 then
   if [ ! -v archive_path ]; then
     text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
@@ -246,7 +246,7 @@ then
   fi
 
   cecho "Extracting archive."
-  7z x $archive_path # -obackup-tmp isn't needed
+  7z x "$archive_path" # -obackup-tmp isn't needed
 
   # Restore applications
   cecho "Restoring applications."
