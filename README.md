@@ -58,11 +58,48 @@ brew install p7zip pv
 
 Just run `backup.sh` and the script will walk you through the process. This section covers advanced usage of this program.
 
+### Hooks
+
+Linux Android Backup hooks allow you to effortlessly include your own backup steps, such as those that require root or work only on specific devices, without modifying the main script. You can upload these hooks to your own GitHub repositories and share them with others.
+
+**Info for users**
+
+After writing or downloading a hook you'd like to use, rename it to `hooks.sh` and place in in the same directory as this script. Next, allow the use of hooks when the script asks you.
+
+**Info for the security conscious**
+
+Using hooks that you don't trust is a security risk that we don't claim responsibility for! They have the same access over your phone and computer as Linux Android Backup, making it possible for attackers to backdoor or wipe your devices. You must check the contents of the hook you'd like to use before running the script.
+
+Linux Android Backup doesn't automatically load hooks, and you have to allow the use of them before they are even touched by the program.
+
+**Info for developers**
+
+*Guidelines* - follow these to futureproof your backups.
+
+- Store the files your hook is backing up to `./backup-tmp/Hooks/<hook name>/` and make sure to create the directory before doing anything.
+- In the restore hook, check if your hook's directory exists in the extracted archive (backups are always extracted to `./backup-tmp`), and don't do anything (after notifying the user) if it doesn't. This allows your hook to work with vanilla backup archives.
+- In the after backup hook, you can get the backup archive path using `$backup_archive`.
+
+*Useful functions and commands*
+
+- `cecho <text>` lets you have yellow terminal output.
+- `wait_for_enter` waits for a keypress, and is compatible with unattended mode.
+- `get_file <phone_directory> <phone_file> <destination>` lets you copy files off the device with the best reliability and speed, an alternative to `adb pull`. Useful for backing up data.
+- `adb push <file> <destination>` lets you upload files to the device, useful when restoring your data.
+
+*Required functions*
+
+You need 3 functions in your hook for it to be properly initialized by the script:
+
+1. `after_backup_hook` - code that runs after a backup is complete, i.e. after everything gets compressed into a backup archive.
+2. `backup_hook` - code that runs after the internal storage, apps, contacts and other data have been copied off the device.
+3. `restore_hook` - code that runs during the restore process, allowing you to restore the data you've previously backed up.
+
 ### Automation/Unattended Backups
 
 Please keep in mind that this project has minimal support for automation and very little support will be provided. In order to export contacts, you still need to have physical access to the device you're backing up as an "unattended mode" for the companion app hasn't been implemented yet.
 
-There are 6 environment variables that control what the script does without user input:
+There are 7 environment variables that control what the script does without user input:
 
 1. `unattended_mode` - Instead of waiting for a key press, sleeps for 5 seconds. Can be any value.
 2. `selected_action` - What the script should do when run. Possible values are `Backup` and `Restore` (case sensitive).
@@ -70,6 +107,7 @@ There are 6 environment variables that control what the script does without user
 4. `archive_password` - Backup password.
 5. `mode` - How the script should connect to the device. Possible values are `Wired` and `Wireless` (case sensitive).
 6. `export_method` - The method Linux Android Backup should use to export data from the device. Possible values are `tar` and `adb` (case sensitive) - the former is fast & very stable but might not work on all devices, and the latter is widely compatible but has stability issues.
+7. `use_hooks` - Whether to use hooks or not. Possible values are `yes` or `no` (case sensitive).
 
 Examples:
 

@@ -131,6 +131,26 @@ if [ ! -v export_method ]; then
   list_input "Exporting method:" export_methods export_method
 fi
 
+if [ ! -v use_hooks ]; then
+  cecho "Would you like to use hooks?"
+  cecho "Choose 'no' if you don't understand this question, or don't want to load hooks."
+  cecho "Choose 'yes' if you have installed your own hooks and would like to use them."
+  cecho "Read README.md for more information."
+  cecho "USING HOOKS IS A SECURITY RISK! THEY HAVE THE EXACT SAME PERMISSIONS AS THIS SCRIPT, AND THUS CAN WIPE YOUR ENTIRE DEVICE OR SEND ALL YOUR DATA TO A REMOTE SERVER. If you are selecting 'yes', please make sure that you have read and understood the code in hooks.sh."
+
+  should_i_use_hooks=( 'no' 'yes' )
+  list_input "Use hooks:" should_i_use_hooks use_hooks
+fi
+
+if [ "$use_hooks" = "yes" ] && [ -f "./hooks.sh" ]; then
+  cecho "Loading hooks - if the script crashes during this step, the error should be reported to the hook author."
+  source ./hooks.sh
+elif [ "$use_hooks" = "yes" ]; then
+  cecho "Couldn't find hooks.sh, but hooks have been enabled. Exiting."
+  exit 1
+fi
+
+
 if [ ! -v selected_action ]; then
   actions=( 'Backup' 'Restore' )
   list_input "What do you want to do?" actions selected_action
@@ -217,10 +237,22 @@ then
   mkdir ./backup-tmp/Storage
   get_file /storage/emulated/0 . ./backup-tmp/Storage
 
+  # Run the third-party backup hook, if enabled.
+  if [ "$use_hooks" = "yes" ] && [ $(type -t backup_hook) == function ]; then
+    cecho "Running backup hooks in 5 seconds."
+    sleep 5
+    backup_hook
+  elif [ "$use_hooks" = "yes" ] && [ ! $(type -t backup_hook) == function ]; then
+    cecho "WARNING! Hooks are enabled, but the backup hook hasn't been found in hooks.sh."
+    cecho "Skipping in 5 seconds."
+    sleep 5
+  fi
+
   # All data has been collected and the phone can now be unplugged
   cecho "---"
   cecho "All required data has been copied from your device and it can now be unplugged."
   cecho "---"
+  sleep 2
 
   # Compress
   cecho "Compressing & encrypting data - this will take a while."
@@ -229,8 +261,19 @@ then
   # -mx=9: ultra compression
   # -bb3: verbose logging
   # -sdel: delete files after compression
-  # The undefined variable is set by the user 
-  retry 5 7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z backup-tmp/*
+  # The undefined variable is set by the user
+  declare backup_archive="$archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
+  retry 5 7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $backup_archive backup-tmp/*
+
+  if [ "$use_hooks" = "yes" ] && [ $(type -t after_backup_hook) == function ]; then
+    cecho "Running after backup hook in 5 seconds."
+    sleep 5
+    after_backup_hook
+  elif [ "$use_hooks" = "yes" ] && [ ! $(type -t after_backup_hook) == function ]; then
+    cecho "WARNING! Hooks are enabled, but an after backup hook hasn't been found in hooks.sh."
+    cecho "Skipping in 5 seconds."
+    sleep 5
+  fi
 
   cecho "Backed up successfully."
   rm -rf backup-tmp > /dev/null
@@ -274,6 +317,17 @@ then
   adb shell am start -n com.example.companion_app/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Auto-restore contacts' button - this will import your contacts to the device's contact database. Press Enter to continue."
   wait_for_enter
+
+  # Run the third-party restore hook, if enabled.
+  if [ "$use_hooks" = "yes" ] && [ $(type -t restore_hook) == function ]; then
+    cecho "Running restore hook in 5 seconds."
+    sleep 5
+    restore_hook
+  elif [ "$use_hooks" = "yes" ] && [ ! $(type -t restore_hook) == function ]; then
+    cecho "WARNING! Hooks are enabled, but the restore hook hasn't been found in hooks.sh."
+    cecho "Skipping in 5 seconds."
+    sleep 5
+  fi
 
   cecho "Cleaning up..."
   adb shell rm -rfv /storage/emulated/0/Contacts_Backup
