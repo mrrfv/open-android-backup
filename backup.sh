@@ -27,7 +27,7 @@ function wait_for_enter() {
 # "cecho" makes output messages yellow, if possible
 function cecho() {
   if [ ! -v CI ]; then
-    echo $(tput setaf 11)$1$(tput init)
+    echo $(tput setaf 11)$1
   else
     echo $1
   fi
@@ -95,6 +95,7 @@ function directory_ok() {
 }
 # ---
 
+
 check_adb_connection
 
 if [ ! -v mode ]; then
@@ -130,6 +131,9 @@ if [ ! -v export_method ]; then
   export_methods=( 'tar' 'adb' )
   list_input "Exporting method:" export_methods export_method
 fi
+
+# Set whether or not to use compression and set the level
+text_input "Enter compression level (Set to 0 to disable compression and copy files directly to staorage location):" compression_level 0
 
 if [ ! -v use_hooks ]; then
   cecho "Would you like to use hooks?"
@@ -186,18 +190,33 @@ if [ -d backup-tmp ]; then
   rm -rfv backup-tmp
 fi
 
-mkdir backup-tmp
+# Only make tmp directory if we are going to compress files
+if [ "$compression_level" != "0" ]; then
+  mkdir backup-tmp
+fi
 
 if [ $selected_action = 'Backup' ]
 then
   while true; do
     if [ ! -v archive_path ]; then
-      echo "Note: Backups will first be made on the drive this script is located in, and then will be copied to the specified location."
+      if [ "$compression_level" != "0" ]; then
+        echo "Note: Backups will first be made on the drive this script is located in, and then will be compressed to the specified location."
+      else
+        echo "Files will be copied to this directory directly without oompression."
+      fi
       text_input "Please enter the backup location. Enter '.' for the current working directory." archive_path "."
     fi
     directory_ok "$archive_path" && break
     unset archive_path
   done
+
+  if  [ "$compression_level" = "0" ]; then
+    backup_path=$archive_path
+  else
+    backup_path="backup-tmp"
+  fi
+
+  cecho "Exporting to $backup_path"
 
   adb shell am start -n com.example.companion_app/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
@@ -206,12 +225,12 @@ then
 
   # Export apps (.apk files)
   cecho "Exporting apps."
-  mkdir -p backup-tmp/Apps
+  mkdir -p $backup_path/Apps
   for app in $(adb shell pm list packages -3 -f)
   #   -f: see their associated file
   #   -3: filter to only show third party packages
   do
-    declare output=backup-tmp/Apps
+    declare output=$backup_path/Apps
     (
       apk_path=${app%=*}                # apk path on device
       apk_path=${apk_path/package:}     # stip "package:"
@@ -220,22 +239,22 @@ then
       # app=package:/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk=com.whatsapp
       # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
       # apk_base=47856542.apk
-      get_file $(dirname $apk_path) $(basename $apk_path) ./backup-tmp/Apps
-      mv ./backup-tmp/Apps/$(basename $apk_path) ./backup-tmp/Apps/$apk_base
+      get_file $(dirname $apk_path) $(basename $apk_path) $backup_path/Apps
+      mv $backup_path/Apps/$(basename $apk_path) $backup_path/Apps/$apk_base
     )
   done
 
   # Export contacts
   cecho "Exporting contacts (as vCard)."
-  mkdir ./backup-tmp/Contacts
-  get_file /storage/emulated/0/linux-android-backup-temp . ./backup-tmp/Contacts
+  mkdir $backup_path/Contacts
+  get_file /storage/emulated/0/linux-android-backup-temp . $backup_path/Contacts
   cecho "Removing temporary files created by the companion app."
   adb shell rm -rf /storage/emulated/0/linux-android-backup-temp
 
   # Export internal storage. We're not using adb pull due to reliability issues
   cecho "Exporting internal storage - this will take a while."
-  mkdir ./backup-tmp/Storage
-  get_file /storage/emulated/0 . ./backup-tmp/Storage
+  mkdir $backup_path/Storage
+  get_file /storage/emulated/0 . $backup_path/Storage
 
   # Run the third-party backup hook, if enabled.
   if [ "$use_hooks" = "yes" ] && [ $(type -t backup_hook) == function ]; then
@@ -255,15 +274,17 @@ then
   sleep 2
 
   # Compress
-  cecho "Compressing & encrypting data - this will take a while."
-  # -p: encrypt backup
-  # -mhe=on: encrypt headers (metadata)
-  # -mx=9: ultra compression
-  # -bb3: verbose logging
-  # -sdel: delete files after compression
-  # The undefined variable is set by the user
-  declare backup_archive="$archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
-  retry 5 7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $backup_archive backup-tmp/*
+  if [ "$compression_level" != 0 ]; then
+    cecho "Compressing & encrypting data - this will take a while."
+    # -p: encrypt backup
+    # -mhe=on: encrypt headers (metadata)
+    # -mx=9: ultra compression
+    # -bb3: verbose logging
+    # -sdel: delete files after compression
+    # The undefined variable is set by the user
+    declare backup_archive="$archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
+    retry 5 7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $backup_archive backup-tmp/*
+  fi
 
   if [ "$use_hooks" = "yes" ] && [ $(type -t after_backup_hook) == function ]; then
     cecho "Running after backup hook in 5 seconds."
@@ -280,7 +301,7 @@ then
 elif [ $selected_action = 'Restore' ]
 then
   if [ ! -v archive_path ]; then
-    text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
+    text_input "Please provide the location of the backup directory/archive to restore (drag-n-drop):" archive_path
   fi
 
   if [ ! -f "$archive_path" ]; then
@@ -288,8 +309,10 @@ then
       exit 1
   fi
 
-  cecho "Extracting archive."
-  7z x $archive_path # -obackup-tmp isn't needed
+  if [ "${FILE##*.}" = "7z" ]; then
+    cecho "Extracting archive."
+    7z x $archive_path # -obackup-tmp isn't needed
+  fi
 
   # Restore applications
   cecho "Restoring applications."
