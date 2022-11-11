@@ -212,6 +212,14 @@ then
 
   if  [ "$compression_level" = "0" ]; then
     backup_path=$archive_path
+    ## Check to see if directory has "Apps" and ask if we want to delete
+    if [ -d "$archive_path/Apps" ]; then
+      actions=( 'Yes' 'No' )
+      list_input "Directory $archive_path appears to contain a backup. Delete files?" actions selected_action
+      if [ "$selected_action" = "Yes" ]; then
+        rm -rf $archive_path/* > /dev/null
+      fi
+    fi
   else
     backup_path="backup-tmp"
   fi
@@ -225,7 +233,7 @@ then
 
   # Export apps (.apk files)
   cecho "Exporting apps."
-  mkdir -p $backup_path/Apps
+  mkdir -p $backup_path/Apps | true # | true to avoid script aborting due to directory exists
   for app in $(adb shell pm list packages -3 -f)
   #   -f: see their associated file
   #   -3: filter to only show third party packages
@@ -246,14 +254,14 @@ then
 
   # Export contacts
   cecho "Exporting contacts (as vCard)."
-  mkdir $backup_path/Contacts
+  mkdir $backup_path/Contacts | true
   get_file /storage/emulated/0/linux-android-backup-temp . $backup_path/Contacts
   cecho "Removing temporary files created by the companion app."
   adb shell rm -rf /storage/emulated/0/linux-android-backup-temp
 
   # Export internal storage. We're not using adb pull due to reliability issues
   cecho "Exporting internal storage - this will take a while."
-  mkdir $backup_path/Storage
+  mkdir $backup_path/Storage | true
   get_file /storage/emulated/0 . $backup_path/Storage
 
   # Run the third-party backup hook, if enabled.
