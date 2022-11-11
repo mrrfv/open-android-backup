@@ -132,9 +132,6 @@ if [ ! -v export_method ]; then
   list_input "Exporting method:" export_methods export_method
 fi
 
-# Set whether or not to use compression and set the level
-text_input "Enter compression level (Set to 0 to disable compression and copy files directly to staorage location):" compression_level 0
-
 if [ ! -v use_hooks ]; then
   cecho "Would you like to use hooks?"
   cecho "Choose 'no' if you don't understand this question, or don't want to load hooks."
@@ -197,6 +194,9 @@ fi
 
 if [ $selected_action = 'Backup' ]
 then
+  # Set whether or not to use compression and set the level
+  text_input "Enter compression level (Set to 0 to disable compression and copy files directly to staorage location):" compression_level 0
+
   while true; do
     if [ ! -v archive_path ]; then
       if [ "$compression_level" != "0" ]; then
@@ -304,12 +304,16 @@ then
     text_input "Please provide the location of the backup directory/archive to restore (drag-n-drop):" archive_path
   fi
 
-  if [ ! -f "$archive_path" ]; then
+  if [ ! -f "$archive_path" -a "${archive_path##*.}" = "7z" ]; then
       cecho "The specified backup location doesn't exist or isn't a file."
+      exit 1
+  # If we're restoring from uncompressed backup, make sure at lease the Apps directory exists
+  elif [ ! -d "$archive_path/Apps" -a "${archive_path##*.}" != "7z" ]; then 
+      cecho "The specified backup directory does not exist."
       exit 1
   fi
 
-  if [ "${FILE##*.}" = "7z" ]; then
+  if [ "${archive_path##*.}" = "7z" ]; then
     cecho "Extracting archive."
     7z x $archive_path # -obackup-tmp isn't needed
   fi
@@ -320,10 +324,10 @@ then
   set +e
   if [[ $(grep microsoft /proc/version) ]]; then
     cecho "Windows/WSL detected"
-    find ./backup-tmp/Apps -type f -name "*.apk" -exec ./windows-dependencies/adb.exe install {} \;
+    find $archive_path/Apps -type f -name "*.apk" -exec ./windows-dependencies/adb.exe install {} \;
   else
     cecho "macOS/Linux detected"
-    find ./backup-tmp/Apps -type f -name "*.apk" -exec adb install {} \;
+    find $archive_path/Apps -type f -name "*.apk" -exec adb install {} \;
   fi
   set -e
 
@@ -331,11 +335,11 @@ then
 
   # Restore internal storage
   cecho "Restoring internal storage."
-  adb push ./backup-tmp/Storage/* /storage/emulated/0
+  adb push $archive_path/Storage/* /storage/emulated/0
 
   # Restore contacts
   cecho "Pushing backed up contacts to device."
-  adb push ./backup-tmp/Contacts /storage/emulated/0/Contacts_Backup
+  adb push $archive_path/Contacts /storage/emulated/0/Contacts_Backup
 
   adb shell am start -n com.example.companion_app/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Auto-restore contacts' button - this will import your contacts to the device's contact database. Press Enter to continue."
