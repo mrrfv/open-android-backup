@@ -195,7 +195,7 @@ fi
 if [ $selected_action = 'Backup' ]
 then
   # Set whether or not to use compression and set the level
-  text_input "Enter compression level (Set to 0 to disable compression and copy files directly to staorage location):" compression_level 0
+  text_input "Enter compression level (0-9, set to 0 to disable compression and copy files directly to storage location):" compression_level 0
 
   while true; do
     if [ ! -v archive_path ]; then
