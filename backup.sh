@@ -27,7 +27,7 @@ function wait_for_enter() {
 # "cecho" makes output messages yellow, if possible
 function cecho() {
   if [ ! -v CI ]; then
-    echo $(tput setaf 11)$1$(tput init)
+    echo $(tput setaf 11)$1
   else
     echo $1
   fi
@@ -94,6 +94,7 @@ function directory_ok() {
     return 0
 }
 # ---
+
 
 check_adb_connection
 
@@ -186,18 +187,44 @@ if [ -d backup-tmp ]; then
   rm -rfv backup-tmp
 fi
 
-mkdir backup-tmp
+# Only make tmp directory if we are going to compress files
+if [ "$compression_level" != "0" ]; then
+  mkdir backup-tmp
+fi
 
 if [ $selected_action = 'Backup' ]
 then
+  # Set whether or not to use compression and set the level
+  text_input "Enter compression level (0-9, set to 0 to disable compression and copy files directly to storage location):" compression_level 0
+
   while true; do
     if [ ! -v archive_path ]; then
-      echo "Note: Backups will first be made on the drive this script is located in, and then will be copied to the specified location."
+      if [ "$compression_level" != "0" ]; then
+        echo "Note: Backups will first be made on the drive this script is located in, and then will be compressed to the specified location."
+      else
+        echo "Files will be copied to this directory directly without oompression."
+      fi
       text_input "Please enter the backup location. Enter '.' for the current working directory." archive_path "."
     fi
     directory_ok "$archive_path" && break
     unset archive_path
   done
+
+  if  [ "$compression_level" = "0" ]; then
+    backup_path=$archive_path
+    ## Check to see if directory has "Apps" and ask if we want to delete
+    if [ -d "$archive_path/Apps" ]; then
+      actions=( 'Yes' 'No' )
+      list_input "Directory $archive_path appears to contain a backup. Delete files?" actions selected_action
+      if [ "$selected_action" = "Yes" ]; then
+        rm -rf $archive_path/* > /dev/null
+      fi
+    fi
+  else
+    backup_path="backup-tmp"
+  fi
+
+  cecho "Exporting to $backup_path"
 
   adb shell am start -n com.example.companion_app/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
@@ -206,12 +233,12 @@ then
 
   # Export apps (.apk files)
   cecho "Exporting apps."
-  mkdir -p backup-tmp/Apps
+  mkdir -p $backup_path/Apps | true # | true to avoid script aborting due to directory exists
   for app in $(adb shell pm list packages -3 -f)
   #   -f: see their associated file
   #   -3: filter to only show third party packages
   do
-    declare output=backup-tmp/Apps
+    declare output=$backup_path/Apps
     (
       apk_path=${app%=*}                # apk path on device
       apk_path=${apk_path/package:}     # stip "package:"
@@ -220,22 +247,22 @@ then
       # app=package:/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk=com.whatsapp
       # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
       # apk_base=47856542.apk
-      get_file $(dirname $apk_path) $(basename $apk_path) ./backup-tmp/Apps
-      mv ./backup-tmp/Apps/$(basename $apk_path) ./backup-tmp/Apps/$apk_base
+      get_file $(dirname $apk_path) $(basename $apk_path) $backup_path/Apps
+      mv $backup_path/Apps/$(basename $apk_path) $backup_path/Apps/$apk_base
     )
   done
 
   # Export contacts
   cecho "Exporting contacts (as vCard)."
-  mkdir ./backup-tmp/Contacts
-  get_file /storage/emulated/0/linux-android-backup-temp . ./backup-tmp/Contacts
+  mkdir $backup_path/Contacts | true
+  get_file /storage/emulated/0/linux-android-backup-temp . $backup_path/Contacts
   cecho "Removing temporary files created by the companion app."
   adb shell rm -rf /storage/emulated/0/linux-android-backup-temp
 
   # Export internal storage. We're not using adb pull due to reliability issues
   cecho "Exporting internal storage - this will take a while."
-  mkdir ./backup-tmp/Storage
-  get_file /storage/emulated/0 . ./backup-tmp/Storage
+  mkdir $backup_path/Storage | true
+  get_file /storage/emulated/0 . $backup_path/Storage
 
   # Run the third-party backup hook, if enabled.
   if [ "$use_hooks" = "yes" ] && [ $(type -t backup_hook) == function ]; then
@@ -255,15 +282,17 @@ then
   sleep 2
 
   # Compress
-  cecho "Compressing & encrypting data - this will take a while."
-  # -p: encrypt backup
-  # -mhe=on: encrypt headers (metadata)
-  # -mx=9: ultra compression
-  # -bb3: verbose logging
-  # -sdel: delete files after compression
-  # The undefined variable is set by the user
-  declare backup_archive="$archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
-  retry 5 7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $backup_archive backup-tmp/*
+  if [ "$compression_level" != 0 ]; then
+    cecho "Compressing & encrypting data - this will take a while."
+    # -p: encrypt backup
+    # -mhe=on: encrypt headers (metadata)
+    # -mx=9: ultra compression
+    # -bb3: verbose logging
+    # -sdel: delete files after compression
+    # The undefined variable is set by the user
+    declare backup_archive="$archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
+    retry 5 7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $backup_archive backup-tmp/*
+  fi
 
   if [ "$use_hooks" = "yes" ] && [ $(type -t after_backup_hook) == function ]; then
     cecho "Running after backup hook in 5 seconds."
@@ -280,16 +309,22 @@ then
 elif [ $selected_action = 'Restore' ]
 then
   if [ ! -v archive_path ]; then
-    text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
+    text_input "Please provide the location of the backup directory/archive to restore (drag-n-drop):" archive_path
   fi
 
-  if [ ! -f "$archive_path" ]; then
+  if [ ! -f "$archive_path" -a "${archive_path##*.}" = "7z" ]; then
       cecho "The specified backup location doesn't exist or isn't a file."
+      exit 1
+  # If we're restoring from uncompressed backup, make sure at lease the Apps directory exists
+  elif [ ! -d "$archive_path/Apps" -a "${archive_path##*.}" != "7z" ]; then 
+      cecho "The specified backup directory does not exist."
       exit 1
   fi
 
-  cecho "Extracting archive."
-  7z x $archive_path # -obackup-tmp isn't needed
+  if [ "${archive_path##*.}" = "7z" ]; then
+    cecho "Extracting archive."
+    7z x $archive_path # -obackup-tmp isn't needed
+  fi
 
   # Restore applications
   cecho "Restoring applications."
@@ -297,10 +332,10 @@ then
   set +e
   if [[ $(grep microsoft /proc/version) ]]; then
     cecho "Windows/WSL detected"
-    find ./backup-tmp/Apps -type f -name "*.apk" -exec ./windows-dependencies/adb.exe install {} \;
+    find $archive_path/Apps -type f -name "*.apk" -exec ./windows-dependencies/adb.exe install {} \;
   else
     cecho "macOS/Linux detected"
-    find ./backup-tmp/Apps -type f -name "*.apk" -exec adb install {} \;
+    find $archive_path/Apps -type f -name "*.apk" -exec adb install {} \;
   fi
   set -e
 
@@ -308,11 +343,11 @@ then
 
   # Restore internal storage
   cecho "Restoring internal storage."
-  adb push ./backup-tmp/Storage/* /storage/emulated/0
+  adb push $archive_path/Storage/* /storage/emulated/0
 
   # Restore contacts
   cecho "Pushing backed up contacts to device."
-  adb push ./backup-tmp/Contacts /storage/emulated/0/Contacts_Backup
+  adb push $archive_path/Contacts /storage/emulated/0/Contacts_Backup
 
   adb shell am start -n com.example.companion_app/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Auto-restore contacts' button - this will import your contacts to the device's contact database. Press Enter to continue."
