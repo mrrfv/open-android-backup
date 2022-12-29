@@ -27,9 +27,9 @@ function wait_for_enter() {
 # "cecho" makes output messages yellow, if possible
 function cecho() {
   if [ ! -v CI ]; then
-    echo $(tput setaf 11)$1$(tput init)
+    echo "$(tput setaf 11)$1$(tput init)"
   else
-    echo $1
+    echo "$1"
   fi
 }
 
@@ -72,9 +72,9 @@ function retry() {
 # Usage: get_file <directory> <file> <destination>
 function get_file() {
   if [ "$export_method" = 'tar' ]; then
-    (adb exec-out "tar -c -C $1 $2 2> /dev/null" | pv -p --timer --rate --bytes | tar -C $3 -xf -) || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
+    (adb exec-out "tar -c -C $1 $2 2> /dev/null" | pv -p --timer --rate --bytes | tar -C "$3" -xf -) || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
   else # we're falling back to adb pull if the variable is empty/unset
-    adb pull $1/$2 $3 || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
+    adb pull "$1"/"$2" "$3" || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
   fi
 }
 
@@ -113,7 +113,7 @@ if [ "$mode" = 'Wireless' ]; then
   cecho "Establishing connection..."
   adb tcpip 5353
   sleep 5
-  adb connect $(adb shell ip addr show wlan0 | grep 'inet ' | cut -d ' ' -f 6 | cut -d / -f 1):5353
+  adb connect "$(adb shell ip addr show wlan0 | grep 'inet ' | cut -d ' ' -f 6 | cut -d / -f 1):5353"
 
   cecho "Please unplug your device from the computer, and press Enter to continue."
   wait_for_enter
@@ -178,7 +178,7 @@ permissions=(
 )
 # Grant permissions
 for permission in "${permissions[@]}"; do
-  adb shell pm grant com.example.companion_app $permission || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
+  adb shell pm grant com.example.companion_app "$permission" || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
 done
 
 if [ -d backup-tmp ]; then
@@ -188,7 +188,7 @@ fi
 
 mkdir backup-tmp
 
-if [ $selected_action = 'Backup' ]
+if [ "$selected_action" = 'Backup' ]
 then
   while true; do
     if [ ! -v archive_path ]; then
@@ -220,8 +220,8 @@ then
       # app=package:/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk=com.whatsapp
       # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
       # apk_base=47856542.apk
-      get_file $(dirname $apk_path) $(basename $apk_path) ./backup-tmp/Apps
-      mv ./backup-tmp/Apps/$(basename $apk_path) ./backup-tmp/Apps/$apk_base || cecho "Couldn't find app $(basename $apk_path) after exporting from device - ignoring." 1>&2
+      get_file "$(dirname "$apk_path")" "$(basename "$apk_path")" ./backup-tmp/Apps
+      mv "./backup-tmp/Apps/$(basename "$apk_path")" "./backup-tmp/Apps/$apk_base" || cecho "Couldn't find app $(basename "$apk_path") after exporting from device - ignoring." 1>&2
     )
   done
 
@@ -238,11 +238,11 @@ then
   get_file /storage/emulated/0 . ./backup-tmp/Storage
 
   # Run the third-party backup hook, if enabled.
-  if [ "$use_hooks" = "yes" ] && [ $(type -t backup_hook) == function ]; then
+  if [ "$use_hooks" = "yes" ] && [ "$(type -t backup_hook)" == "function" ]; then
     cecho "Running backup hooks in 5 seconds."
     sleep 5
     backup_hook
-  elif [ "$use_hooks" = "yes" ] && [ ! $(type -t backup_hook) == function ]; then
+  elif [ "$use_hooks" = "yes" ] && [ ! "$(type -t backup_hook)" == "function" ]; then
     cecho "WARNING! Hooks are enabled, but the backup hook hasn't been found in hooks.sh."
     cecho "Skipping in 5 seconds."
     sleep 5
@@ -263,13 +263,13 @@ then
   # -sdel: delete files after compression
   # The undefined variable is set by the user
   declare backup_archive="$archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
-  retry 5 7z a -p$archive_password -mhe=on -mx=9 -bb3 -sdel $backup_archive backup-tmp/*
+  retry 5 7z a -p"$archive_password" -mhe=on -mx=9 -bb3 -sdel "$backup_archive" backup-tmp/*
 
-  if [ "$use_hooks" = "yes" ] && [ $(type -t after_backup_hook) == function ]; then
+  if [ "$use_hooks" = "yes" ] && [ "$(type -t after_backup_hook)" == function ]; then
     cecho "Running after backup hook in 5 seconds."
     sleep 5
     after_backup_hook
-  elif [ "$use_hooks" = "yes" ] && [ ! $(type -t after_backup_hook) == function ]; then
+  elif [ "$use_hooks" = "yes" ] && [ ! "$(type -t after_backup_hook)" == function ]; then
     cecho "WARNING! Hooks are enabled, but an after backup hook hasn't been found in hooks.sh."
     cecho "Skipping in 5 seconds."
     sleep 5
@@ -277,7 +277,7 @@ then
 
   cecho "Backed up successfully."
   rm -rf backup-tmp > /dev/null
-elif [ $selected_action = 'Restore' ]
+elif [ "$selected_action" = 'Restore' ]
 then
   if [ ! -v archive_path ]; then
     text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
@@ -289,7 +289,7 @@ then
   fi
 
   cecho "Extracting archive."
-  7z x $archive_path # -obackup-tmp isn't needed
+  7z x "$archive_path" # -obackup-tmp isn't needed
 
   # Restore applications
   cecho "Restoring applications."
@@ -319,11 +319,11 @@ then
   wait_for_enter
 
   # Run the third-party restore hook, if enabled.
-  if [ "$use_hooks" = "yes" ] && [ $(type -t restore_hook) == function ]; then
+  if [ "$use_hooks" = "yes" ] && [ "$(type -t restore_hook)" == function ]; then
     cecho "Running restore hook in 5 seconds."
     sleep 5
     restore_hook
-  elif [ "$use_hooks" = "yes" ] && [ ! $(type -t restore_hook) == function ]; then
+  elif [ "$use_hooks" = "yes" ] && [ ! "$(type -t restore_hook)" == function ]; then
     cecho "WARNING! Hooks are enabled, but the restore hook hasn't been found in hooks.sh."
     cecho "Skipping in 5 seconds."
     sleep 5
