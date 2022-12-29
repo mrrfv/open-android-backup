@@ -1,5 +1,6 @@
 Write-Output "This script lets you use linux-android-backup on Windows."
 Write-Output "Please ensure that you've installed the Windows Subsystem for Linux and a distro (Ubuntu or Debian) prior to running this script."
+Write-Output "If sudo asks you for your account password, don't enter your Windows password!"
 Write-Output "If not, close this window, and refer to the README for instructions (https://github.com/mrrfv/linux-android-backup#windows=)"
 Write-Output .
 pause
