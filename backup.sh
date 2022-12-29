@@ -72,9 +72,9 @@ function retry() {
 # Usage: get_file <directory> <file> <destination>
 function get_file() {
   if [ "$export_method" = 'tar' ]; then
-    adb exec-out "tar -c -C $1 $2 2> /dev/null" | pv -p --timer --rate --bytes | tar -C $3 -xf -
+    (adb exec-out "tar -c -C $1 $2 2> /dev/null" | pv -p --timer --rate --bytes | tar -C $3 -xf -) || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
   else # we're falling back to adb pull if the variable is empty/unset
-    adb pull $1/$2 $3
+    adb pull $1/$2 $3 || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
   fi
 }
 
@@ -178,7 +178,7 @@ permissions=(
 )
 # Grant permissions
 for permission in "${permissions[@]}"; do
-  adb shell pm grant com.example.companion_app $permission
+  adb shell pm grant com.example.companion_app $permission || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
 done
 
 if [ -d backup-tmp ]; then
@@ -221,7 +221,7 @@ then
       # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
       # apk_base=47856542.apk
       get_file $(dirname $apk_path) $(basename $apk_path) ./backup-tmp/Apps
-      mv ./backup-tmp/Apps/$(basename $apk_path) ./backup-tmp/Apps/$apk_base
+      mv ./backup-tmp/Apps/$(basename $apk_path) ./backup-tmp/Apps/$apk_base || cecho "Couldn't find app $(basename $apk_path) after exporting from device - ignoring." 1>&2
     )
   done
 
