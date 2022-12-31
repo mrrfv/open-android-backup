@@ -13,7 +13,7 @@ function backup_hook() {
 # This is useful for uploading your backups to the cloud, among other things.
 function after_backup_hook() {
     echo "Backup path: $backup_archive"
-    cp $backup_archive /mnt/my_cloud_storage_mount/Backups
+    cp "$backup_archive" /mnt/my_cloud_storage_mount/Backups
 }
 
 # This function is ran after restoring the internal storage, apps and contacts to the device.

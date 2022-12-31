@@ -6,7 +6,8 @@ Write-Output .
 pause
 Write-Output "Installing dependencies and setting up environment..."
 wsl sudo apt update
-wsl sudo apt install p7zip-full curl bc dos2unix pv -y
+wsl sudo apt install p7zip-full curl bc dos2unix pv kdialog -y
+Write-Output "Converting files - this may take several minutes..."
 wsl bash -c "sudo find ./ -type f -print0 | sudo xargs -0 dos2unix --"
 Clear-Host
 Write-Output "Ready to run the backup script."
