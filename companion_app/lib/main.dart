@@ -28,8 +28,22 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  // for backups
+  bool showBackupProgress = false;
+  int contactsAmountDatabase = 0;
+  int contactsExported = 0;
+  // for restores
+  bool showRestoreProgress = false;
+  int contactsAmountFilesystem = 0;
+  int contactsImported = 0;
 
   Future<void> backup(BuildContext context) async {
     // Requests contacts & internal storage permissions
@@ -51,6 +65,10 @@ class Home extends StatelessWidget {
       final List<Contact> contacts = await FlutterContacts.getContacts(
           withProperties: true, withPhoto: true, withGroups: true);
 
+      setState(() {
+        contactsAmountDatabase = contacts.length;
+      });
+
       // Recreate the temp directory if it already exists.
       final Directory directory =
           Directory("/storage/emulated/0/linux-android-backup-temp");
@@ -65,6 +83,9 @@ class Home extends StatelessWidget {
         final File file = File(
             "/storage/emulated/0/linux-android-backup-temp/linux-android-backup-contact-$i.vcf");
         file.writeAsString(vCard);
+        setState(() {
+          contactsExported = i + 1;
+        });
       }
 
       // Show a dialog if the export is complete
@@ -97,6 +118,10 @@ class Home extends StatelessWidget {
         // List directory contents
         final List<FileSystemEntity> files = await contactsDir.list().toList();
 
+        setState(() {
+          contactsAmountFilesystem = files.length;
+        });
+
         // Loop over the contents
         for (var i = 0; i < files.length; i++) {
           if (files[i] is File) {
@@ -105,6 +130,10 @@ class Home extends StatelessWidget {
             final Contact contact = Contact.fromVCard(vcard);
             await contact.insert();
           }
+
+          setState(() {
+            contactsImported = i + 1;
+          });
         }
 
         showInfoDialog(context, "Success", "Data has been imported.");
@@ -149,19 +178,46 @@ class Home extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
+                setState(() {
+                  showBackupProgress = true;
+                });
                 backup(context);
               },
               child: const Text("Export Data"),
+            ),
+            Visibility(
+                visible: showBackupProgress,
+                child: Text("Exported " +
+                    contactsExported.toString() +
+                    " contact(s) out of " +
+                    contactsAmountDatabase.toString() +
+                    ".")),
+            const Divider(
+              color: Color.fromARGB(31, 44, 44, 44),
+              height: 25,
+              thickness: 1,
+              indent: 5,
+              endIndent: 5,
             ),
             const Text(
               "Upon restoring a backup, press the button below to automatically import all contacts.",
             ),
             ElevatedButton(
               onPressed: () {
+                setState(() {
+                  showRestoreProgress = true;
+                });
                 autoRestoreContacts(context);
               },
               child: const Text("Auto-restore contacts"),
-            )
+            ),
+            Visibility(
+                visible: showRestoreProgress,
+                child: Text("Restored " +
+                    contactsImported.toString() +
+                    " contact(s) out of " +
+                    contactsAmountFilesystem.toString() +
+                    ".")),
           ],
         ),
       ),

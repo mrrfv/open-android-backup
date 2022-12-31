@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# we're using the Windows adb 
+# we're using the Windows adb
 export ADB_DIR=$(pwd)/windows-dependencies/adb/adb.exe
 
 adb() {
