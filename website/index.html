@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>%lab% - A Cross-Platform, Easy-to-Use Android Backup Tool</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/misc.css">
+    <link rel="stylesheet" href="css/fonts.css">
+  </head>
+  <body>
+    <section class="hero is-medium main-section-gradient has-text-centered">
+      <div class="hero-body">
+        <div class="container">
+          <div class="columns">
+            <div class="column is-8-desktop is-offset-2-desktop">
+              <h1 class="title is-2 is-spaced has-text-light">
+                %lab%
+              </h1>
+              <h2 class="subtitle is-4 has-text-light">
+                  A complete, easy to use package that lets you locally backup and restore your Android device.
+              </h2>
+              <h4 class="subtitle has-text-light">Formerly called Linux Android Backup.</h4>
+              <div class="columns">
+                <div class="column">
+                  <a class="button is-primary is-light is-rounded is-fullwidth" href="https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip">
+                    <!-- Download Bootstrap Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-download-fill" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M8 0a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 4.095 0 5.555 0 7.318 0 9.366 1.708 11 3.781 11H7.5V5.5a.5.5 0 0 1 1 0V11h4.188C14.502 11 16 9.57 16 7.773c0-1.636-1.242-2.969-2.834-3.194C12.923 1.999 10.69 0 8 0zm-.354 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V11h-1v3.293l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                  </a>
+                </div>
+                <div class="column">
+                  <a class="button is-link is-light is-rounded is-fullwidth" href="https://github.com/mrrfv/linux-android-backup">
+                    <!-- GitHub Bootstrap Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                    GitHub Repository
+                  </a>
+                </div>
+                <div class="column">
+                  <a class="button is-warning is-light is-rounded is-fullwidth" href="https://liberapay.com/mrrfv/">
+                    <!-- Piggybank Bootstrap Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-piggy-bank-fill" viewBox="0 0 16 16">
+                      <path d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069c0-.145-.007-.29-.02-.431.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a.95.95 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.735.735 0 0 0-.375.562c-.024.243.082.48.32.654a2.112 2.112 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595Zm7.173 3.876a.565.565 0 0 1-.098.21.704.704 0 0 1-.044-.025c-.146-.09-.157-.175-.152-.223a.236.236 0 0 1 .117-.173c.049-.027.08-.021.113.012a.202.202 0 0 1 .064.199Zm-8.999-.65a.5.5 0 1 1-.276-.96A7.613 7.613 0 0 1 7.964 3.5c.763 0 1.497.11 2.18.315a.5.5 0 1 1-.287.958A6.602 6.602 0 0 0 7.964 4.5c-.64 0-1.255.09-1.826.254ZM5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
+                    </svg>
+                    Donate
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section has-text-centered">
+      <div class="container">
+        <h2 class="title is-2">Why %lab%?</h2>
+        <hr>
+        <div class="columns why-this-tool">
+          <div class="column">
+            <div class="card has-background-link">
+              <div class="card-content">
+                <p class="title has-text-light">
+                  Completely Free & Open Source - Formats Included!
+                </p>
+                <p class="subtitle has-text-light">
+                  We believe that your data should stay yours. %lab% uses <b>7-Zip</b> to pack the data exported from your device into a 'backup archive', ensuring that you can access your data, even if you don't have access to this script or it gets removed by chance. It is also completely free, with no 'premium features' locked behind a paywall.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="card has-background-primary">
+              <div class="card-content">
+                <p class="title has-text-light">
+                  Truly Cross-Platform
+                </p>
+                <p class="subtitle has-text-light">
+                  %lab% can back up and restore devices on Linux, macOS and Windows. This ensures that you are not locked in to a single operating system due to this script.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="card has-background-pink">
+              <div class="card-content">
+                <p class="title has-text-light">
+                  Compression & Encryption by Default
+                </p>
+                <p class="subtitle has-text-light">
+                  Your backups and metadata such as file names are automatically encrypted and archived using the highest compression level. This means that you don't need to worry about not having enough disk space to backup your Android phone.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="card has-background-danger-light">
+              <div class="card-content">
+                <p class="title">
+                  Semi-Wireless Backups
+                </p>
+                <p class="subtitle">
+                  Malfunctioning cable? You can wirelessly connect your phone to your computer and back up your device without having to worry about the connection being unstable. Note that a cable is still needed for setup.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h3 class="subtitle is-3">And more...</h3>
+        <ul>
+          <li><b>Hooks</b> that let you effortlessly create your own backup steps.</li>
+          <li>A <b>small footprint</b> of around 20 megabytes.</li>
+          <li>Settings controllable via <b>environment variables</b>, so you don't have to follow the same prompts everytime you want to start a backup.</li>
+          <li>Uses a <b>Flutter-based companion app</b> that can reach your device beyond what adb lets us - without root.</li>
+          <li><b>Zero usage</b> of <code>adb backup</code>, an unreliable backup feature built in to adb that's been deprecated.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section installGuides has-text-centered">
+      <div class="container">
+        <h2 class="title is-2 has-text-centered">Pick your favorite flavor.</h2>
+
+        <div class="tabs" id="installPlatforms">
+          <ul>
+            <li><a href="#install-linux">Linux</a></li>
+            <li><a href="#install-windows">Windows</a></li>
+            <li><a href="#install-macos">macOS</a></li>
+          </ul>
+        </div>
+
+        <div id="install-linux">
+          <h2 class="subtitle is-3 has-text-centered">Installation Instructions for Linux</h2>
+          <ol>
+            <li>Install p7zip, adb, curl, bc and pv. If you&#39;re on Debian or Ubuntu, run this command: <code>sudo apt update; sudo apt install p7zip-full adb curl bc pv</code>.</li>
+            <li>Clone or <a href="https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip">download</a> this repository.</li>
+            <li>Enable <a href="https://developer.android.com/studio/debug/dev-options#enable">developer options</a> and USB debugging on your device, then run <code>backup.sh</code> in a terminal.</li>
+            </ol>
+        </div>
+        <div id="install-windows">
+          <h2 class="subtitle is-3 has-text-centered">Installation Instructions for Windows</h2>
+          <ol>
+            <li>Install the <a href="https://docs.microsoft.com/en-us/windows/wsl/install#install">Windows Subsystem for Linux (WSL)</a>, a compatibility layer allowing you to run Linux applications (such as this one) on Windows. You only need to follow the <code>Install</code> step.</li>
+            <li>Clone or <a href="https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip">download</a> this repository.</li>
+            <li>Open the repository in the file explorer. Right click on a file called <code>backup-windows.ps1</code>, and click on &quot;Run with PowerShell&quot;.</li>
+            </ol>
+            <strong>IMPORTANT: If you see an error after running the script, search for &quot;Developer Settings&quot; in the Settings app, and apply the settings related to PowerShell.</strong>
+        </div>
+        <div id="install-macos">
+          <h2 class="subtitle is-3 has-text-centered">Installation Instructions for macOS</h2>
+          <ol>
+            <li>Install p7zip and adb using <a href="https://brew.sh/">Homebrew</a>:</li>
+          </ol>
+          <pre>
+          <code class="lang-bash"><span class="hljs-comment"># Tip: Run these commands in the built-in Terminal app (or iTerm if you have that installed).</span>
+          <span class="hljs-comment"># Install Homebrew if you haven't yet</span>
+          /bin/bash -c <span class="hljs-string">"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</span>
+          <span class="hljs-comment"># If you already have Homebrew installed, just run these 2 commands:</span>
+          brew <span class="hljs-keyword">install</span> --cask android-platform-tools
+          brew <span class="hljs-keyword">install</span> p7zip pv bash
+          </code>
+          </pre>
+          <ol>
+          <li>Follow the steps 2 and 3 from the install guide for Linux.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer has-text-centered">
+      <div class="container">
+         <div class="columns">
+          <div class="column is-8-desktop is-offset-2-desktop">
+            <p>
+              <a href="https://liberapay.com/mrrfv/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
+              <iframe src="https://ghbtns.com/github-btn.html?user=mrrfv&repo=linux-android-backup&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
+            </p>
+            <p style="margin-top: 1rem;">
+              <a href="http://bulma.io">
+                <img src="made-with-bulma.png" alt="Made with Bulma" width="128" height="24">
+              </a>
+            </p>
+            <p>
+              <small>
+                Website licensed <a href="http://opensource.org/licenses/mit-license.php">MIT</a>
+              </small>
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/javascript" src="lib/main.js"></script>
+  </body>
+</html>

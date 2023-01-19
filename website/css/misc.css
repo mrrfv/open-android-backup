@@ -1,0 +1,38 @@
+svg {
+    margin-right: 0.4em;
+}
+
+.main-section-gradient {
+    background: rgb(101,216,66);
+    background: linear-gradient(90deg, rgba(101,216,66,1) 0%, rgba(107,57,194,1) 100%);
+}
+
+.has-background-pink {
+    background-color: #fc64ea;
+}
+
+.why-this-tool > .column > .card {
+    display: flex;
+}
+
+.why-this-tool > .column {
+    display: flex;
+}
+
+.why-this-tool > .column > .card:hover {
+    transition: all 0.5s;
+    scale: 1.1;
+}
+
+.tabs ul {
+    justify-content: center !important;
+}
+
+.section ul li b {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.installGuides ol {
+    text-align: initial;
+}
