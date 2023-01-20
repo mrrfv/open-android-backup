@@ -11,6 +11,7 @@ Linux Android Backup is a tiny shell script & Flutter app that makes securely ba
 - Apps (.apk files of installed apps)
 - Internal storage (pictures, downloads, videos, Signal backups if enabled, etc)
 - Contacts (exported in vCard format)
+- SMS Messages (exported in CSV format; currently cannot be restored to a new device, viewable by opening the backup archive)
 
 These 3 things are the majority of what most people would want to keep safe, but everybody has different expectations and requirements, so suggestions are welcome.
 

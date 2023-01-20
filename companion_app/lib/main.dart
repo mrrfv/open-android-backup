@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
+import 'package:csv/csv.dart';
 import "dart:io";
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -40,6 +42,8 @@ class _HomeState extends State<Home> {
   bool showBackupProgress = false;
   int contactsAmountDatabase = 0;
   int contactsExported = 0;
+  int smsMessageCount = 0;
+  int smsMessagesExported = 0;
   // for restores
   bool showRestoreProgress = false;
   int contactsAmountFilesystem = 0;
@@ -48,7 +52,11 @@ class _HomeState extends State<Home> {
   Future<void> backup(BuildContext context) async {
     // Requests contacts & internal storage permissions
     if (await FlutterContacts.requestPermission() &&
-        await Permission.storage.request().isGranted) {
+        await Permission.storage.request().isGranted &&
+        await Permission.sms.request().isGranted) {
+      // create an instance of the SmsQuery class
+      SmsQuery sms = SmsQuery();
+
       // On Android 11 and later, request additional permissions.
       if ((await DeviceInfoPlugin().androidInfo).version.sdkInt! > 29 &&
           !await Permission.manageExternalStorage.request().isGranted) {
@@ -88,12 +96,40 @@ class _HomeState extends State<Home> {
         });
       }
 
+      // Export SMS messages.
+      List<SmsMessage> messages = await sms.getAllSms;
+
+      setState(() {
+        smsMessageCount = messages.length;
+      });
+
+      // Process messages so they can be saved to a CSV file.
+      List<List<String>> processedMessages = [];
+      processedMessages.add(["ID", "Address", "Body", "Date"]);
+      for (var i = 0; i < messages.length; i++) {
+        List<String> message = [
+          messages[i].id.toString(),
+          messages[i].address.toString(),
+          messages[i].body.toString(),
+          messages[i].date.toString(),
+        ];
+        processedMessages.add(message);
+        setState(() {
+          smsMessagesExported = i + 1;
+        });
+      }
+      String csv = const ListToCsvConverter().convert(processedMessages);
+
+      final File sms_file_export = File(
+          "/storage/emulated/0/linux-android-backup-temp/SMS_Messages.csv");
+      sms_file_export.writeAsString(csv);
+
       // Show a dialog if the export is complete
       showInfoDialog(context, "Data Exported",
           "Please continue the backup process on your computer.");
     } else {
       showInfoDialog(context, "Error",
-          "Storage and/or contacts permissions have not been granted.");
+          "Storage, SMS or contacts permissions have not been granted.");
     }
   }
 
@@ -191,7 +227,11 @@ class _HomeState extends State<Home> {
                     contactsExported.toString() +
                     " contact(s) out of " +
                     contactsAmountDatabase.toString() +
-                    ".")),
+                    ". Found " +
+                    smsMessageCount.toString() +
+                    " SMS messages to process, of which " +
+                    smsMessagesExported.toString() +
+                    " have been exported.")),
             const Divider(
               color: Color.fromARGB(31, 44, 44, 44),
               height: 25,
@@ -200,7 +240,7 @@ class _HomeState extends State<Home> {
               endIndent: 5,
             ),
             const Text(
-              "Upon restoring a backup, press the button below to automatically import all contacts.",
+              "Upon restoring a backup, press the button below to automatically import all contacts. SMS message importing isn't currently available, but you can view your messages by opening your backup archive.",
             ),
             ElevatedButton(
               onPressed: () {

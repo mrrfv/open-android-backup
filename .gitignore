@@ -3,3 +3,5 @@
 *-tmp
 *.apk
 hooks.sh
+.vscode
+.idea

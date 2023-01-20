@@ -51,13 +51,14 @@ function backup_func() {
 	)
   done
 
-  # Export contacts
-  cecho "Exporting contacts (as vCard)."
+  # Export contacts and SMS messages
+  cecho "Exporting contacts (as vCard) and SMS messages (as CSV)."
   mkdir ./backup-tmp/Contacts
+  mkdir ./backup-tmp/SMS
   get_file /storage/emulated/0/linux-android-backup-temp . ./backup-tmp/Contacts
+  mv ./backup-tmp/Contacts/SMS_Messages.csv ./backup-tmp/SMS
   cecho "Removing temporary files created by the companion app."
   adb shell rm -rf /storage/emulated/0/linux-android-backup-temp
-
   # Export internal storage. We're not using adb pull due to reliability issues
   cecho "Exporting internal storage - this will take a while."
   mkdir ./backup-tmp/Storage
@@ -102,5 +103,7 @@ function backup_func() {
   fi
 
   cecho "Backed up successfully."
+  cecho "Note: SMS messages cannot be restored by Linux Android Backup at the moment. They are included in the backup archive for your own purposes."
+  cecho "You can find them by opening the backup archive using 7-Zip and navigating to the 'SMS' directory. This data can be opened in LibreOffice or Microsoft Excel."
   rm -rf backup-tmp > /dev/null
 }
