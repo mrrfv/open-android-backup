@@ -9,11 +9,7 @@ export archive_password="123"
 export mode="Wired"
 export export_method="adb"
 export use_hooks="no"
-export TERM="nope"
+export TERM="xterm"
 export CI="true"
 
-faketty() {
-    script -qfc "$(printf "%q " "$@")" /dev/null
-}
-
-faketty ./backup.sh
+./backup.sh
