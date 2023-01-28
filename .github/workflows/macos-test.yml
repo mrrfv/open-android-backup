@@ -13,7 +13,7 @@ jobs:
         distribution: 'zulu'
         java-version: '11'
     - run: brew install --cask android-platform-tools
-    - run: brew install p7zip pv
+    - run: brew install p7zip pv bash
     - run: chmod +x ./.github/test-script.sh
 
     - uses: reactivecircus/android-emulator-runner@v2
