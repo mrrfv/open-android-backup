@@ -40,7 +40,7 @@ function uninstall_companion_app() {
 }
 
 function install_companion_app() {
-  cecho "Linux Android Backup will install a companion app on your device, which will allow for contacts to be backed up and restored."
+  cecho "Linux Android Backup will install a companion app on your device, which will allow for contacts and other data to be backed up and restored."
   cecho "The companion app is open-source, and you can see what it's doing under the hood on GitHub."
   if [ ! -f linux-android-backup-companion.apk ]; then
   cecho "Downloading companion app."

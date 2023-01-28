@@ -1,0 +1,2 @@
+This is a backup archive created by Linux Android Backup.
+For more information, please visit the project's GitHub repository: https://github.com/mrrfv/linux-android-backup

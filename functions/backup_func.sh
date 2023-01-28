@@ -54,25 +54,32 @@ function backup_func() {
   # Export contacts and SMS messages
   cecho "Exporting contacts (as vCard) and SMS messages (as CSV)."
   mkdir ./backup-tmp/Contacts
-  mkdir ./backup-tmp/SMS
   get_file /storage/emulated/0/linux-android-backup-temp . ./backup-tmp/Contacts
+  mkdir ./backup-tmp/SMS
   mv ./backup-tmp/Contacts/SMS_Messages.csv ./backup-tmp/SMS
   cecho "Removing temporary files created by the companion app."
   adb shell rm -rf /storage/emulated/0/linux-android-backup-temp
-  # Export internal storage. We're not using adb pull due to reliability issues
+
+  # Export internal storage
   cecho "Exporting internal storage - this will take a while."
   mkdir ./backup-tmp/Storage
   get_file /storage/emulated/0 . ./backup-tmp/Storage
 
+  # Export call logs
+  cecho "Exporting call logs."
+  mkdir ./backup-tmp/CallLogs
+  adb shell content query --uri content://call_log/calls --projection name:normalized_number:duration:via_number:geocoded_location:date > ./backup-tmp/CallLogs/calls.txt || cecho "Couldn't backup call logs due to an error - ignoring." 1>&2
+  adb shell content query --uri content://call_log/calls > ./backup-tmp/CallLogs/raw_data.txt || cecho "Couldn't backup raw call logs due to an error - ignoring." 1>&2
+
   # Run the third-party backup hook, if enabled.
   if [ "$use_hooks" = "yes" ] && [ "$(type -t backup_hook)" == "function" ]; then
-	cecho "Running backup hooks in 5 seconds."
-	sleep 5
-	backup_hook
+    cecho "Running backup hooks in 5 seconds."
+    sleep 5
+    backup_hook
   elif [ "$use_hooks" = "yes" ] && [ ! "$(type -t backup_hook)" == "function" ]; then
-	cecho "WARNING! Hooks are enabled, but the backup hook hasn't been found in hooks.sh."
-	cecho "Skipping in 5 seconds."
-	sleep 5
+    cecho "WARNING! Hooks are enabled, but the backup hook hasn't been found in hooks.sh."
+    cecho "Skipping in 5 seconds."
+    sleep 5
   fi
 
   # All data has been collected and the phone can now be unplugged
@@ -81,6 +88,9 @@ function backup_func() {
   cecho "---"
   sleep 2
 
+  # Copy backup_archive_info.txt to the archive
+  cp $DIR/extras/backup_archive_info.txt ./backup-tmp/PLEASE_READ.txt
+
   # Compress
   cecho "Compressing & encrypting data - this will take a while."
   # -p: encrypt backup
@@ -88,7 +98,7 @@ function backup_func() {
   # -mx=9: ultra compression
   # -bb3: verbose logging
   # -sdel: delete files after compression
-  # The undefined variable is set by the user
+  # The undefined variable (archive_password) is set by the user if they're using unattended mode
   declare backup_archive="$archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
   retry 5 7z a -p"$archive_password" -mhe=on -mx=9 -bb3 -sdel "$backup_archive" backup-tmp/*
 
@@ -103,7 +113,7 @@ function backup_func() {
   fi
 
   cecho "Backed up successfully."
-  cecho "Note: SMS messages cannot be restored by Linux Android Backup at the moment. They are included in the backup archive for your own purposes."
-  cecho "You can find them by opening the backup archive using 7-Zip and navigating to the 'SMS' directory. This data can be opened in LibreOffice or Microsoft Excel."
+  cecho "Note: SMS messages and call logs cannot be restored by Linux Android Backup at the moment. They are included in the backup archive for your own purposes."
+  cecho "You can find them by opening the backup archive using 7-Zip."
   rm -rf backup-tmp > /dev/null
 }

@@ -86,4 +86,4 @@ if [ "$mode" = 'Wireless' ]; then
   adb disconnect
 fi
 
-cecho "If this project helped you, please star the GitHub repository. It lets me know that there are people using this script and I should continue working on it."
+cecho "If this project helped you, please star the GitHub repository. It lets me know that there are people using this script and I should continue working on it. Donations are available in my GitHub profile and will be appreciated too."
