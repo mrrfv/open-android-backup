@@ -67,6 +67,8 @@ brew install p7zip pv bash
 2. Clone or [download](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) this repository.
 3. Open the repository in the file explorer. Right click on a file called `backup-windows.ps1`, and click on "Run with PowerShell". **IMPORTANT: If you see an error after running the script, search for "Developer Settings" in the Settings app, and apply the settings related to PowerShell.**
 
+![Powershell Developer Settings](.github/images/windows-powershell-developer-settings.png)
+
 ## Usage
 
 Just run `backup.sh` and the script will walk you through the process. This section covers advanced usage of this program.
