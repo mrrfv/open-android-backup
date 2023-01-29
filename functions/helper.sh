@@ -57,6 +57,7 @@ function install_companion_app() {
   'android.permission.READ_CONTACTS'
   'android.permission.WRITE_CONTACTS'
   'android.permission.READ_EXTERNAL_STORAGE'
+  'android.permission.READ_SMS'
   )
   # Grant permissions
   for permission in "${permissions[@]}"; do
