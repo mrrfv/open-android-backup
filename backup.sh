@@ -29,6 +29,8 @@ if [ "$mode" = 'Wireless' ]; then
   wireless_connection
 fi
 
+clear
+
 if [ ! -v export_method ]; then
   cecho "Choose the exporting method."
   cecho "- Pick 'tar' first, as it is fast and most reliable, but might not work on all devices."
@@ -37,6 +39,8 @@ if [ ! -v export_method ]; then
   export_methods=( 'tar' 'adb' )
   list_input "Exporting method:" export_methods export_method
 fi
+
+clear
 
 if [ ! -v use_hooks ]; then
   cecho "Would you like to use hooks?"
@@ -49,12 +53,37 @@ if [ ! -v use_hooks ]; then
   list_input "Use hooks:" should_i_use_hooks use_hooks
 fi
 
+clear
+
 if [ "$use_hooks" = "yes" ] && [ -f "./hooks.sh" ]; then
   cecho "Loading hooks - if the script crashes during this step, the error should be reported to the hook author."
   source ./hooks.sh
+  sleep 4
+  clear
 elif [ "$use_hooks" = "yes" ]; then
   cecho "Couldn't find hooks.sh, but hooks have been enabled. Exiting."
   exit 1
+fi
+
+
+
+if command -v srm &> /dev/null
+then
+  if [ ! -v data_erase_choice ]; then
+    cecho "Linux Android Backup will create a temporary folder that contains all the data exported from your device."
+    cecho "This data will be encrypted and compressed into the backup archive, but leftovers from said folder might remain on your storage device."
+    cecho "The options below allow you to securely erase this data, making it harder for law enforcement and other adversaries to view your files."
+    cecho "Your choice will also apply to cleanups, i.e. if the script has previously crashed without removing the files."
+    cecho "Fast is considered insecure and can only be recommended on encrypted disks. Extra Slow is only recommended for the paranoid."
+
+    data_erase_choices=( "Fast" "Slow" "Extra Slow" )
+    list_input "Data Erase Mode:" data_erase_choices data_erase_choice
+    
+    clear
+  fi
+else
+  cecho "Couldn't find srm, a command provided by the 'secure-delete' package on Debian and Ubuntu. Sensitive temporary files created by the script will be deleted in a less secure way."
+  data_erase_choice="Fast"
 fi
 
 if [ ! -v selected_action ]; then

@@ -66,9 +66,25 @@ function install_companion_app() {
 }
 
 function remove_backup_tmp() {
+  # only run if backup-tmp exists
   if [ -d backup-tmp ]; then
     cecho "Cleaning up after backup/restore..."
-    rm -rfv backup-tmp
+    if [ "$data_erase_choice" = "Slow" ]; then
+      cecho "Securely erasing temporary files, this will take a while."
+      sleep 3
+      srm -v -r -l ./backup-tmp
+    elif [ "$data_erase_choice" = "Extra Slow" ]; then
+      cecho "Very securely erasing temporary files, this will take a long time."
+      sleep 3
+      srm -v -r ./backup-tmp
+    else
+      cecho "Using the 'Fast' data erase mode."
+      sleep 3
+      rm -rfv backup-tmp
+    fi
+    cecho "Cleanup complete."
+  else
+    cecho "Couldn't find any temporary files to cleanup, continuing. This is not an error."
   fi
 }
 

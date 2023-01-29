@@ -86,7 +86,7 @@ function backup_func() {
   cecho "---"
   cecho "All required data has been copied from your device and it can now be unplugged."
   cecho "---"
-  sleep 2
+  sleep 4
 
   # Copy backup_archive_info.txt to the archive
   cp $DIR/extras/backup_archive_info.txt ./backup-tmp/PLEASE_READ.txt
@@ -97,19 +97,21 @@ function backup_func() {
   # -mhe=on: encrypt headers (metadata)
   # -mx=9: ultra compression
   # -bb3: verbose logging
-  # -sdel: delete files after compression
   # The undefined variable (archive_password) is set by the user if they're using unattended mode
   declare backup_archive="$archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
-  retry 5 7z a -p"$archive_password" -mhe=on -mx=9 -bb3 -sdel "$backup_archive" backup-tmp/*
+  retry 5 7z a -p"$archive_password" -mhe=on -mx=9 -bb3 $additional_7zip_args "$backup_archive" backup-tmp/*
+
+  # We're not using 7-Zip's -sdel option (delete files after compression) to honor the user's choice to securely delete temporary files after a backup
+  remove_backup_tmp  
 
   if [ "$use_hooks" = "yes" ] && [ "$(type -t after_backup_hook)" == function ]; then
-	cecho "Running after backup hook in 5 seconds."
-	sleep 5
-	after_backup_hook
+    cecho "Running after backup hook in 5 seconds."
+    sleep 5
+    after_backup_hook
   elif [ "$use_hooks" = "yes" ] && [ ! "$(type -t after_backup_hook)" == function ]; then
-	cecho "WARNING! Hooks are enabled, but an after backup hook hasn't been found in hooks.sh."
-	cecho "Skipping in 5 seconds."
-	sleep 5
+    cecho "WARNING! Hooks are enabled, but an after backup hook hasn't been found in hooks.sh."
+    cecho "Skipping in 5 seconds."
+    sleep 5
   fi
 
   cecho "Backed up successfully."
