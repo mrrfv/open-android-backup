@@ -70,11 +70,11 @@ fi
 if command -v srm &> /dev/null
 then
   if [ ! -v data_erase_choice ]; then
-    cecho "Linux Android Backup will create a temporary folder that contains all the data exported from your device."
-    cecho "This data will be encrypted and compressed into the backup archive, but leftovers from said folder might remain on your storage device."
+    cecho "Linux Android Backup creates a temporary folder that contains all the data exported from your device."
+    cecho "Leftovers from this folder might remain on your storage device, even after a successful backup or restore."
     cecho "The options below allow you to securely erase this data, making it harder for law enforcement and other adversaries to view your files."
     cecho "Your choice will also apply to cleanups, i.e. if the script has previously crashed without removing the files."
-    cecho "Fast is considered insecure and can only be recommended on encrypted disks. Extra Slow is only recommended for the paranoid."
+    cecho "Fast is considered insecure and can only be recommended on encrypted disks. Slow takes more time than the former, and it's safe enough for most people (2 passes). Extra Slow is only recommended for the paranoid (Gutmann method)."
 
     data_erase_choices=( "Fast" "Slow" "Extra Slow" )
     list_input "Data Erase Mode:" data_erase_choices data_erase_choice
@@ -82,7 +82,7 @@ then
     clear
   fi
 else
-  cecho "Couldn't find srm, a command provided by the 'secure-delete' package on Debian and Ubuntu. Sensitive temporary files created by the script will be deleted in a less secure way."
+  cecho "Couldn't find srm, a command provided by the 'secure-delete' package on Debian and Ubuntu. Secure removal of sensitive temporary files created by the script is unavailable - encrypting your disks is recommended."
   data_erase_choice="Fast"
 fi
 
