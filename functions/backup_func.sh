@@ -3,26 +3,26 @@
 
 function backup_func() {
   while true; do
-	if [ ! -v archive_path ]; then
-	echo "Note: Backups will first be made on the drive this script is located in, and then will be copied to the specified location."
+  if [ ! -v archive_path ]; then
+  echo "Note: Backups will first be made on the drive this script is located in, and then will be copied to the specified location."
 
-	# Check if we're running on Windows.
-	# If we are, then we will open a file chooser instead of asking the user for the file path thru CLI
-	# due to compatibility issues.
-	# TODO: also do this on Linux if KDialog is available
-	if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ];
-	then
-		cecho "Running on Windows (WSL) - a graphical file chooser dialog will be open."
-		cecho "You will be prompted for the backup location. Press Enter to continue."
-		wait_for_enter
-		archive_path=$(kdialog --getexistingdirectory /mnt/c || true)
-	else
-		text_input "Please enter the backup location. Enter '.' for the current working directory." archive_path "."
-	fi
+  # Check if we're running on Windows.
+  # If we are, then we will open a file chooser instead of asking the user for the file path thru CLI
+  # due to compatibility issues.
+  # TODO: also do this on Linux if KDialog is available
+  if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ];
+  then
+    cecho "Running on Windows (WSL) - a graphical file chooser dialog will be open."
+    cecho "You will be prompted for the backup location. Press Enter to continue."
+    wait_for_enter
+    archive_path=$(kdialog --getexistingdirectory /mnt/c || true)
+  else
+    text_input "Please enter the backup location. Enter '.' for the current working directory." archive_path "."
+  fi
 
-	fi
-	directory_ok "$archive_path" && break
-	unset archive_path
+  fi
+  directory_ok "$archive_path" && break
+  unset archive_path
   done
 
   adb shell am start -n com.example.companion_app/.MainActivity
@@ -37,8 +37,8 @@ function backup_func() {
   #   -f: see their associated file
   #   -3: filter to only show third party packages
   do
-	declare output=backup-tmp/Apps
-	(
+  declare output=backup-tmp/Apps
+  (
     apk_path=${app%=*}                                  # apk path on device
     apk_path=${apk_path/package:}                       # strip "package:"
     apk_clean_name=$(echo "$app" | awk -F "=" '{print $NF}' | tr -dc '[:alnum:].' | tr '[:upper:]' '[:lower:]') # package name
@@ -51,9 +51,9 @@ function backup_func() {
     
     echo "Backing up app: $apk_clean_name"
 
-	  get_file "$(dirname "$apk_path")" "$(basename "$apk_path")" ./backup-tmp/Apps
-	  mv "./backup-tmp/Apps/$(basename "$apk_path")" "./backup-tmp/Apps/$apk_base" || cecho "Couldn't find app $(basename "$apk_path") after exporting from device - ignoring." 1>&2
-	)
+    get_file "$(dirname "$apk_path")" "$(basename "$apk_path")" ./backup-tmp/Apps
+    mv "./backup-tmp/Apps/$(basename "$apk_path")" "./backup-tmp/Apps/$apk_base" || cecho "Couldn't find app $(basename "$apk_path") after exporting from device - ignoring." 1>&2
+  )
   done
 
   # Export contacts and SMS messages
