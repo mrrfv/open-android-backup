@@ -39,13 +39,18 @@ function backup_func() {
   do
 	declare output=backup-tmp/Apps
 	(
-	  apk_path=${app%=*}                # apk path on device
-	  apk_path=${apk_path/package:}     # stip "package:"
-	  apk_base=$RANDOM$RANDOM$RANDOM$RANDOM.apk           # base apk name
-	  # e.g.:
-	  # app=package:/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk=com.whatsapp
-	  # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/com.whatsapp-iaTC9-W1lyR1FxO==/base.apk
-	  # apk_base=47856542.apk
+    apk_path=${app%=*}                                  # apk path on device
+    apk_path=${apk_path/package:}                       # strip "package:"
+    apk_clean_name=$(echo "$app" | awk -F "=" '{print $NF}' | tr -dc '[:alnum:].' | tr '[:upper:]' '[:lower:]') # package name
+    apk_base="$apk_clean_name-$RANDOM$RANDOM.apk"  # apk filename in the backup archive
+    # e.g.:
+    # app=package:/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk=org.fdroid.fdroid
+    # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk
+    # apk_clean_name=org.fdroid.fdroid
+    # apk_base=org.fdroid.fdroid-123456.apk
+    
+    echo "Backing up app: $apk_clean_name"
+
 	  get_file "$(dirname "$apk_path")" "$(basename "$apk_path")" ./backup-tmp/Apps
 	  mv "./backup-tmp/Apps/$(basename "$apk_path")" "./backup-tmp/Apps/$apk_base" || cecho "Couldn't find app $(basename "$apk_path") after exporting from device - ignoring." 1>&2
 	)
