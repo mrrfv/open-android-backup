@@ -12,4 +12,8 @@ export use_hooks="no"
 export TERM="xterm"
 export CI="true"
 
+flutter run --release &
+
+sleep 300
+
 ./backup.sh

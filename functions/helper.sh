@@ -31,38 +31,44 @@ function check_adb_connection() {
 }
 
 function uninstall_companion_app() {
-  cecho "Attempting to uninstall companion app."
-  {
-    set +e
-    adb uninstall com.example.companion_app
-    set -e
-  } &> /dev/null
+  # Don't run this function in GitHub Actions or another CI
+  if [ -v CI ]; then
+    cecho "Attempting to uninstall companion app."
+    {
+      set +e
+      adb uninstall com.example.companion_app
+      set -e
+    } &> /dev/null
+  fi
 }
 
 function install_companion_app() {
-  cecho "Linux Android Backup will install a companion app on your device, which will allow for contacts and other data to be backed up and restored."
-  cecho "The companion app is open-source, and you can see what it's doing under the hood on GitHub."
-  if [ ! -f linux-android-backup-companion.apk ]; then
-  cecho "Downloading companion app."
-  # -L makes curl follow redirects
-  curl -L -o linux-android-backup-companion.apk https://github.com/mrrfv/linux-android-backup/releases/download/latest/app-release.apk
-  else
-  cecho "Companion app already downloaded."
+  # Don't run this function in GitHub Actions or another CI
+  if [ -v CI ]; then
+    cecho "Linux Android Backup will install a companion app on your device, which will allow for contacts and other data to be backed up and restored."
+    cecho "The companion app is open-source, and you can see what it's doing under the hood on GitHub."
+    if [ ! -f linux-android-backup-companion.apk ]; then
+    cecho "Downloading companion app."
+    # -L makes curl follow redirects
+    curl -L -o linux-android-backup-companion.apk https://github.com/mrrfv/linux-android-backup/releases/download/latest/app-release.apk
+    else
+    cecho "Companion app already downloaded."
+    fi
+    uninstall_companion_app
+    cecho "Installing companion app."
+    adb install -r linux-android-backup-companion.apk
+    cecho "Granting required permissions to companion app."
+    permissions=(
+    'android.permission.READ_CONTACTS'
+    'android.permission.WRITE_CONTACTS'
+    'android.permission.READ_EXTERNAL_STORAGE'
+    'android.permission.READ_SMS'
+    )
+    # Grant permissions
+    for permission in "${permissions[@]}"; do
+    adb shell pm grant com.example.companion_app "$permission" || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
+    done
   fi
-  uninstall_companion_app
-  cecho "Installing companion app."
-  adb install -r linux-android-backup-companion.apk
-  cecho "Granting required permissions to companion app."
-  permissions=(
-  'android.permission.READ_CONTACTS'
-  'android.permission.WRITE_CONTACTS'
-  'android.permission.READ_EXTERNAL_STORAGE'
-  'android.permission.READ_SMS'
-  )
-  # Grant permissions
-  for permission in "${permissions[@]}"; do
-  adb shell pm grant com.example.companion_app "$permission" || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
-  done
 }
 
 function remove_backup_tmp() {
