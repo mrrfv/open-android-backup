@@ -210,10 +210,10 @@ class _HomeState extends State<Home> {
         child: Column(
           children: <Widget>[
             const Text(
-              "The Linux Android Backup companion app allows for backups of your contacts, with more to come. It doesn't upload your data to a remote server: data is saved to the internal storage and then read by the script running on your computer.",
+              "The Linux Android Backup companion app allows for backups of data not normally accessible through adb. No data is uploaded to a remote server: it is saved to the internal storage and then read by the script running on your computer.",
             ),
             const Text(
-                "This app requires a computer as well as the Linux Android Backup script running."),
+                "This app requires the Linux Android Backup script running on your computer."),
             ElevatedButton(
               onPressed: () {
                 setState(() {

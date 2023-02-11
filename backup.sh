@@ -2,9 +2,9 @@
 set -e
 
 # Application metadata - don't change
-# This is used to download a stable, compatible version of the Android companion app,
-# so it should match the tag name in GitHub Releases
-APP_VERSION="v1.0.2"
+# This is used to download a stable, compatible version of the Android companion app as well as ensure backwards compatibility,
+# so it should match the tag name in GitHub Releases.
+APP_VERSION="v1.0.3"
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
