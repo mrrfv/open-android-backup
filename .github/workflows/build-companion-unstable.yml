@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'companion_app/**'
+  workflow_dispatch:
 
 jobs:
   build:
