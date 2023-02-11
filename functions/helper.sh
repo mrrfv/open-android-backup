@@ -34,11 +34,8 @@ function uninstall_companion_app() {
   # Don't run this function in GitHub Actions or another CI
   if [ ! -v CI ]; then
     cecho "Attempting to uninstall companion app."
-    {
-      set +e
-      adb uninstall mrrfv.backup.companion
-      set -e
-    } &> /dev/null
+    adb uninstall com.example.companion_app &> /dev/null || true # Legacy companion app
+    adb uninstall mrrfv.backup.companion &> /dev/null || true
   fi
 }
 
