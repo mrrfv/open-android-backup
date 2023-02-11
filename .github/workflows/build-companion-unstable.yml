@@ -24,7 +24,7 @@ jobs:
 
     - run: cp -v companion_app/build/app/outputs/apk/release/app-release.apk ./linux-android-backup-companion.apk
     - run: sudo apt update && sudo apt install p7zip-full
-    - run: 7z a -bb3 -t7z -mx9 -x!.*\* -x!website\* -x!companion_app\* Linux_Android_Backup_Unstable_Bundle.7z .
+    - run: 7z a -bb3 -tzip -mx9 -x!.*\* -x!website\* -x!companion_app\* Linux_Android_Backup_Unstable_Bundle.zip .
 
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
@@ -34,4 +34,4 @@ jobs:
         title: "Linux Android Backup - Unstable Version"
         files: |
           companion_app/build/app/outputs/apk/release/app-release.apk
-          Linux_Android_Backup_Unstable_Bundle.7z
+          Linux_Android_Backup_Unstable_Bundle.zip
