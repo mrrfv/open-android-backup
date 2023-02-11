@@ -120,9 +120,9 @@ class _HomeState extends State<Home> {
       }
       String csv = const ListToCsvConverter().convert(processedMessages);
 
-      final File sms_file_export = File(
+      final File smsFileExport = File(
           "/storage/emulated/0/linux-android-backup-temp/SMS_Messages.csv");
-      sms_file_export.writeAsString(csv);
+      smsFileExport.writeAsString(csv);
 
       // Show a dialog if the export is complete
       showInfoDialog(context, "Data Exported",
@@ -212,7 +212,8 @@ class _HomeState extends State<Home> {
             const Text(
               "The Linux Android Backup companion app allows for backups of your contacts, with more to come. It doesn't upload your data to a remote server: data is saved to the internal storage and then read by the script running on your computer.",
             ),
-            const Text("This app requires a computer as well as the Linux Android Backup script running."),
+            const Text(
+                "This app requires a computer as well as the Linux Android Backup script running."),
             ElevatedButton(
               onPressed: () {
                 setState(() {
