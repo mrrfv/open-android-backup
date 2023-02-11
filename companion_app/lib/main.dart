@@ -212,6 +212,7 @@ class _HomeState extends State<Home> {
             const Text(
               "The Linux Android Backup companion app allows for backups of your contacts, with more to come. It doesn't upload your data to a remote server: data is saved to the internal storage and then read by the script running on your computer.",
             ),
+            const Text("This app requires a computer as well as the Linux Android Backup script running."),
             ElevatedButton(
               onPressed: () {
                 setState(() {

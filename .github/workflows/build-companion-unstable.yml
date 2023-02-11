@@ -1,0 +1,32 @@
+name: Build Unstable Companion App
+on:
+  push:
+    paths:
+      - 'companion_app/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./companion_app
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-java@v2
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable' # or: 'beta', 'dev' or 'master'
+    - run: flutter pub get
+      working-directory: ${{ env.working-directory }}
+    - run: flutter build apk
+      working-directory: ${{ env.working-directory }}
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest" # we need to keep this tag to keep legacy scripts working
+        prerelease: true
+        title: "Companion App - Unstable Version"
+        files: |
+          companion_app/build/app/outputs/apk/release/app-release.apk

@@ -95,6 +95,7 @@ function backup_func() {
 
   # Copy backup_archive_info.txt to the archive
   cp $DIR/extras/backup_archive_info.txt ./backup-tmp/PLEASE_READ.txt
+  echo "$APP_VERSION" > ./backup-tmp/version.txt
 
   # Compress
   cecho "Compressing & encrypting data - this will take a while."
