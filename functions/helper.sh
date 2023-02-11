@@ -36,7 +36,7 @@ function uninstall_companion_app() {
     cecho "Attempting to uninstall companion app."
     {
       set +e
-      adb uninstall com.example.companion_app
+      adb uninstall mrrfv.backup.companion
       set -e
     } &> /dev/null
   fi
@@ -73,7 +73,7 @@ function install_companion_app() {
     )
     # Grant permissions
     for permission in "${permissions[@]}"; do
-    adb shell pm grant com.example.companion_app "$permission" || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
+    adb shell pm grant mrrfv.backup.companion "$permission" || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
     done
   fi
 }

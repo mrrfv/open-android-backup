@@ -25,7 +25,7 @@ function backup_func() {
   unset archive_path
   done
 
-  adb shell am start -n com.example.companion_app/.MainActivity
+  adb shell am start -n mrrfv.backup.companion/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
   wait_for_enter
   uninstall_companion_app # we're uninstalling it so that it isn't included in the backup

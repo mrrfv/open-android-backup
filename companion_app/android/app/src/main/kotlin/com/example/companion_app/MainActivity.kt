@@ -1,4 +1,4 @@
-package com.example.companion_app
+package mrrfv.backup.companion
 
 import io.flutter.embedding.android.FlutterActivity
 

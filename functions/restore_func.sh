@@ -50,7 +50,7 @@ function restore_func() {
   cecho "Pushing backed up contacts to device."
   adb push ./backup-tmp/Contacts /storage/emulated/0/Contacts_Backup
 
-  adb shell am start -n com.example.companion_app/.MainActivity
+  adb shell am start -n mrrfv.backup.companion/.MainActivity
   cecho "The companion app has been opened on your device. Please press the 'Auto-restore contacts' button - this will import your contacts to the device's contact database. Press Enter to continue."
   wait_for_enter
 
