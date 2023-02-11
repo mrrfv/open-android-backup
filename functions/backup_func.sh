@@ -94,7 +94,7 @@ function backup_func() {
   sleep 4
 
   # Copy backup_archive_info.txt to the archive
-  cp $DIR/extras/backup_archive_info.txt ./backup-tmp/PLEASE_READ.txt
+  cp "$DIR/extras/backup_archive_info.txt" ./backup-tmp/PLEASE_READ.txt
   echo "$APP_VERSION" > ./backup-tmp/version.txt
 
   # Compress

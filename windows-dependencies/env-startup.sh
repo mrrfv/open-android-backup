@@ -4,7 +4,7 @@
 export ADB_DIR=$(pwd)/windows-dependencies/adb/adb.exe
 
 adb() {
-     $ADB_DIR "$@"
+     "$ADB_DIR" "$@"
 }
 export -f adb
 

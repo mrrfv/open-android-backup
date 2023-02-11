@@ -15,12 +15,12 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 # Load Inquirer.sh
-source $DIR/inquirer-sh/list_input.sh
-source $DIR/inquirer-sh/text_input.sh
+source "$DIR/inquirer-sh/list_input.sh"
+source "$DIR/inquirer-sh/text_input.sh"
 # ---
 
 # Load all functions in ./functions
-for f in $DIR/functions/*; do source "$f"; done
+for f in "$DIR"/functions/*; do source "$f"; done
 
 check_adb_connection
 
