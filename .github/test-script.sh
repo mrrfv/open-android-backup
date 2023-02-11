@@ -11,6 +11,7 @@ export export_method="adb"
 export use_hooks="no"
 export TERM="xterm"
 export CI="true"
+export data_erase_choice="Fast"
 
 flutter run --release &
 
