@@ -22,6 +22,11 @@ jobs:
       working-directory: ${{ env.working-directory }}
     - run: flutter build apk
       working-directory: ${{ env.working-directory }}
+
+    - run: cp -v companion_app/build/app/outputs/apk/release/app-release.apk ./linux-android-backup-companion.apk
+    - run: sudo apt update && sudo apt install p7zip-full
+    - run: 7z a -bb3 -t7z -mx9 -x!companion_app\* Linux_Android_Backup_Unstable_Bundle.7z .
+
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -30,3 +35,4 @@ jobs:
         title: "Companion App - Unstable Version"
         files: |
           companion_app/build/app/outputs/apk/release/app-release.apk
+          Linux_Android_Backup_Unstable_Bundle.7z
