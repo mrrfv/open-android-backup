@@ -42,7 +42,7 @@ These things are the majority of what most people would want to keep safe, but e
 ### Linux
 
 1. Install p7zip, adb, curl, bc, pv and optionally secure-delete. If you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl bc pv secure-delete`.
-2. [Download](https://github.com/mrrfv/linux-android-backup/releases) the Linux Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build by clicking on [this link](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) or cloning.
+2. [Download](https://github.com/mrrfv/linux-android-backup/releases) the Linux Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) or cloning.
 3. Enable [developer options](https://developer.android.com/studio/debug/dev-options#enable) and USB debugging on your device, then run `backup.sh` in a terminal.
 
 ### macOS
@@ -65,7 +65,7 @@ brew install p7zip pv bash
 ### Windows
 
 1. Install the [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install#install), a compatibility layer allowing you to run Linux applications (such as this one) on Windows. You only need to follow the `Install` step.
-2. [Download](https://github.com/mrrfv/linux-android-backup/releases) the Linux Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build by clicking on [this link](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) or cloning.
+2. [Download](https://github.com/mrrfv/linux-android-backup/releases) the Linux Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) or cloning.
 3. Open the repository in the file explorer. Right click on a file called `backup-windows.ps1`, and click on "Run with PowerShell". **IMPORTANT: If you see an error after running the script, search for "Developer Settings" in the Settings app, and apply the settings related to PowerShell.**
 
 ![Powershell Developer Settings](.github/images/windows-powershell-developer-settings.png)
