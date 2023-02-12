@@ -203,7 +203,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Linux Android Backup Companion'),
+        title: const Center(child: Text('Linux Android Backup Companion')),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
