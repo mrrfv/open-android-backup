@@ -205,62 +205,78 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: const Center(child: Text('Linux Android Backup Companion')),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            const Text(
-              "The Linux Android Backup companion app allows for backups of data not normally accessible through adb. No data is uploaded to a remote server: it is saved to the internal storage and then read by the script running on your computer.",
-            ),
-            const Text(
-                "This app requires the Linux Android Backup script running on your computer."),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  showBackupProgress = true;
-                });
-                backup(context);
-              },
-              child: const Text("Export Data"),
-            ),
-            Visibility(
-                visible: showBackupProgress,
-                child: Text("Exported " +
-                    contactsExported.toString() +
-                    " contact(s) out of " +
-                    contactsAmountDatabase.toString() +
-                    ". Found " +
-                    smsMessageCount.toString() +
-                    " SMS messages to process, of which " +
-                    smsMessagesExported.toString() +
-                    " have been exported.")),
-            const Divider(
-              color: Color.fromARGB(31, 44, 44, 44),
-              height: 25,
-              thickness: 1,
-              indent: 5,
-              endIndent: 5,
-            ),
-            const Text(
-              "Upon restoring a backup, press the button below to automatically import all contacts. SMS message importing isn't currently available, but you can view your messages by opening your backup archive.",
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  showRestoreProgress = true;
-                });
-                autoRestoreContacts(context);
-              },
-              child: const Text("Auto-restore contacts"),
-            ),
-            Visibility(
-                visible: showRestoreProgress,
-                child: Text("Restored " +
-                    contactsImported.toString() +
-                    " contact(s) out of " +
-                    contactsAmountFilesystem.toString() +
-                    ".")),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: <Widget>[
+              const Text(
+                "About",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                "The Linux Android Backup companion app allows for backups of data not normally accessible through adb. No data is uploaded to a remote server: it is saved to the internal storage and then read by the script running on your computer.",
+              ),
+              const Text(
+                  "This app requires the Linux Android Backup script running on your computer."),
+              // data export section
+              const Text(
+                "Export Data",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    showBackupProgress = true;
+                  });
+                  backup(context);
+                },
+                child: const Text("Export Data"),
+              ),
+              Visibility(
+                  visible: showBackupProgress,
+                  child: Text("Exported " +
+                      contactsExported.toString() +
+                      " contact(s) out of " +
+                      contactsAmountDatabase.toString() +
+                      ". Found " +
+                      smsMessageCount.toString() +
+                      " SMS messages to process, of which " +
+                      smsMessagesExported.toString() +
+                      " have been exported.")),
+              const Divider(
+                color: Color.fromARGB(31, 44, 44, 44),
+                height: 25,
+                thickness: 1,
+                indent: 5,
+                endIndent: 5,
+              ),
+              // data import section
+              const Text(
+                "Import Contacts",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                "Upon restoring a backup, press the button below to automatically import all contacts. SMS message importing isn't currently available, but you can view your messages by opening your backup archive.",
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    showRestoreProgress = true;
+                  });
+                  autoRestoreContacts(context);
+                },
+                child: const Text("Auto-restore contacts"),
+              ),
+              Visibility(
+                  visible: showRestoreProgress,
+                  child: Text("Restored " +
+                      contactsImported.toString() +
+                      " contact(s) out of " +
+                      contactsAmountFilesystem.toString() +
+                      ".")),
+            ],
+          ),
         ),
       ),
     );
