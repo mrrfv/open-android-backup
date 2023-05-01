@@ -20,7 +20,7 @@ The following data types can be automatically restored back to the device.
 
 The following data types are only viewable by opening the backup archive with 7-Zip and cannot be auto-restored to a device at the moment.
 
-- SMS Messages (exported in CSV format)
+- SMS Messages (exported in CSV format - MMS attachments not saved)
 - Call Logs (exported into a text file)
 
 These things are the majority of what most people would want to keep safe, but everybody has different expectations and requirements, so suggestions are welcome.
