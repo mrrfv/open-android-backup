@@ -29,15 +29,45 @@ function restore_func() {
 
   # Restore applications
   cecho "Restoring applications."
-  # We don't want a single app to break the whole script
+  # We don't want a single app to fail the entire restore process, so we're disabling exit on error
   set +e
-  if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
-    cecho "Windows/WSL detected"
-    find ./backup-tmp/Apps -type f -name "*.apk" -exec ./windows-dependencies/adb/adb.exe install {} \;
-  else
-    cecho "macOS/Linux detected"
-    find ./backup-tmp/Apps -type f -name "*.apk" -exec adb install {} \;
+
+  apk_files=()
+  previous_package_name=""
+  
+  for apk_path in $(find ./backup-tmp/Apps -type f -name "*.apk" | sort); do
+    apk_file_name=$(basename "$apk_path")
+    package_name="${apk_file_name%-*}"
+    
+    if [[ "$package_name" == "$previous_package_name" ]]; then
+      apk_files+=("$apk_path")
+    else
+      if [[ -n "$previous_package_name" ]]; then
+        if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
+          cecho "Windows/WSL detected"
+          ./windows-dependencies/adb/adb.exe install-multiple "${apk_files[@]}"
+        else
+          cecho "macOS/Linux detected"
+          adb install-multiple "${apk_files[@]}"
+        fi
+      fi
+
+      apk_files=("$apk_path")
+      previous_package_name="$package_name"
+    fi
+  done
+
+  # Install the last group of APK files
+  if [[ -n "$previous_package_name" ]]; then
+    if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
+      cecho "Windows/WSL detected"
+      ./windows-dependencies/adb/adb.exe install-multiple "${apk_files[@]}"
+    else
+      cecho "macOS/Linux detected"
+      adb install-multiple "${apk_files[@]}"
+    fi
   fi
+
   set -e
 
   # TODO: use tar to restore data to internal storage instead of adb push

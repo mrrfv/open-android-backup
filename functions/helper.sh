@@ -10,6 +10,13 @@ function wait_for_enter() {
   fi
 }
 
+# Gets split apks for a given package name, used by backup function
+function get_split_apks() {
+  local package_name="$1"
+  adb shell pm list packages -f $package_name | awk -F ':' '{print $2}' | tr -d '\r'
+}
+
+
 # "cecho" makes output messages yellow, if possible
 function cecho() {
   if tty -s; then
