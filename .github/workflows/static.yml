@@ -36,8 +36,8 @@ jobs:
       - name: Render
         run: |
           npm ci
-          npm run deploy:prod
-          rm -rfv ./node_modules .* package*.json
+          npm run deploy
+          rm -rfv ./node_modules .* package*.json || true
         working-directory: ./website
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
