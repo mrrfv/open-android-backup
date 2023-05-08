@@ -1,5 +1,7 @@
 # Open Android Backup
 
+<small>Formerly Linux Android Backup.</small>
+
 Open Android Backup is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated `adb backup` command. This project works on Windows, macOS and Linux.
 
 ![Demo](https://github.com/mrrfv/open-android-backup/raw/c86602f9e5dbc501e0eacc43fe781c352998e712/.github/images/demo.gif)
