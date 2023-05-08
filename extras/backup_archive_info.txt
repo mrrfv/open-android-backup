@@ -1,4 +1,4 @@
-This is a backup archive created by Linux Android Backup.
-For more information, please visit the project's GitHub repository: https://github.com/mrrfv/linux-android-backup
+This is a backup archive created by Open Android Backup.
+For more information, please visit the project's GitHub repository: https://github.com/mrrfv/open-android-backup
 
 "version.txt" is a file containing the version of the script when this backup was created; this data might be used in the future to improve backwards compatibility. Please avoid changing its contents.

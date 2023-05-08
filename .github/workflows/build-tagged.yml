@@ -25,15 +25,15 @@ jobs:
     - run: flutter build apk
       working-directory: ${{ env.working-directory }}
 
-    - run: cp -v companion_app/build/app/outputs/apk/release/app-release.apk ./linux-android-backup-companion.apk
+    - run: cp -v companion_app/build/app/outputs/apk/release/app-release.apk ./open-android-backup-companion.apk
     - run: sudo apt update && sudo apt install p7zip-full
-    - run: 7z a -bb3 -tzip -mx9  -x!.*\* -x!website\* -x!companion_app\* Linux_Android_Backup_${{ github.ref_name }}_Bundle.zip .
+    - run: 7z a -bb3 -tzip -mx9  -x!.*\* -x!website\* -x!companion_app\* Open_Android_Backup_${{ github.ref_name }}_Bundle.zip .
 
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
-        title: "Linux Android Backup Stable - ${{ github.ref_name }}"
+        title: "Open Android Backup Stable - ${{ github.ref_name }}"
         files: |
           companion_app/build/app/outputs/apk/release/app-release.apk
-          Linux_Android_Backup_${{ github.ref_name }}_Bundle.zip
+          Open_Android_Backup_${{ github.ref_name }}_Bundle.zip

@@ -75,7 +75,7 @@ fi
 if command -v srm &> /dev/null
 then
   if [ ! -v data_erase_choice ]; then
-    cecho "Linux Android Backup creates a temporary folder that contains all the data exported from your device."
+    cecho "Open Android Backup creates a temporary folder that contains all the data exported from your device."
     cecho "Leftovers from this folder might remain on your storage device, even after a successful backup or restore."
     cecho "The options below allow you to securely erase this data, making it harder for law enforcement and other adversaries to view your files."
     cecho "Your choice will also apply to cleanups, i.e. if the script has previously crashed without removing the files."

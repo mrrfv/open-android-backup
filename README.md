@@ -1,10 +1,10 @@
-# Linux Android Backup
+# Open Android Backup
 
-Linux Android Backup is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated `adb backup` command. Despite its name, this project works on Windows, macOS and Linux.
+Open Android Backup is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated `adb backup` command. This project works on Windows, macOS and Linux.
 
-**Important:** I am looking for volunteers who are interested in helping me with maintaining this project as well as fixing bugs. This project is not being abandoned, I just need a helping hand.
+![Demo](https://github.com/mrrfv/open-android-backup/raw/c86602f9e5dbc501e0eacc43fe781c352998e712/.github/images/demo.gif)
 
-![Demo](https://github.com/mrrfv/linux-android-backup/raw/c86602f9e5dbc501e0eacc43fe781c352998e712/.github/images/demo.gif)
+**Important:** The `master` branch is reserved for development. If you are looking for a download, please go to Releases or select a tag instead.
 
 ## Data backed up
 
@@ -12,7 +12,7 @@ Linux Android Backup is a tiny shell script & Flutter app that makes securely ba
 
 The following data types can be automatically restored back to the device.
 
-- Apps (.apk files of installed apps)
+- Apps (.apk files of installed apps - split APK support is experimental and can be found in the `split-apk-support` branch)
 - Internal storage (pictures, downloads, videos, Signal backups if enabled, etc)
 - Contacts (exported in vCard format)
 
@@ -42,7 +42,7 @@ These things are the majority of what most people would want to keep safe, but e
 ### Linux
 
 1. Install p7zip, adb, curl, bc, pv and optionally secure-delete. If you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl bc pv secure-delete`.
-2. [Download](https://github.com/mrrfv/linux-android-backup/releases/latest) the Linux Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) or cloning.
+2. [Download](https://github.com/mrrfv/open-android-backup/releases/latest) the Open Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/open-android-backup/archive/refs/heads/master.zip) or cloning.
 3. Enable [developer options](https://developer.android.com/studio/debug/dev-options#enable) and USB debugging on your device, then run `backup.sh` in a terminal.
 
 ### macOS
@@ -65,7 +65,7 @@ brew install p7zip pv bash
 ### Windows
 
 1. Install the [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install#install), a compatibility layer allowing you to run Linux applications (such as this one) on Windows. You only need to follow the `Install` step.
-2. [Download](https://github.com/mrrfv/linux-android-backup/releases/latest) the Linux Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/linux-android-backup/archive/refs/heads/master.zip) or cloning.
+2. [Download](https://github.com/mrrfv/open-android-backup/releases/latest) the Open Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/open-android-backup/archive/refs/heads/master.zip) or cloning.
 3. Open the repository in the file explorer. Right click on a file called `backup-windows.ps1`, and click on "Run with PowerShell". **IMPORTANT: If you see an error after running the script, search for "Developer Settings" in the Settings app, and apply the settings related to PowerShell.**
 
 ![Powershell Developer Settings](.github/images/windows-powershell-developer-settings.png)
@@ -76,7 +76,7 @@ Just run `backup.sh` and the script will walk you through the process. This sect
 
 ### Hooks
 
-Linux Android Backup hooks allow you to effortlessly include your own backup steps, such as those that require root or work only on specific devices, without modifying the main script. You can upload these hooks to your own GitHub repositories and share them with others.
+Open Android Backup hooks allow you to effortlessly include your own backup steps, such as those that require root or work only on specific devices, without modifying the main script. You can upload these hooks to your own GitHub repositories and share them with others.
 
 **Info for users**
 
@@ -84,9 +84,9 @@ After writing or downloading a hook you'd like to use, rename it to `hooks.sh` a
 
 **Info for the security conscious**
 
-Using hooks that you don't trust is a security risk that we don't claim responsibility for! They have the same access over your phone and computer as Linux Android Backup, making it possible for attackers to backdoor or wipe your devices. You must check the contents of the hook you'd like to use before running the script.
+Using hooks that you don't trust is a security risk that we don't claim responsibility for! They have the same access over your phone and computer as Open Android Backup, making it possible for attackers to backdoor or wipe your devices. You must check the contents of the hook you'd like to use before running the script.
 
-Linux Android Backup doesn't automatically load hooks, and you have to allow the use of them before they are even touched by the program.
+Open Android Backup doesn't automatically load hooks, and you have to allow the use of them before they are even touched by the program.
 
 **Info for developers**
 
@@ -122,7 +122,7 @@ There are 8 environment variables that control what the script does without user
 3. `archive_path` - Path to the backup. Works for both Restore and Backup actions.
 4. `archive_password` - Backup password.
 5. `mode` - How the script should connect to the device. Possible values are `Wired` and `Wireless` (case sensitive).
-6. `export_method` - The method Linux Android Backup should use to export data from the device. Possible values are `tar` and `adb` (case sensitive) - the former is fast & very stable but might not work on all devices, and the latter is widely compatible but has stability issues.
+6. `export_method` - The method Open Android Backup should use to export data from the device. Possible values are `tar` and `adb` (case sensitive) - the former is fast & very stable but might not work on all devices, and the latter is widely compatible but has stability issues.
 7. `use_hooks` - Whether to use hooks or not. Possible values are `yes` or `no` (case sensitive).
 8. `data_erase_choice` - Whether to securely erase temporary files or not. Possible values are `Fast`, `Slow` and `Extra Slow` (case sensitive). The value of this variable is ignored if the command `srm` isn't present on your computer.
 
@@ -150,6 +150,12 @@ PRs are appreciated.
 - Migrate the companion app to the Storage Access Framework API for forward compatibility (waiting for Flutter packages providing this functionality to become stable).
 - Improve the error handling and design of the mobile app.
 - Export the calendar and other data.
+
+## Donations
+
+This project is supported entirely by your kind donations. Thanks to your support, it was possible to get a real domain for this script - [openandroidbackup.me](https://openandroidbackup.me). By donating, you are contributing to the development of a community-driven project that respects your privacy and data. Please consider making a donation today and help keep this project alive and growing.
+
+If you'd like to support me and this project, you can do so by clicking the Sponsor button on the top of the GitHub page or directly visiting the [Liberapay page](https://liberapay.com/mrrfv/).
 
 ## License
 

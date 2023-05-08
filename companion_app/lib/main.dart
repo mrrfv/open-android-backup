@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Linux Android Backup',
+      title: 'Open Android Backup',
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
@@ -79,7 +79,7 @@ class _HomeState extends State<Home> {
 
       // Recreate the temp directory if it already exists.
       final Directory directory =
-          Directory("/storage/emulated/0/linux-android-backup-temp");
+          Directory("/storage/emulated/0/open-android-backup-temp");
       if (await directory.exists()) {
         await directory.delete(recursive: true);
       }
@@ -89,7 +89,7 @@ class _HomeState extends State<Home> {
       for (var i = 0; i < contacts.length; i++) {
         final String vCard = contacts[i].toVCard(withPhoto: true);
         final File file = File(
-            "/storage/emulated/0/linux-android-backup-temp/linux-android-backup-contact-$i.vcf");
+            "/storage/emulated/0/open-android-backup-temp/open-android-backup-contact-$i.vcf");
         file.writeAsString(vCard);
         setState(() {
           contactsExported = i + 1;
@@ -121,7 +121,7 @@ class _HomeState extends State<Home> {
       String csv = const ListToCsvConverter().convert(processedMessages);
 
       final File smsFileExport = File(
-          "/storage/emulated/0/linux-android-backup-temp/SMS_Messages.csv");
+          "/storage/emulated/0/open-android-backup-temp/SMS_Messages.csv");
       smsFileExport.writeAsString(csv);
 
       // Show a dialog if the export is complete
@@ -203,7 +203,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(child: Text('Linux Android Backup Companion')),
+        title: const Center(child: Text('Open Android Backup Companion')),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -215,10 +215,10 @@ class _HomeState extends State<Home> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const Text(
-                "The Linux Android Backup companion app allows for backups of data not normally accessible through adb. No data is uploaded to a remote server: it is saved to the internal storage and then read by the script running on your computer.",
+                "The Open Android Backup companion app allows for backups of data not normally accessible through adb. No data is uploaded to a remote server: it is saved to the internal storage and then read by the script running on your computer.",
               ),
               const Text(
-                  "This app requires the Linux Android Backup script running on your computer."),
+                  "This app requires the Open Android Backup script running on your computer."),
               // data export section
               const Text(
                 "Export Data",

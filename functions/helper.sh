@@ -42,25 +42,25 @@ function uninstall_companion_app() {
 function install_companion_app() {
   # Don't run this function in GitHub Actions or another CI
   if [ ! -v CI ]; then
-    cecho "Linux Android Backup will install a companion app on your device, which will allow for contacts and other data to be backed up and restored."
+    cecho "Open Android Backup will install a companion app on your device, which will allow for contacts and other data to be backed up and restored."
     cecho "The companion app is open-source, and you can see what it's doing under the hood on GitHub."
-    if [ ! -f linux-android-backup-companion.apk ]; then
+    if [ ! -f open-android-backup-companion.apk ]; then
       cecho "Downloading companion app."
       # -L makes curl follow redirects, -f returns an exit code different than 0 when the request fails
-      if curl -L -f -o linux-android-backup-companion.apk "https://github.com/mrrfv/linux-android-backup/releases/download/$APP_VERSION/app-release.apk" ; then
+      if curl -L -f -o open-android-backup-companion.apk "https://github.com/mrrfv/open-android-backup/releases/download/$APP_VERSION/app-release.apk" ; then
         echo "Stable version downloaded successfully"
       else
         # A fallback to the unstable build prevents a 'race condition' where the user executes the latest version of the script while
         # GitHub hasn't finished building the companion app yet.
         cecho "Couldn't download stable version! Trying an unstable build."
-        curl -L -f -o linux-android-backup-companion.apk "https://github.com/mrrfv/linux-android-backup/releases/download/latest/app-release.apk"
+        curl -L -f -o open-android-backup-companion.apk "https://github.com/mrrfv/open-android-backup/releases/download/latest/app-release.apk"
       fi
     else
       cecho "Companion app already downloaded."
     fi
     uninstall_companion_app
     cecho "Installing companion app."
-    adb install -r linux-android-backup-companion.apk
+    adb install -r open-android-backup-companion.apk
     cecho "Granting required permissions to companion app."
     permissions=(
     'android.permission.READ_CONTACTS'

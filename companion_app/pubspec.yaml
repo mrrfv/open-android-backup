@@ -1,5 +1,5 @@
 name: companion_app
-description: Companion app for Linux Android Backup, an easy-to-use tool to backup and restore Android devices.
+description: Companion app for Open Android Backup, an easy-to-use tool to backup and restore Android devices.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.

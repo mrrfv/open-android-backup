@@ -59,11 +59,11 @@ function backup_func() {
   # Export contacts and SMS messages
   cecho "Exporting contacts (as vCard) and SMS messages (as CSV)."
   mkdir ./backup-tmp/Contacts
-  get_file /storage/emulated/0/linux-android-backup-temp . ./backup-tmp/Contacts
+  get_file /storage/emulated/0/open-android-backup-temp . ./backup-tmp/Contacts
   mkdir ./backup-tmp/SMS
   mv ./backup-tmp/Contacts/SMS_Messages.csv ./backup-tmp/SMS
   cecho "Removing temporary files created by the companion app."
-  adb shell rm -rf /storage/emulated/0/linux-android-backup-temp
+  adb shell rm -rf /storage/emulated/0/open-android-backup-temp
 
   # Export internal storage
   cecho "Exporting internal storage - this will take a while."
@@ -104,7 +104,7 @@ function backup_func() {
   # -mx=9: ultra compression
   # -bb3: verbose logging
   # The undefined variable (archive_password) is set by the user if they're using unattended mode
-  declare backup_archive="$archive_path/linux-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
+  declare backup_archive="$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
   retry 5 7z a -p"$archive_password" -mhe=on -mx=9 -bb3 "$backup_archive" backup-tmp/*
 
   # We're not using 7-Zip's -sdel option (delete files after compression) to honor the user's choice to securely delete temporary files after a backup
@@ -121,7 +121,7 @@ function backup_func() {
   fi
 
   cecho "Backed up successfully."
-  cecho "Note: SMS messages and call logs cannot be restored by Linux Android Backup at the moment. They are included in the backup archive for your own purposes."
+  cecho "Note: SMS messages and call logs cannot be restored by Open Android Backup at the moment. They are included in the backup archive for your own purposes."
   cecho "You can find them by opening the backup archive using 7-Zip."
   rm -rf backup-tmp > /dev/null
 }
