@@ -20,6 +20,7 @@ function cecho() {
 }
 
 function check_adb_connection() {
+  adb kill-server &> /dev/null || true
   cecho "Please enable developer options on your device, connect it to your computer and set it to file transfer mode. Then, press Enter to continue."
   wait_for_enter
   adb devices > /dev/null
