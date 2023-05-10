@@ -15,7 +15,7 @@ function backup_func() {
     cecho "Running on Windows (WSL) - a graphical file chooser dialog will be open."
     cecho "You will be prompted for the backup location. Press Enter to continue."
     wait_for_enter
-    archive_path=$(kdialog --getexistingdirectory /mnt/c || true)
+    archive_path=$(kdialog --getexistingdirectory /mnt/c 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
   else
     text_input "Please enter the backup location. Enter '.' for the current working directory." archive_path "."
   fi
