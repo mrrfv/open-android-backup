@@ -219,6 +219,13 @@ class _HomeState extends State<Home> {
               ),
               const Text(
                   "This app requires the Open Android Backup script running on your computer."),
+              const Divider(
+                color: Color.fromARGB(31, 44, 44, 44),
+                height: 25,
+                thickness: 1,
+                indent: 5,
+                endIndent: 5,
+              ),
               // data export section
               const Text(
                 "Export Data",
