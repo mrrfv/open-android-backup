@@ -1,6 +1,6 @@
 #!/bin/bash
 
-adb shell mkdir -p /storage/emulated/0/linux-android-backup-temp
+adb shell mkdir -p /storage/emulated/0/open-android-backup-temp
 
 export unattended_mode="yes"
 export selected_action="Backup"

@@ -27,6 +27,7 @@ function cecho() {
 }
 
 function check_adb_connection() {
+  adb kill-server &> /dev/null || true
   cecho "Please enable developer options on your device, connect it to your computer and set it to file transfer mode. Then, press Enter to continue."
   wait_for_enter
   adb devices > /dev/null
@@ -49,25 +50,25 @@ function uninstall_companion_app() {
 function install_companion_app() {
   # Don't run this function in GitHub Actions or another CI
   if [ ! -v CI ]; then
-    cecho "Linux Android Backup will install a companion app on your device, which will allow for contacts and other data to be backed up and restored."
+    cecho "Open Android Backup will install a companion app on your device, which will allow for contacts and other data to be backed up and restored."
     cecho "The companion app is open-source, and you can see what it's doing under the hood on GitHub."
-    if [ ! -f linux-android-backup-companion.apk ]; then
+    if [ ! -f open-android-backup-companion.apk ]; then
       cecho "Downloading companion app."
       # -L makes curl follow redirects, -f returns an exit code different than 0 when the request fails
-      if curl -L -f -o linux-android-backup-companion.apk "https://github.com/mrrfv/linux-android-backup/releases/download/$APP_VERSION/app-release.apk" ; then
+      if curl -L -f -o open-android-backup-companion.apk "https://github.com/mrrfv/open-android-backup/releases/download/$APP_VERSION/app-release.apk" ; then
         echo "Stable version downloaded successfully"
       else
         # A fallback to the unstable build prevents a 'race condition' where the user executes the latest version of the script while
         # GitHub hasn't finished building the companion app yet.
         cecho "Couldn't download stable version! Trying an unstable build."
-        curl -L -f -o linux-android-backup-companion.apk "https://github.com/mrrfv/linux-android-backup/releases/download/latest/app-release.apk"
+        curl -L -f -o open-android-backup-companion.apk "https://github.com/mrrfv/open-android-backup/releases/download/latest/app-release.apk"
       fi
     else
       cecho "Companion app already downloaded."
     fi
     uninstall_companion_app
     cecho "Installing companion app."
-    adb install -r linux-android-backup-companion.apk
+    adb install -r open-android-backup-companion.apk
     cecho "Granting required permissions to companion app."
     permissions=(
     'android.permission.READ_CONTACTS'
@@ -77,9 +78,81 @@ function install_companion_app() {
     )
     # Grant permissions
     for permission in "${permissions[@]}"; do
-    adb shell pm grant mrrfv.backup.companion "$permission" || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
+      adb shell pm grant mrrfv.backup.companion "$permission" || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
     done
   fi
+}
+
+# A function that takes a prompt, an array of options, and a result variable as arguments
+# and uses whiptail to display a menu for selecting an option
+# The selected option is stored in the result variable
+# If no option is selected or an error occurs, the function exits with an error message
+function select_option_from_list() {
+  # Check if the number of arguments is 3
+  if [[ $# -ne 3 ]]; then
+    echo "Usage: select_option_from_list prompt options[@] result_var"
+    exit 1
+  fi
+
+  # Assign the arguments to local variables
+  local prompt="$1"
+  local options=("${!2}") # Use indirect expansion to get the array from the second argument
+  local result_var="$3"
+
+  # Check if the options array is empty
+  if [[ ${#options[@]} -eq 0 ]]; then
+    echo "No options provided. Exiting."
+    exit 1
+  fi
+
+  # Build an array of whiptail options from the options array
+  local whiptail_options=()
+  for ((i=0; i<${#options[@]}; i++)); do
+    whiptail_options+=("$i" "${options[$i]}")
+  done
+
+  # Use whiptail to display a menu and get the selected index
+  local selected_index=$(whiptail --title "Select an option" --menu "$prompt" $LINES $COLUMNS $(( $LINES - 8 )) "${whiptail_options[@]}" 3>&1 1>&2 2>&3)
+
+  # Check if whiptail exited with a non-zero status or if no option was selected
+  if [[ $? -ne 0 || -z "$selected_index" ]]; then
+    echo "No option selected or whiptail error. Exiting."
+    exit 1
+  fi
+
+  # Get the selected option from the options array using the selected index
+  local selected_option="${options[$selected_index]}"
+
+  # Use indirect assignment to store the selected option in the result variable
+  eval $result_var="'$selected_option'"
+}
+
+
+function get_text_input() {
+  if [[ $# -ne 2 ]]; then
+    echo "Invalid usage. Usage: get_text_input prompt result_var [default_text]"
+    exit 1
+  fi
+
+  local prompt="$1"
+  local result_var="$2"
+  local default_text="$3"
+
+  while true; do
+    local text_input=$(whiptail --title "$prompt" --inputbox "" $LINES $COLUMNS "$default_text" 3>&1 1>&2 2>&3)
+
+    if [[ $? -ne 0 ]]; then
+      echo "No text entered or whiptail error. Exiting."
+      exit 1
+    fi
+
+    if [[ -z "$text_input" ]]; then
+      whiptail --title "Error" --msgbox "Text cannot be empty. Please enter some text." $LINES $COLUMNS
+    else
+      eval $result_var="'$text_input'"
+      break
+    fi
+  done
 }
 
 function remove_backup_tmp() {

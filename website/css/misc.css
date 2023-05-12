@@ -36,3 +36,12 @@ svg {
 .installGuides ol {
     text-align: initial;
 }
+
+.customTabs ul {
+    display: flex;
+    flex-direction: row;
+}
+
+.slightly-rounded {
+    border-radius: 5px;
+}

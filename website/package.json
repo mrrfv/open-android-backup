@@ -30,6 +30,7 @@
     "css-postcss": "postcss --use autoprefixer --output css/main.css css/main.css",
     "css-watch": "npm run css-build -- --watch",
     "deploy": "npm run css-deploy && npm run js-build",
+    "deploy:prod": "npm run css-deploy && npm run js-build && npx html-minifier --input-dir ./ --output-dir ./ --file-ext html --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true ./index.html",
     "js-build": "babel _javascript --out-dir lib",
     "js-watch": "npm run js-build -- --watch",
     "start": "npm-run-all --parallel css-watch js-watch"

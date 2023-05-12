@@ -12,10 +12,10 @@ function restore_func() {
       cecho "Running on Windows (WSL) - a graphical file chooser dialog will be open."
       cecho "You will be prompted to choose the location of the backup archive to restore. Press Enter to continue."
       wait_for_enter
-      archive_path=$(kdialog --getopenfilename /mnt/c || true)
+      archive_path=$(kdialog --getopenfilename /mnt/c 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
       echo "$archive_path"
     else
-      text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
+      get_text_input "Please provide the location of the backup archive to restore (drag-n-drop):" archive_path
     fi
   fi
 

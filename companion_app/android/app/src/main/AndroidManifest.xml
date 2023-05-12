@@ -9,7 +9,7 @@
     
     <application
         android:requestLegacyExternalStorage="true"
-        android:label="Linux Android Backup Companion"
+        android:label="Open Android Backup Companion"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

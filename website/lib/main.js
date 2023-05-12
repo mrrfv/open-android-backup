@@ -1,15 +1,36 @@
 'use strict';
 
-const install_guides_ids = ["install-linux", "install-macos", "install-windows"]
+var install_guides_ids = ["install-linux", "install-macos", "install-windows"];
 
 function hide_all_guides() {
-  for (const id of install_guides_ids) {
-    document.getElementById(id).style.display = 'none';
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = install_guides_ids[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var id = _step.value;
+
+      document.getElementById(id).style.display = 'none';
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
   }
 }
 
 function change_install_guide(guide) {
-  const element = guide || document.location.hash.replace('#', '');
+  var element = guide || document.location.hash.replace('#', '');
 
   if (install_guides_ids.includes(element)) {
     hide_all_guides();
@@ -23,12 +44,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // if a guide hash is already present in the url, this will show the respective guide
   change_install_guide();
 
-  document.querySelectorAll("#installPlatforms ul li a").forEach(el => {
+  document.querySelectorAll("#installPlatforms ul li a").forEach(function (el) {
     el.addEventListener('click', function (el) {
-      const guide = new URL(el.target.href).hash.replace("#", "");
+      var guide = new URL(el.target.href).hash.replace("#", "");
       change_install_guide(guide);
     });
-  })
-
+  });
 });
-
