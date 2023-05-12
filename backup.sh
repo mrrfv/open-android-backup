@@ -4,7 +4,30 @@ set -e
 # Application metadata - don't change
 # This is used to download a stable, compatible version of the Android companion app as well as ensure backwards compatibility,
 # so it should match the tag name in GitHub Releases.
-APP_VERSION="v1.0.4"
+APP_VERSION="v1.0.7"
+
+# We use whiptail for showing dialogs.
+# Whiptail is used similarly as dialog, but we can't install it on macOS using Homebrew IIRC.
+# So we need to fall back to dialog if whiptail is not available.
+# Check if whiptail is installed
+if command -v whiptail &> /dev/null; then
+  # Whiptail is installed, no action needed. Do nothing.
+  :
+else
+  # Check if dialog is installed
+  if command -v dialog &> /dev/null; then
+    echo "Whiptail is not installed, but dialog is. Defining whiptail as a function that calls dialog."
+    # Define whiptail as a function that calls dialog with the same arguments
+    whiptail() {
+      dialog "$@"
+    }
+  else
+    # Neither whiptail nor dialog are installed
+    echo "Error: Neither whiptail nor dialog are installed. Exiting."
+    exit 1
+  fi
+fi
+
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
@@ -14,9 +37,6 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-# Load Inquirer.sh
-source "$DIR/inquirer-sh/list_input.sh"
-source "$DIR/inquirer-sh/text_input.sh"
 # ---
 
 # Load all functions in ./functions
@@ -26,7 +46,7 @@ check_adb_connection
 
 if [ ! -v mode ]; then
   modes=( 'Wired' 'Wireless' )
-  list_input "Connection method:" modes mode
+  select_option_from_list "Choose the connection method. Wireless is experimental and still requires a device connected for pairing." modes[@] mode
 fi
 
 if [ "$mode" = 'Wireless' ]; then
@@ -40,9 +60,11 @@ if [ ! -v export_method ]; then
   cecho "Choose the exporting method."
   cecho "- Pick 'tar' first, as it is fast and most reliable, but might not work on all devices."
   cecho "- If the script crashes, pick 'adb' instead, which works on all devices."
+  cecho "Press Enter to pick your preferred method."
+  wait_for_enter
 
   export_methods=( 'tar' 'adb' )
-  list_input "Exporting method:" export_methods export_method
+  select_option_from_list "Choose the exporting method." export_methods[@] export_method
 fi
 
 clear
@@ -53,9 +75,11 @@ if [ ! -v use_hooks ]; then
   cecho "Choose 'yes' if you have installed your own hooks and would like to use them."
   cecho "Read README.md for more information."
   cecho "USING HOOKS IS A SECURITY RISK! THEY HAVE THE EXACT SAME PERMISSIONS AS THIS SCRIPT, AND THUS CAN WIPE YOUR ENTIRE DEVICE OR SEND ALL YOUR DATA TO A REMOTE SERVER. If you are selecting 'yes', please make sure that you have read and understood the code in hooks.sh."
+  cecho "Press Enter to choose."
+  wait_for_enter
 
   should_i_use_hooks=( 'no' 'yes' )
-  list_input "Use hooks:" should_i_use_hooks use_hooks
+  select_option_from_list "Use hooks? Pick No if unsure or security-conscious." should_i_use_hooks[@] use_hooks
 fi
 
 clear
@@ -80,9 +104,11 @@ then
     cecho "The options below allow you to securely erase this data, making it harder for law enforcement and other adversaries to view your files."
     cecho "Your choice will also apply to cleanups, i.e. if the script has previously crashed without removing the files."
     cecho "Fast is considered insecure and can only be recommended on encrypted disks. Slow takes more time than the former, and it's safe enough for most people (2 passes). Extra Slow is only recommended for the paranoid (Gutmann method)."
+    cecho "Press Enter to pick your data erase mode."
+    wait_for_enter
 
     data_erase_choices=( "Fast" "Slow" "Extra Slow" )
-    list_input "Data Erase Mode:" data_erase_choices data_erase_choice
+    select_option_from_list "Choose the Data Erase Mode." data_erase_choices[@] data_erase_choice
     
     clear
   fi
@@ -93,7 +119,7 @@ fi
 
 if [ ! -v selected_action ]; then
   actions=( 'Backup' 'Restore' )
-  list_input "What do you want to do?" actions selected_action
+  select_option_from_list "What do you want to do?" actions[@] selected_action
 fi
 
 # The companion app is required regardless of whether we're backing up the device or not,

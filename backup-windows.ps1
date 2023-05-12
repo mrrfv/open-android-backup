@@ -13,7 +13,7 @@ wsl --shutdown
 wsl sudo apt update
 wsl sudo apt dist-upgrade -y
 Write-Output "Installing dependencies and setting up environment..."
-wsl sudo apt install p7zip-full secure-delete curl bc dos2unix pv kdialog '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev -y
+wsl sudo apt install p7zip-full secure-delete whiptail curl dos2unix pv kdialog '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev -y
 Write-Output "Converting files - this may take several minutes..."
 wsl bash -c "sudo find ./ -name '*.sh' -type f -print0 | sudo xargs -0 dos2unix --"
 Clear-Host

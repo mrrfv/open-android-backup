@@ -4,8 +4,6 @@
 function backup_func() {
   while true; do
   if [ ! -v archive_path ]; then
-  echo "Note: Backups will first be made on the drive this script is located in, and then will be copied to the specified location."
-
   # Check if we're running on Windows.
   # If we are, then we will open a file chooser instead of asking the user for the file path thru CLI
   # due to compatibility issues.
@@ -17,7 +15,11 @@ function backup_func() {
     wait_for_enter
     archive_path=$(kdialog --getexistingdirectory /mnt/c 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
   else
-    text_input "Please enter the backup location. Enter '.' for the current working directory." archive_path "."
+    get_text_input \
+    "Please enter the backup location. Enter '.' for the current working directory.
+    Note: Backups will first be made on the drive this script is located in, and then will be copied to the specified location." \
+    archive_path \
+    "."
   fi
 
   fi

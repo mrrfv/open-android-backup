@@ -43,7 +43,7 @@ These things are the majority of what most people would want to keep safe, but e
 
 ### Linux
 
-1. Install p7zip, adb, curl, bc, pv and optionally secure-delete. If you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl bc pv secure-delete`.
+1. Install p7zip, adb, curl, whiptail, pv and optionally secure-delete. If you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl whiptail pv secure-delete`.
 2. [Download](https://github.com/mrrfv/open-android-backup/releases/latest) the Open Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/open-android-backup/archive/refs/heads/master.zip) or cloning.
 3. Enable [developer options](https://developer.android.com/studio/debug/dev-options#enable) and USB debugging on your device, then run `backup.sh` in a terminal.
 
@@ -59,7 +59,7 @@ These things are the majority of what most people would want to keep safe, but e
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 # If you already have Homebrew installed, just run these 2 commands:
 brew install --cask android-platform-tools
-brew install p7zip pv bash
+brew install p7zip pv bash dialog
 ```
 
 2. Follow the steps 2 and 3 from the install guide for Linux.

@@ -18,8 +18,8 @@ function wireless_connection() {
   if (( android_version > 10 )); then
     cecho "Running on Android 11 or higher - automatic wireless connections are not supported."
     cecho "Please open the settings app on your device, and search for 'Wireless debugging'. Enable the option, press 'Pair device with pairing code', and enter the IP address and port of your device below:"
-    # Bug: inquirer.sh's text_input doesn't support colons on windows
-    #text_input "Device IP & Port:" device_ip_port "$device_ip"
+    # TODO: use get_text_input instead of read
+    #get_text_input "Device IP & Port:" device_ip_port "$device_ip"
     read -p "Pairing IP address & Port: " device_ip_port
     cecho "Pairing device..."
     adb pair "$device_ip_port"

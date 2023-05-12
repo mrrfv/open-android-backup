@@ -71,9 +71,81 @@ function install_companion_app() {
     )
     # Grant permissions
     for permission in "${permissions[@]}"; do
-    adb shell pm grant mrrfv.backup.companion "$permission" || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
+      adb shell pm grant mrrfv.backup.companion "$permission" || cecho "Couldn't assign permission $permission to the companion app - this is not a fatal error, and you will just have to allow this permission in the app." 1>&2
     done
   fi
+}
+
+# A function that takes a prompt, an array of options, and a result variable as arguments
+# and uses whiptail to display a menu for selecting an option
+# The selected option is stored in the result variable
+# If no option is selected or an error occurs, the function exits with an error message
+function select_option_from_list() {
+  # Check if the number of arguments is 3
+  if [[ $# -ne 3 ]]; then
+    echo "Usage: select_option_from_list prompt options[@] result_var"
+    exit 1
+  fi
+
+  # Assign the arguments to local variables
+  local prompt="$1"
+  local options=("${!2}") # Use indirect expansion to get the array from the second argument
+  local result_var="$3"
+
+  # Check if the options array is empty
+  if [[ ${#options[@]} -eq 0 ]]; then
+    echo "No options provided. Exiting."
+    exit 1
+  fi
+
+  # Build an array of whiptail options from the options array
+  local whiptail_options=()
+  for ((i=0; i<${#options[@]}; i++)); do
+    whiptail_options+=("$i" "${options[$i]}")
+  done
+
+  # Use whiptail to display a menu and get the selected index
+  local selected_index=$(whiptail --title "Select an option" --menu "$prompt" $LINES $COLUMNS $(( $LINES - 8 )) "${whiptail_options[@]}" 3>&1 1>&2 2>&3)
+
+  # Check if whiptail exited with a non-zero status or if no option was selected
+  if [[ $? -ne 0 || -z "$selected_index" ]]; then
+    echo "No option selected or whiptail error. Exiting."
+    exit 1
+  fi
+
+  # Get the selected option from the options array using the selected index
+  local selected_option="${options[$selected_index]}"
+
+  # Use indirect assignment to store the selected option in the result variable
+  eval $result_var="'$selected_option'"
+}
+
+
+function get_text_input() {
+  if [[ $# -ne 2 ]]; then
+    echo "Invalid usage. Usage: get_text_input prompt result_var [default_text]"
+    exit 1
+  fi
+
+  local prompt="$1"
+  local result_var="$2"
+  local default_text="$3"
+
+  while true; do
+    local text_input=$(whiptail --title "$prompt" --inputbox "" $LINES $COLUMNS "$default_text" 3>&1 1>&2 2>&3)
+
+    if [[ $? -ne 0 ]]; then
+      echo "No text entered or whiptail error. Exiting."
+      exit 1
+    fi
+
+    if [[ -z "$text_input" ]]; then
+      whiptail --title "Error" --msgbox "Text cannot be empty. Please enter some text." $LINES $COLUMNS
+    else
+      eval $result_var="'$text_input'"
+      break
+    fi
+  done
 }
 
 function remove_backup_tmp() {
