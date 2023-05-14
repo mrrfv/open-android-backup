@@ -63,8 +63,12 @@ Write-Output "Running Open Android Backup..."
 wsl -d $distro ./windows-dependencies/env-startup.sh
 Write-Output "Cleaning up..."
 wsl --shutdown
-Stop-Process -Name adb.exe -Force | Out-Null
-Stop-Process -Name adb -Force | Out-Null
+try {
+    Stop-Process -Name adb.exe -Force | Out-Null
+    Stop-Process -Name adb -Force | Out-Null
+} catch {
+    Write-Output "adb not running."
+}
 Set-Location ..
 Remove-Item $OAB_DIRECTORY -Recurse -Force
 Write-Output "Done!"

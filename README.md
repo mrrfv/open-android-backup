@@ -38,7 +38,6 @@ These things are the majority of what most people would want to keep safe, but e
 - Backups are encrypted along with their metadata.
 - Optionally securely erases all unencrypted temporary files created by the script.
 - All data is compressed using 7-Zip with maximum compression settings.
-
 ## Installation
 
 ### Linux
@@ -71,7 +70,6 @@ brew install p7zip pv bash dialog
 3. Open the repository in the file explorer. Right click on a file called `backup-windows.ps1`, and click on "Run with PowerShell". **IMPORTANT: If you see an error after running the script, search for "Developer Settings" in the Settings app, and apply the settings related to PowerShell.**
 
 ![Powershell Developer Settings](.github/images/windows-powershell-developer-settings.png)
-
 ## Usage
 
 Just run `backup.sh` and the script will walk you through the process. This section covers advanced usage of this program.
@@ -136,6 +134,30 @@ $ unattended_mode="yes" selected_action="Backup" mode="Wired" export_method="tar
 # Keep unattended mode disabled, but automatically use the password "456"
 $ archive_password="456" ./backup.sh
 ```
+
+## Convenience Script
+
+If you'd like to quickly run the latest version of Open Android Backup without having to follow the usage instructions, you can use the convenience script. It's a **work in progress**, but it should work on most systems.
+
+Please note that there are **security risks** associated with running scripts from the internet. It's recommended that you review the script before running it. If you don't trust me or Cloudflare, you can always download the script and run it manually.
+
+### Linux or macOS
+
+Run the following command in your terminal:
+
+```bash
+curl -fsSL get.openandroidbackup.me | bash
+```
+
+### Windows
+
+Run the following command in PowerShell:
+
+```powershell
+irm https://get.openandroidbackup.me/ | iex
+```
+
+The same path is used because the server automatically detects your operating system based on the user agent and serves the correct script.
 
 ## Building companion app
 

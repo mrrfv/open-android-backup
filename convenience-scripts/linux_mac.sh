@@ -19,7 +19,7 @@ warn_untested_os() {
 
 # Detect OS
 if [[ -n "$WSL_DISTRO_NAME" ]]; then
-    echo "WSL is not supported by the convenience script at this time. Please follow the regular usage instructions at https://github.com/mrrfv/open-android-backup"
+    echo "Please run this script from Windows. Running it directly in WSL is unsupported."
     exit 1
 else
     echo "Not running within WSL, continuing..."
