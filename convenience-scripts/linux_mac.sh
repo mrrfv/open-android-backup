@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo "Detected operating system: Linux or macOS"
+echo "If you are running this script in WSL, please run it in Windows instead."
+echo "Sleeping for 5 seconds to allow you to cancel..."
+sleep 5
+
 echo "Open Android Backup convenience script for Linux and macOS"
 echo "This script will install dependencies, download and run the latest release of Open Android Backup."
 echo "The script hasn't been fully tested, so feedback is welcome!"
