@@ -81,12 +81,6 @@ function install_companion_app() {
 # The selected option is stored in the result variable
 # If no option is selected or an error occurs, the function exits with an error message
 function select_option_from_list() {
-  # Check if the number of arguments is 3
-  if [[ $# -ne 3 ]]; then
-    echo "Usage: select_option_from_list prompt options[@] result_var"
-    exit 1
-  fi
-
   # Assign the arguments to local variables
   local prompt="$1"
   local options=("${!2}") # Use indirect expansion to get the array from the second argument
@@ -122,11 +116,6 @@ function select_option_from_list() {
 
 
 function get_text_input() {
-  if [[ $# -ne 2 ]]; then
-    echo "Invalid usage. Usage: get_text_input prompt result_var [default_text]"
-    exit 1
-  fi
-
   local prompt="$1"
   local result_var="$2"
   local default_text="$3"
