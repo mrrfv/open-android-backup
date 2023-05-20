@@ -15,7 +15,7 @@ function backup_func() {
     wait_for_enter
     archive_path=$(kdialog --getexistingdirectory /mnt/c 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
   else
-    get_text_input "Please enter the backup location. Enter '.' for the current working directory. Backups will first be made on the drive this script is located in, and then will be copied to the specified location." archive_path "."
+    get_text_input "Enter the backup location. Press Ok for the current working directory." archive_path "$(pwd)"
   fi
 
   fi
