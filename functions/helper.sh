@@ -130,6 +130,8 @@ function get_text_input() {
 
     if [[ -z "$text_input" ]]; then
       whiptail --title "Error" --msgbox "Text cannot be empty. Please enter some text." $LINES $COLUMNS
+      echo "Sleeping for 3 seconds to allow you to exit if needed..."
+      sleep 3
     else
       eval $result_var="'$text_input'"
       break
