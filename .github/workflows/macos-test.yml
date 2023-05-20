@@ -12,7 +12,8 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '11'
-    - run: brew install --cask android-platform-tools
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
     - run: brew install p7zip pv bash
     - run: chmod +x ./.github/test-script.sh
 
