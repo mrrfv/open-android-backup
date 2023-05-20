@@ -4,7 +4,7 @@
 # This function is ran after the script copies the internal storage, contacts, apps and other data.
 # You can use it to get more data from your device.
 function backup_hook() {
-    echo "[AFTER BACKUP HOOK TEST]"
+    echo "[BACKUP HOOK TEST]"
     mkdir -pv ./backup-tmp/Hooks/example-hook/
 }
 
@@ -16,5 +16,5 @@ function after_backup_hook() {
 
 # This function is ran after restoring the internal storage, apps and contacts to the device.
 function restore_hook() {
-    echo "[AFTER BACKUP HOOK TEST]"
+    echo "[RESTORE HOOK TEST]"
 }
