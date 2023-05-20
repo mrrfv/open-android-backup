@@ -13,8 +13,4 @@ export TERM="xterm"
 export CI="true"
 export data_erase_choice="Fast"
 
-flutter run --release &
-
-sleep 300
-
 ./backup.sh
