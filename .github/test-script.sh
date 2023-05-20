@@ -1,6 +1,7 @@
 #!/bin/bash
 
 adb shell mkdir -p /storage/emulated/0/open-android-backup-temp
+adb shell touch /storage/emulated/0/open-android-backup-temp/SMS_Messages.csv
 
 export unattended_mode="yes"
 export selected_action="Backup"
