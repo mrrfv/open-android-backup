@@ -10,7 +10,7 @@ Open Android Backup is a tiny shell script & Flutter app that makes securely bac
 
 ## Data backed up
 
-### Restoreable
+### Restorable
 
 The following data types can be automatically restored back to the device.
 
