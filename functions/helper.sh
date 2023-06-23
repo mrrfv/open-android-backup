@@ -13,7 +13,7 @@ function wait_for_enter() {
 # "cecho" makes output messages yellow, if possible
 function cecho() {
   if tty -s; then
-    echo "$(tput setaf 11)$1$(tput init)"
+    echo "$(tput setaf 11)$1$(tput sgr0)"
   else
     echo "$1"
   fi
