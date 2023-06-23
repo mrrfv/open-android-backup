@@ -4,6 +4,7 @@ set -e
 # Application metadata - don't change
 # This is used to download a stable, compatible version of the Android companion app as well as ensure backwards compatibility,
 # so it should match the tag name in GitHub Releases.
+# TODO: load this dynamically, i.e. configure our build system to automatically update the APP_VERSION
 APP_VERSION="v1.0.9"
 
 # We use whiptail for showing dialogs.
@@ -40,7 +41,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # ---
 
 # Load all functions in ./functions
-for f in "$DIR"/functions/*; do source "$f"; done
+for f in "$DIR"/functions/*.sh; do source "$f"; done
 
 check_adb_connection
 
