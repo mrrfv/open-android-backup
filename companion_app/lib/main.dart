@@ -3,6 +3,7 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:csv/csv.dart';
+import 'package:call_log/call_log.dart';
 import "dart:io";
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -44,6 +45,8 @@ class _HomeState extends State<Home> {
   int contactsExported = 0;
   int smsMessageCount = 0;
   int smsMessagesExported = 0;
+  int callLogsAmount = -1; // -1 => not loaded yet, 0 => no call logs found
+  int callLogsExported = 0;
   // for restores
   bool showRestoreProgress = false;
   int contactsAmountFilesystem = 0;
@@ -52,13 +55,21 @@ class _HomeState extends State<Home> {
   Future<void> backup(BuildContext context) async {
     // Requests contacts & internal storage permissions
     if (await FlutterContacts.requestPermission() &&
-        await Permission.storage.request().isGranted &&
         await Permission.sms.request().isGranted) {
       // create an instance of the SmsQuery class
       SmsQuery sms = SmsQuery();
 
-      // On Android 11 and later, request additional permissions.
-      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt! > 29 &&
+      // Request storage permission on Android 10 and below.
+      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt <= 29 &&
+          !await Permission.storage.request().isGranted) {
+        showInfoDialog(context, "Permissions Needed",
+            "You need to grant the storage permission to export your data. You can do this by going to Settings > Apps > Open Android Backup Companion > Permissions.");
+        // Open app settings if the permission wasn't granted
+        await openAppSettings();
+      }
+
+      // On Android 11 and later, request manage external storage permission.
+      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt > 29 &&
           !await Permission.manageExternalStorage.request().isGranted) {
         // Open app settings if the permission wasn't granted
         await openAppSettings();
@@ -88,9 +99,9 @@ class _HomeState extends State<Home> {
       // Loop over the contacts and save them as a vCard.
       for (var i = 0; i < contacts.length; i++) {
         final String vCard = contacts[i].toVCard(withPhoto: true);
-        final File file = File(
+        final File contactsFile = File(
             "/storage/emulated/0/open-android-backup-temp/open-android-backup-contact-$i.vcf");
-        file.writeAsString(vCard);
+        contactsFile.writeAsString(vCard);
         setState(() {
           contactsExported = i + 1;
         });
@@ -118,11 +129,41 @@ class _HomeState extends State<Home> {
           smsMessagesExported = i + 1;
         });
       }
-      String csv = const ListToCsvConverter().convert(processedMessages);
+      String csvProcessedMessages =
+          const ListToCsvConverter().convert(processedMessages);
 
-      final File smsFileExport = File(
-          "/storage/emulated/0/open-android-backup-temp/SMS_Messages.csv");
-      smsFileExport.writeAsString(csv);
+      final File smsFileExport =
+          File("/storage/emulated/0/open-android-backup-temp/SMS_Messages.csv");
+      smsFileExport.writeAsString(csvProcessedMessages);
+
+      // Export call logs.
+      Iterable<CallLogEntry> entries = await CallLog.get();
+
+      setState(() {
+        callLogsAmount = entries.length;
+      });
+
+      // Process call logs so they can be saved to a CSV file.
+      List<List<String>> processedCallLogs = [];
+      processedCallLogs.add(["Number", "Name", "Date", "Duration"]);
+      for (var i = 0; i < entries.length; i++) {
+        List<String> callLog = [
+          entries.elementAt(i).number.toString(),
+          entries.elementAt(i).name.toString(),
+          entries.elementAt(i).timestamp.toString(),
+          entries.elementAt(i).duration.toString(),
+        ];
+        processedCallLogs.add(callLog);
+        setState(() {
+          callLogsExported = i + 1;
+        });
+      }
+      String csvCallLogs =
+          const ListToCsvConverter().convert(processedCallLogs);
+
+      final File callLogsFileExport =
+          File("/storage/emulated/0/open-android-backup-temp/Call_Logs.csv");
+      callLogsFileExport.writeAsString(csvCallLogs);
 
       // Show a dialog if the export is complete
       showInfoDialog(context, "Data Exported",
@@ -130,6 +171,9 @@ class _HomeState extends State<Home> {
     } else {
       showInfoDialog(context, "Error",
           "Storage, SMS or contacts permissions have not been granted.");
+      setState(() {
+        showBackupProgress = false;
+      });
     }
   }
 
@@ -242,15 +286,9 @@ class _HomeState extends State<Home> {
               ),
               Visibility(
                   visible: showBackupProgress,
-                  child: Text("Exported " +
-                      contactsExported.toString() +
-                      " contact(s) out of " +
-                      contactsAmountDatabase.toString() +
-                      ". Found " +
-                      smsMessageCount.toString() +
-                      " SMS messages to process, of which " +
-                      smsMessagesExported.toString() +
-                      " have been exported.")),
+                  // there must be a cleaner way to do this
+                  child: Text(
+                      "Exported ${contactsExported.toString()} contact(s) out of ${contactsAmountDatabase.toString()}. Found ${smsMessageCount.toString()} SMS messages to process, of which ${smsMessagesExported.toString()} have been exported. ${callLogsAmount == -1 ? '(loading...)' : '${callLogsAmount.toString()} call log(s) have been found, ${callLogsExported.toString()} of which have been exported.'}")),
               const Divider(
                 color: Color.fromARGB(31, 44, 44, 44),
                 height: 25,

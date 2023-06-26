@@ -43,7 +43,7 @@ android {
 
     defaultConfig {
         applicationId "mrrfv.backup.companion"
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 19
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

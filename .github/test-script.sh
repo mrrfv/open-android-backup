@@ -3,6 +3,7 @@
 create_dummy_files() {
     adb shell mkdir -p /storage/emulated/0/open-android-backup-temp
     adb shell touch /storage/emulated/0/open-android-backup-temp/SMS_Messages.csv
+    adb shell touch /storage/emulated/0/open-android-backup-temp/Call_Logs.csv
 }
 
 export unattended_mode="yes"
