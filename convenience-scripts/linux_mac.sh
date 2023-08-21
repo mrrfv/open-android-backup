@@ -13,8 +13,8 @@ echo ""
 warn_untested_os() {
     echo "WARNING: This convenience script has not been tested on your operating system. It may not work as expected."
     echo "If you encounter any issues, please report them at https://github.com/mrrfv/open-android-backup/issues"
-    echo "Continuing in 15 seconds..."
-    sleep 15
+    echo "Continuing in 10 seconds..."
+    sleep 10
 }
 
 # Detect OS
@@ -22,7 +22,7 @@ if [[ -n "$WSL_DISTRO_NAME" ]]; then
     echo "Please run this script from Windows. Running it directly in WSL is unsupported."
     exit 1
 else
-    echo "Not running within WSL, continuing..."
+    echo "Not running in WSL, continuing..."
 fi
 
 echo "Installing dependencies - you may be prompted for your password."
@@ -47,7 +47,10 @@ elif [[ -n "$(command -v pacman)" ]]; then
 elif [[ -n "$(command -v dnf)" ]]; then
     # Fedora
     warn_untested_os
-    sudo dnf update && sudo dnf install -y p7zip curl wget pv bash whiptail android-tools secure-delete unzip
+    echo "You must first manually add the RPM Sphere and RPM Fusion repositories, see this link for instructions: https://rpmsphere.github.io/"
+    echo "After adding the repos, press Enter to continue installing dependencies."
+    read -r # wait for enter key
+    sudo dnf install p7zip p7zip-plugins adb curl newt pv secure-delete
 elif [[ -n "$(command -v zypper)" ]]; then
     # openSUSE
     warn_untested_os
