@@ -177,12 +177,6 @@ PRs are appreciated.
 - Improve the error handling and design of the mobile app.
 - Export the calendar and other data.
 
-## Donations
-
-This project is supported entirely by your kind donations. Thanks to your support, it was possible to get a real domain for this script - [openandroidbackup.me](https://openandroidbackup.me). By donating, you are contributing to the development of a community-driven project that respects your privacy and data. Please consider making a donation today and help keep this project alive and growing.
-
-If you'd like to support me and this project, you can do so by clicking the Sponsor button at the top of the GitHub page or directly visiting the [Liberapay page](https://liberapay.com/mrrfv/).
-
 ## License
 
 This program is free software: you can redistribute it and/or modify
