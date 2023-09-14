@@ -14,13 +14,13 @@ Open Android Backup is a tiny shell script & Flutter app that makes securely bac
 
 The following data types can be automatically restored back to the device.
 
-- Apps (.apk files of installed apps - split APK support is experimental and can be found in the `split-apk-support` branch)
+- Apps (.apk files of installed apps - app data not included - split APK support is experimental and can be found in the `split-apk-support` branch)
 - Internal storage (pictures, downloads, videos, Signal backups if enabled, etc)
 - Contacts (exported in vCard format)
 
 ### View-only
 
-The following data types are only viewable by opening the backup archive with 7-Zip and cannot be auto-restored to a device at the moment.
+The following data types are only viewable by opening the backup archive with 7-Zip and cannot be restored to a device at the moment.
 
 - SMS Messages (exported in CSV format - MMS attachments not saved)
 - Call Logs (exported into a text file)
