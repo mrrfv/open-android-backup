@@ -15,11 +15,7 @@ function backup_func() {
     wait_for_enter
     archive_path=$(kdialog --getexistingdirectory /mnt/c 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
   else
-    get_text_input \
-    "Please enter the backup location. Enter '.' for the current working directory.
-    Note: Backups will first be made on the drive this script is located in, and then will be copied to the specified location." \
-    archive_path \
-    "."
+    get_text_input "Enter the backup location. Press Ok for the current working directory." archive_path "$(pwd)"
   fi
 
     fi
@@ -28,7 +24,7 @@ function backup_func() {
   done
 
   adb shell am start -n mrrfv.backup.companion/.MainActivity
-  cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts to the internal storage, allowing this script to backup them. Press Enter to continue."
+  cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts/messages to internal storage, allowing this script to back them up. When this is complete, press Enter to continue."
   wait_for_enter
   uninstall_companion_app # we're uninstalling it so that it isn't included in the backup
 
@@ -57,24 +53,33 @@ function backup_func() {
   done
 
   # Export contacts and SMS messages
-  cecho "Exporting contacts (as vCard) and SMS messages (as CSV)."
+  cecho "Exporting contacts (as vCard), call logs as well as SMS messages (as CSV)."
+  # Get the entire oab-temp directory
+  mkdir ./backup-tmp/open-android-backup-temp
+  if ! get_file /storage/emulated/0/open-android-backup-temp . ./backup-tmp/open-android-backup-temp; then
+    cecho "Error: Failed to get data from the Companion App! Please make sure that you have pressed the 'Export Data' button in the Companion App."
+    cecho "If you have already done that, please report this issue on GitHub."
+    cecho "Cannot continue - exiting."
+    exit 1
+  fi
+  # Get contacts
   mkdir ./backup-tmp/Contacts
-  get_file /storage/emulated/0/open-android-backup-temp . ./backup-tmp/Contacts
+  mv ./backup-tmp/open-android-backup-temp/open-android-backup-contact*.vcf ./backup-tmp/Contacts || cecho "No contacts found on device - ignoring." 1>&2
+  # Get SMS messages
   mkdir ./backup-tmp/SMS
-  mv ./backup-tmp/Contacts/SMS_Messages.csv ./backup-tmp/SMS
+  mv ./backup-tmp/open-android-backup-temp/SMS_Messages.csv ./backup-tmp/SMS
+  # Get call logs
+  mkdir ./backup-tmp/CallLogs
+  mv ./backup-tmp/open-android-backup-temp/Call_Logs.csv ./backup-tmp/CallLogs
+  # Cleanup
   cecho "Removing temporary files created by the companion app."
   adb shell rm -rf /storage/emulated/0/open-android-backup-temp
+  rm -rf ./backup-tmp/open-android-backup-temp
 
   # Export internal storage
   cecho "Exporting internal storage - this will take a while."
   mkdir ./backup-tmp/Storage
   get_file /storage/emulated/0 . ./backup-tmp/Storage
-
-  # Export call logs
-  cecho "Exporting call logs."
-  mkdir ./backup-tmp/CallLogs
-  adb shell content query --uri content://call_log/calls --projection name:normalized_number:duration:via_number:geocoded_location:date >./backup-tmp/CallLogs/calls.txt || cecho "Couldn't backup call logs due to an error - ignoring." 1>&2
-  adb shell content query --uri content://call_log/calls >./backup-tmp/CallLogs/raw_data.txt || cecho "Couldn't backup raw call logs due to an error - ignoring." 1>&2
 
   # Run the third-party backup hook, if enabled.
   if [ "$use_hooks" = "yes" ] && [ "$(type -t backup_hook)" == "function" ]; then
@@ -105,7 +110,7 @@ function backup_func() {
   # -bb3: verbose logging
   # The undefined variable (archive_password) is set by the user if they're using unattended mode
   declare backup_archive="$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
-  retry 5 7z a -p"$archive_password" -mhe=on -mx=9 -bb3 "$backup_archive" backup-tmp/*
+  retry 5 7z a -p"$archive_password" -mhe=on -mx=7 -bb3 "$backup_archive" backup-tmp/*
 
   # We're not using 7-Zip's -sdel option (delete files after compression) to honor the user's choice to securely delete temporary files after a backup
   remove_backup_tmp

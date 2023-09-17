@@ -20,7 +20,7 @@ function get_split_apks() {
 # "cecho" makes output messages yellow, if possible
 function cecho() {
   if tty -s; then
-    echo "$(tput setaf 11)$1$(tput init)"
+    echo "$(tput setaf 11)$1$(tput sgr0)"
   else
     echo "$1"
   fi
@@ -28,7 +28,7 @@ function cecho() {
 
 function check_adb_connection() {
   adb kill-server &> /dev/null || true
-  cecho "Please enable developer options on your device, connect it to your computer and set it to file transfer mode. Then, press Enter to continue."
+  cecho "Please enable developer options and USB debugging on your device, connect it to your computer and set it to file transfer mode. Then, press Enter to continue."
   wait_for_enter
   adb devices > /dev/null
   cecho "If you have connected your device correctly, you should now see a message asking for access to your phone. Allow it, then press Enter to go to the last step."
@@ -88,12 +88,6 @@ function install_companion_app() {
 # The selected option is stored in the result variable
 # If no option is selected or an error occurs, the function exits with an error message
 function select_option_from_list() {
-  # Check if the number of arguments is 3
-  if [[ $# -ne 3 ]]; then
-    echo "Usage: select_option_from_list prompt options[@] result_var"
-    exit 1
-  fi
-
   # Assign the arguments to local variables
   local prompt="$1"
   local options=("${!2}") # Use indirect expansion to get the array from the second argument
@@ -129,11 +123,6 @@ function select_option_from_list() {
 
 
 function get_text_input() {
-  if [[ $# -ne 2 ]]; then
-    echo "Invalid usage. Usage: get_text_input prompt result_var [default_text]"
-    exit 1
-  fi
-
   local prompt="$1"
   local result_var="$2"
   local default_text="$3"
@@ -148,6 +137,8 @@ function get_text_input() {
 
     if [[ -z "$text_input" ]]; then
       whiptail --title "Error" --msgbox "Text cannot be empty. Please enter some text." $LINES $COLUMNS
+      echo "Sleeping for 3 seconds to allow you to exit if needed..."
+      sleep 3
     else
       eval $result_var="'$text_input'"
       break

@@ -10,17 +10,17 @@ Open Android Backup is a tiny shell script & Flutter app that makes securely bac
 
 ## Data backed up
 
-### Restoreable
+### Restorable
 
 The following data types can be automatically restored back to the device.
 
-- Apps (.apk files of installed apps - split APK support is experimental and can be found in the `split-apk-support` branch)
+- Apps (.apk files of installed apps - app data not included - split APK support is experimental and can be found in the `split-apk-support` branch)
 - Internal storage (pictures, downloads, videos, Signal backups if enabled, etc)
 - Contacts (exported in vCard format)
 
 ### View-only
 
-The following data types are only viewable by opening the backup archive with 7-Zip and cannot be auto-restored to a device at the moment.
+The following data types are only viewable by opening the backup archive with 7-Zip and cannot be restored to a device at the moment.
 
 - SMS Messages (exported in CSV format - MMS attachments not saved)
 - Call Logs (exported into a text file)
@@ -38,12 +38,13 @@ These things are the majority of what most people would want to keep safe, but e
 - Backups are encrypted along with their metadata.
 - Optionally securely erases all unencrypted temporary files created by the script.
 - All data is compressed using 7-Zip with maximum compression settings.
-
 ## Installation
 
 ### Linux
 
 1. Install p7zip, adb, curl, whiptail, pv and optionally secure-delete. If you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl whiptail pv secure-delete`.
+On Fedora enable the RPM Sphere repo using instructions from here: https://rpmsphere.github.io/
+then execute this command `sudo dnf install p7zip p7zip-plugins adb curl newt pv secure-delete`
 2. [Download](https://github.com/mrrfv/open-android-backup/releases/latest) the Open Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/open-android-backup/archive/refs/heads/master.zip) or cloning.
 3. Enable [developer options](https://developer.android.com/studio/debug/dev-options#enable) and USB debugging on your device, then run `backup.sh` in a terminal.
 
@@ -71,7 +72,6 @@ brew install p7zip pv bash dialog
 3. Open the repository in the file explorer. Right click on a file called `backup-windows.ps1`, and click on "Run with PowerShell". **IMPORTANT: If you see an error after running the script, search for "Developer Settings" in the Settings app, and apply the settings related to PowerShell.**
 
 ![Powershell Developer Settings](.github/images/windows-powershell-developer-settings.png)
-
 ## Usage
 
 Just run `backup.sh` and the script will walk you through the process. This section covers advanced usage of this program.
@@ -137,6 +137,30 @@ $ unattended_mode="yes" selected_action="Backup" mode="Wired" export_method="tar
 $ archive_password="456" ./backup.sh
 ```
 
+## Convenience Script
+
+If you'd like to quickly run the latest version of Open Android Backup without having to follow the usage instructions, you can use the convenience script. It's a **work in progress**, but it should work on most systems.
+
+Please note that there are **security risks** associated with running scripts from the internet. It's recommended that you review the script before running it. If you don't trust me or Cloudflare, you can always download the script and run it manually.
+
+### Linux or macOS
+
+Run the following command in your terminal:
+
+```bash
+curl -fsSL get.openandroidbackup.me | bash
+```
+
+### Windows
+
+Run the following command in PowerShell:
+
+```powershell
+irm https://get.openandroidbackup.me/ | iex
+```
+
+The same path is used because the server automatically detects your operating system based on the user agent and serves the correct script.
+
 ## Building companion app
 
 **Note:** You don't need to do this, as the precompiled companion app is automatically downloaded at runtime from GitHub Releases.
@@ -152,12 +176,6 @@ PRs are appreciated.
 - Migrate the companion app to the Storage Access Framework API for forward compatibility (waiting for Flutter packages providing this functionality to become stable).
 - Improve the error handling and design of the mobile app.
 - Export the calendar and other data.
-
-## Donations
-
-This project is supported entirely by your kind donations. Thanks to your support, it was possible to get a real domain for this script - [openandroidbackup.me](https://openandroidbackup.me). By donating, you are contributing to the development of a community-driven project that respects your privacy and data. Please consider making a donation today and help keep this project alive and growing.
-
-If you'd like to support me and this project, you can do so by clicking the Sponsor button at the top of the GitHub page or directly visiting the [Liberapay page](https://liberapay.com/mrrfv/).
 
 ## License
 

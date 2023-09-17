@@ -1,7 +1,11 @@
 name: Test on macOS
 on:
-  push:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Build Unstable"]
+    branches: [master]
+    types:
+      - completed
 
 jobs:
   test:
@@ -12,8 +16,11 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '11'
-    - run: brew install --cask android-platform-tools
-    - run: brew install p7zip pv bash
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+    - name: Download Precompiled Companion App
+      run: curl -L https://github.com/mrrfv/open-android-backup/releases/download/latest/app-release.apk -o open-android-backup-companion.apk
+    - run: brew install p7zip pv bash dialog
     - run: chmod +x ./.github/test-script.sh
 
     - uses: reactivecircus/android-emulator-runner@v2
