@@ -1,6 +1,8 @@
 name: Build Unstable
 on:
   push:
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
@@ -10,6 +12,15 @@ jobs:
       working-directory: ./companion_app
     steps:
     - uses: actions/checkout@v3
+    - name: Setup keystore
+      # TODO: Don't hardcode the keystore location (/home/runner/...)
+      run: |
+        mkdir -p /home/runner/.android
+        echo ${{ secrets.ANDROID_BUILD_KEYSTORE_BASE64 }} | base64 --decode > /home/runner/.android/release.keystore
+        echo keyPassword=\${{ secrets.ANDROID_BUILD_KEY_PASSWORD }} > ${{ env.working-directory }}/android/key.properties
+        echo storePassword=\${{ secrets.ANDROID_BUILD_STORE_PASSWORD }} >> ${{ env.working-directory }}/android/key.properties
+        echo keyAlias=\${{ secrets.ANDROID_BUILD_KEY_ALIAS }} >> ${{ env.working-directory }}/android/key.properties
+        echo storeFile=/home/runner/.android/release.keystore >> ${{ env.working-directory }}/android/key.properties
     - uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
@@ -19,7 +30,7 @@ jobs:
         channel: 'stable' # or: 'beta', 'dev' or 'master'
     - run: flutter pub get
       working-directory: ${{ env.working-directory }}
-    - run: flutter build apk
+    - run: flutter build apk --release
       working-directory: ${{ env.working-directory }}
 
     - run: cp -v companion_app/build/app/outputs/apk/release/app-release.apk ./open-android-backup-companion.apk
