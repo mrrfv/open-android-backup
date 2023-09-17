@@ -182,7 +182,7 @@ class _HomeState extends State<Home> {
     if (await FlutterContacts.requestPermission() &&
         await Permission.storage.request().isGranted) {
       // On Android 11 and later, request additional permissions.
-      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt! > 29 &&
+      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt> 29 &&
           !await Permission.manageExternalStorage.request().isGranted) {
         // Open app settings if the permission wasn't granted
         await openAppSettings();
@@ -315,11 +315,7 @@ class _HomeState extends State<Home> {
               ),
               Visibility(
                   visible: showRestoreProgress,
-                  child: Text("Restored " +
-                      contactsImported.toString() +
-                      " contact(s) out of " +
-                      contactsAmountFilesystem.toString() +
-                      ".")),
+                  child: Text("Restored $contactsImported contact(s) out of $contactsAmountFilesystem.")),
             ],
           ),
         ),
