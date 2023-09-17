@@ -13,15 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup keystore
-      # TODO: Don't hardcode the keystore location (/home/runner/...)
-      run: |
-        mkdir -p /home/runner/.android
-        echo ${{ secrets.ANDROID_BUILD_KEYSTORE_BASE64 }} | base64 --decode > /home/runner/.android/release.keystore
-        echo keyPassword=\${{ secrets.ANDROID_BUILD_KEY_PASSWORD }} > ${{ env.working-directory }}/android/key.properties
-        echo storePassword=\${{ secrets.ANDROID_BUILD_STORE_PASSWORD }} >> ${{ env.working-directory }}/android/key.properties
-        echo keyAlias=\${{ secrets.ANDROID_BUILD_KEY_ALIAS }} >> ${{ env.working-directory }}/android/key.properties
-        echo storeFile=/home/runner/.android/release.keystore >> ${{ env.working-directory }}/android/key.properties
     - uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
@@ -31,12 +22,25 @@ jobs:
         channel: 'stable' # or: 'beta', 'dev' or 'master'
     - run: flutter pub get
       working-directory: ${{ env.working-directory }}
+    - name: Setup keystore
+      # TODO: Don't hardcode the keystore location (/home/runner/...)
+      run: |
+        mkdir -p /home/runner/.android
+        echo ${{ secrets.ANDROID_BUILD_KEYSTORE_BASE64 }} | base64 --decode > /home/runner/.android/release.keystore
+        echo keyPassword=\${{ secrets.ANDROID_BUILD_KEY_PASSWORD }} > ${{ env.working-directory }}/android/key.properties
+        echo storePassword=\${{ secrets.ANDROID_BUILD_STORE_PASSWORD }} >> ${{ env.working-directory }}/android/key.properties
+        echo keyAlias=\${{ secrets.ANDROID_BUILD_KEY_ALIAS }} >> ${{ env.working-directory }}/android/key.properties
+        echo storeFile=/home/runner/.android/release.keystore >> ${{ env.working-directory }}/android/key.properties
     - run: flutter build apk --release
       working-directory: ${{ env.working-directory }}
+    - name: Delete keystore and other secrets
+      run: |
+        rm -rf /home/runner/.android
+        rm -rf ${{ env.working-directory }}/android/key.properties
 
     - run: cp -v companion_app/build/app/outputs/apk/release/app-release.apk ./open-android-backup-companion.apk
     - run: sudo apt update && sudo apt install p7zip-full
-    - run: 7z a -bb3 -tzip -mx9  -x!.*\* -x!website\* -x!companion_app\* Open_Android_Backup_${{ github.ref_name }}_Bundle.zip .
+    - run: 7z a -bb3 -tzip -mx9  -x!.*\* -x!website\* -x!companion_app\* -x!convenience-scripts\* Open_Android_Backup_${{ github.ref_name }}_Bundle.zip .
 
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
