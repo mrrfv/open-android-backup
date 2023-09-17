@@ -40,12 +40,13 @@ jobs:
     - run: sudo apt update && sudo apt install p7zip-full
     - run: 7z a -bb3 -tzip -mx9  -x!.*\* -x!website\* -x!companion_app\* -x!convenience-scripts\* Open_Android_Backup_Unstable_Bundle.zip .
 
-    - uses: "marvinpinto/action-automatic-releases@latest"
+    - uses: ncipollo/release-action@v1
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest" # we need to keep this tag for legacy scripts to work (and as a fallback)
+        artifacts: "Open_Android_Backup_Unstable_Bundle.zip,companion_app/build/app/outputs/apk/release/app-release.apk"
+        allowUpdates: true
+        artifactErrorsFailBuild: true
+        generateReleaseNotes: true
         prerelease: true
-        title: "Open Android Backup - Unstable Version"
-        files: |
-          companion_app/build/app/outputs/apk/release/app-release.apk
-          Open_Android_Backup_Unstable_Bundle.zip
+        tag: "latest" # we need to keep this tag for legacy scripts to work (and as a fallback)
+        name: "Open Android Backup - Unstable Version"
+        body: "This is an unstable version of Open Android Backup, containing the latest updates which have not yet been tested thoroughly. Use at your own risk."
