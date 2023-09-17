@@ -42,11 +42,13 @@ jobs:
     - run: sudo apt update && sudo apt install p7zip-full
     - run: 7z a -bb3 -tzip -mx9  -x!.*\* -x!website\* -x!companion_app\* -x!convenience-scripts\* Open_Android_Backup_${{ github.ref_name }}_Bundle.zip .
 
-    - uses: "marvinpinto/action-automatic-releases@latest"
+    - uses: ncipollo/release-action@v1
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        artifacts: "Open_Android_Backup_${{ github.ref_name }}_Bundle.zip,companion_app/build/app/outputs/apk/release/app-release.apk"
+        allowUpdates: false
+        artifactErrorsFailBuild: true
+        generateReleaseNotes: true
         prerelease: false
-        title: "Open Android Backup Stable - ${{ github.ref_name }}"
-        files: |
-          companion_app/build/app/outputs/apk/release/app-release.apk
-          Open_Android_Backup_${{ github.ref_name }}_Bundle.zip
+        makeLatest: true
+        name: "Open Android Backup Stable - ${{ github.ref_name }}"
+        discussionCategory: "New Versions"
