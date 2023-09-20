@@ -29,6 +29,8 @@ function check_adb_connection() {
   wait_for_enter
   adb devices
   cecho "Can you see your device in the list above, and does it say 'device' next to it? If not, quit this script (ctrl+c) and try again."
+  cecho "If you can see your device, press Enter to continue."
+  wait_for_enter
 }
 
 function uninstall_companion_app() {
