@@ -24,10 +24,23 @@ else
     }
   else
     # Neither whiptail nor dialog are installed
-    echo "Error: Neither whiptail nor dialog are installed. Exiting."
+    echo "Neither whiptail nor dialog are installed, can't continue. Please refer to the README for usage instructions."
     exit 1
   fi
 fi
+
+# Check if other dependencies are installed: adb, tar, pv, 7z
+# srm is optional so we don't check for it
+commands=("tar" "pv" "7z" "adb")
+for cmd in "${commands[@]}"
+do
+  # adb is a function in WSL so we're using type instead of command -v
+  if ! type "$cmd" &> /dev/null
+  then
+    echo "$cmd is not available, can't continue. Please refer to the README for usage instructions."
+    exit 1
+  fi
+done
 
 
 SOURCE="${BASH_SOURCE[0]}"
