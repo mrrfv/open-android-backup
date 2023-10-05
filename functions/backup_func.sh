@@ -81,9 +81,6 @@ function backup_func() {
   
   # Export internal storage
   if [ "$exclusions" = "yes" ]; then
-	# This is necessary because sometimes the directory is flaky
-	adb shell basedir="/storage/emulated/0/"
-    adb shell exclusions_file="$basedir/open-android-backup-temp/exclusions.txt"
 	# Continue with user interaction
     cecho "Please list files or directories you wish to exclude from the backup."
     cecho "Entries should be space-delimited, and relative to '/storage/emulated/0/'. Directories do NOT need a trailing slash."
@@ -92,13 +89,14 @@ function backup_func() {
     cecho "will exclude the entire folder '/storage/emulated/0/Documents/', the subfolder '/storage/emulated/0/Pictures/my_secret_pictures', and the file '/storage/emulated/0/somefile.txt'."
     cecho "---"
     cecho "Top-level device folders:"
-	# TODO: better way to show this? The adb shell is pretty much limited to built-ins.
+	# TODO: better way to show this? The adb shell is pretty much limited to busybox/cureutils.
 	adb shell ls -A /storage/emulated/0/ | grep -v open-android-backup-temp
 	cecho "---"
 	# Receive user input
-	adb shell printf "Exclusions:\ "
-    adb shell IFS= read -r exclusions_response
-    adb shell echo "$exclusions_response" | sed 's/ /\n/g' > $exclusions_file
+	adb shell printf "Exclusions:\ " && IFS= read -r exclusions_response
+	# sh will throw an error if this is done differently, I have no idea why. It will not accept variables as substitutions for literal filepaths over adb?
+	adb shell cd /storage/emulated/0/; [ -d "open-android-backup-temp" ] || mkdir -p open-android-backup-temp
+    adb shell echo "$exclusions_response" | sed 's/ /\n/g' > ./open-android-backup-temp/exclusions.txt
     cecho "Exporting internal storage - this will take a while."
 	mkdir ./backup-tmp/Storage
 	# 'get_file_exclude' is just 'get-file' with the '-X' flag.
