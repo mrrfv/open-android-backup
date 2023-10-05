@@ -96,9 +96,9 @@ function backup_func() {
     adb shell ls -A --color=auto /storage/emulated/0/
 	cecho "---"
 	# Receive user input
-	adb shell printf "Exclusions: \n"
+	adb shell printf "Exclusions:\ "
     adb shell IFS= read -r exclusions_response
-    adb shell echo "$exclusions_list" | sed 's/ /\n/g' > $exclusions_file
+    adb shell echo "$exclusions_response" | sed 's/ /\n/g' > $exclusions_file
     cecho "Exporting internal storage - this will take a while."
 	mkdir ./backup-tmp/Storage
 	# 'get_file_exclude' is just 'get-file' with the '-X' flag.
