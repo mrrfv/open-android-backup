@@ -28,56 +28,56 @@ function backup_func() {
   wait_for_enter
   uninstall_companion_app # we're uninstalling it so that it isn't included in the backup
 
-  # Export apps (.apk files)
-  cecho "Exporting apps."
-  mkdir -p backup-tmp/Apps
-  for app in $(adb shell pm list packages -3 -f)
-  #   -f: see their associated file
-  #   -3: filter to only show third party packages
-  do
-  declare output=backup-tmp/Apps
-  (
-    apk_path=${app%=*}                                  # apk path on device
-    apk_path=${apk_path/package:}                       # strip "package:"
-    apk_clean_name=$(echo "$app" | awk -F "=" '{print $NF}' | tr -dc '[:alnum:].' | tr '[:upper:]' '[:lower:]') # package name
-    apk_base="$apk_clean_name-$RANDOM$RANDOM.apk"  # apk filename in the backup archive
-    # e.g.:
-    # app=package:/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk=org.fdroid.fdroid
-    # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk
-    # apk_clean_name=org.fdroid.fdroid
-    # apk_base=org.fdroid.fdroid-123456.apk
-    
-    echo "Backing up app: $apk_clean_name"
-
-    get_file "$(dirname "$apk_path")" "$(basename "$apk_path")" ./backup-tmp/Apps
-    mv "./backup-tmp/Apps/$(basename "$apk_path")" "./backup-tmp/Apps/$apk_base" || cecho "Couldn't find app $(basename "$apk_path") after exporting from device - ignoring." 1>&2
-  )
-  done
-
-  # Export contacts and SMS messages
-  cecho "Exporting contacts (as vCard), call logs as well as SMS messages (as CSV)."
-  # Get the entire oab-temp directory
-  mkdir ./backup-tmp/open-android-backup-temp
-  if ! get_file /storage/emulated/0/open-android-backup-temp . ./backup-tmp/open-android-backup-temp; then
-    cecho "Error: Failed to get data from the Companion App! Please make sure that you have pressed the 'Export Data' button in the Companion App."
-    cecho "If you have already done that, please report this issue on GitHub."
-    cecho "Cannot continue - exiting."
-    exit 1
-  fi
-  # Get contacts
-  mkdir ./backup-tmp/Contacts
-  mv ./backup-tmp/open-android-backup-temp/open-android-backup-contact*.vcf ./backup-tmp/Contacts || cecho "No contacts found on device - ignoring." 1>&2
-  # Get SMS messages
-  mkdir ./backup-tmp/SMS
-  mv ./backup-tmp/open-android-backup-temp/SMS_Messages.csv ./backup-tmp/SMS
-  # Get call logs
-  mkdir ./backup-tmp/CallLogs
-  mv ./backup-tmp/open-android-backup-temp/Call_Logs.csv ./backup-tmp/CallLogs
-  # Cleanup
-  cecho "Removing temporary files created by the companion app."
-  adb shell rm -rf /storage/emulated/0/open-android-backup-temp
-  rm -rf ./backup-tmp/open-android-backup-temp
-
+#  # Export apps (.apk files)
+#  cecho "Exporting apps."
+#  mkdir -p backup-tmp/Apps
+#  for app in $(adb shell pm list packages -3 -f)
+#  #   -f: see their associated file
+#  #   -3: filter to only show third party packages
+#  do
+#  declare output=backup-tmp/Apps
+#  (
+#    apk_path=${app%=*}                                  # apk path on device
+#    apk_path=${apk_path/package:}                       # strip "package:"
+#    apk_clean_name=$(echo "$app" | awk -F "=" '{print $NF}' | tr -dc '[:alnum:].' | tr '[:upper:]' '[:lower:]') # package name
+#    apk_base="$apk_clean_name-$RANDOM$RANDOM.apk"  # apk filename in the backup archive
+#    # e.g.:
+#    # app=package:/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk=org.fdroid.fdroid
+#    # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk
+#    # apk_clean_name=org.fdroid.fdroid
+#    # apk_base=org.fdroid.fdroid-123456.apk
+#    
+#    echo "Backing up app: $apk_clean_name"
+#
+#    get_file "$(dirname "$apk_path")" "$(basename "$apk_path")" ./backup-tmp/Apps
+#    mv "./backup-tmp/Apps/$(basename "$apk_path")" "./backup-tmp/Apps/$apk_base" || cecho "Couldn't find app $(basename "$apk_path") after exporting from device - ignoring." 1>&2
+#  )
+#  done
+#
+#  # Export contacts and SMS messages
+#  cecho "Exporting contacts (as vCard), call logs as well as SMS messages (as CSV)."
+#  # Get the entire oab-temp directory
+#  mkdir ./backup-tmp/open-android-backup-temp
+#  if ! get_file /storage/emulated/0/open-android-backup-temp . ./backup-tmp/open-android-backup-temp; then
+#    cecho "Error: Failed to get data from the Companion App! Please make sure that you have pressed the 'Export Data' button in the Companion App."
+#    cecho "If you have already done that, please report this issue on GitHub."
+#    cecho "Cannot continue - exiting."
+#    exit 1
+#  fi
+#  # Get contacts
+#  mkdir ./backup-tmp/Contacts
+#  mv ./backup-tmp/open-android-backup-temp/open-android-backup-contact*.vcf ./backup-tmp/Contacts || cecho "No contacts found on device - ignoring." 1>&2
+#  # Get SMS messages
+#  mkdir ./backup-tmp/SMS
+#  mv ./backup-tmp/open-android-backup-temp/SMS_Messages.csv ./backup-tmp/SMS
+#  # Get call logs
+#  mkdir ./backup-tmp/CallLogs
+#  mv ./backup-tmp/open-android-backup-temp/Call_Logs.csv ./backup-tmp/CallLogs
+#  # Cleanup
+#  cecho "Removing temporary files created by the companion app."
+#  adb shell rm -rf /storage/emulated/0/open-android-backup-temp
+#  rm -rf ./backup-tmp/open-android-backup-temp
+#
   # Export internal storage
   if [ "$exclusions" = "yes" ]; then
     exclusions_file="/storage/emulated/0/open-android-backup-temp/exclusions.txt"
