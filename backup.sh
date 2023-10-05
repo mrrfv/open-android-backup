@@ -83,6 +83,7 @@ fi
 
 clear
 
+# Allow the user to exclude specific files
 if [ ! -v exclusions ] && [ "$export_method" = "tar" ]; then
   cecho "You may optionally choose to exclude certain directories and/or files from being backed up."
   cecho "Press Enter to continue."

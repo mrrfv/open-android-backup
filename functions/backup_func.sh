@@ -78,10 +78,13 @@ function backup_func() {
 #  adb shell rm -rf /storage/emulated/0/open-android-backup-temp
 #  rm -rf ./backup-tmp/open-android-backup-temp
 #
+  
   # Export internal storage
   if [ "$exclusions" = "yes" ]; then
+	# Creates a file for 'tar -X' to read from
     exclusions_file="/storage/emulated/0/open-android-backup-temp/exclusions.txt"
     touch $exclusions_file
+	# Continue with user interaction
     cecho "Please list files or directories you wish to exclude from the backup."
     cecho "Entries should be space-delimited, and relative to '/storage/emulated/0/'. Directories do NOT need a trailing slash."
     cecho "---"
@@ -89,13 +92,17 @@ function backup_func() {
     cecho "will exclude the entire folder '/storage/emulated/0/Documents/', the subfolder '/storage/emulated/0/Pictures/my_secret_pictures', and the file '/storage/emulated/0/somefile.txt'."
     cecho "---"
     cecho "Device folders are shown below for convenience."
+	# TODO: better way to show this? The adb shell is pretty much limited to built-ins.
     adb shell ls -A /storage/emulated/0/
+	# Receive user input
     read -r -p "Exclusions: " exclusions_response
     echo "$exclusions_list" | sed 's/ /\n/g' > $exclusions_file
     cecho "Exporting internal storage - this will take a while."
-    mkdir ./backup-tmp/Storage
+	mkdir ./backup-tmp/Storage
+	# 'get_file_exclude' is just 'get-file' with the '-X' flag.
     get_file_exclude /storage/emulated/0 . ./backup-tmp/Storage
   else
+	# Fall back to old behavior
     cecho "Exporting internal storage - this will take a while."
     mkdir ./backup-tmp/Storage
     get_file /storage/emulated/0 . ./backup-tmp/Storage

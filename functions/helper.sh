@@ -188,11 +188,13 @@ function get_file() {
   fi
 }
 
+# There's probably a much better way to do this, but it's easier to build on existing functionality and style
 # Usage: get_file_exclude <directory> <file> <destination>
 function get_file_exclude() {
   if [ "$export_method" = 'tar' ]; then
     (adb exec-out "tar -c -C -X $exclusions_file $1 $2 2> /dev/null" | pv -p --timer --rate --bytes | tar -C "$3" -xf -) || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
   else # we're falling back to adb pull if the variable is empty/unset
+	# leave this intact in case of tar failure  
     adb pull "$1"/"$2" "$3" || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
   fi
 }
