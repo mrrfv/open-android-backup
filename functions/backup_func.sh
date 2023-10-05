@@ -96,7 +96,7 @@ function backup_func() {
 	adb shell printf "Exclusions:\ " && IFS= read -r exclusions_response
 	# sh will throw an error if this is done differently, I have no idea why. It will not accept variables as substitutions for literal filepaths over adb?
 	adb shell [ -d "/storage/emulated/0/open-android-backup-temp" ] || mkdir -p /storage/emulated/0/open-android-backup-temp 
-	adb shell echo "$exclusions_response" | sed 's/ /\n/g' > /storage/emulated/0/open-android-backup-temp/exclusions.txt
+	adb shell echo "$exclusions_response" > /storage/emulated/0/open-android-backup-temp/exclusions.txt
     cecho "Exporting internal storage - this will take a while."
 	mkdir ./backup-tmp/Storage
 	# 'get_file_exclude' is just 'get-file' with the '-X' flag.
