@@ -79,10 +79,27 @@ function backup_func() {
   rm -rf ./backup-tmp/open-android-backup-temp
 
   # Export internal storage
-  cecho "Exporting internal storage - this will take a while."
-  mkdir ./backup-tmp/Storage
-  get_file /storage/emulated/0 . ./backup-tmp/Storage
-
+  if [ "$exclusions" = "yes" ]; then
+    exclusions_file="/storage/emulated/0/open-android-backup-temp/exclusions.txt"
+    touch $exclusions_file
+    cecho "Please list files or directories you wish to exclude from the backup."
+    cecho "Entries should be space-delimited, and relative to '/storage/emulated/0/'. Directories do NOT need a trailing slash."
+    cecho "---"
+    cecho "For example, the input: 'Documents Pictures/my_secret_pictures somefile.txt'"
+    cecho "will exclude the entire folder '/storage/emulated/0/Documents/', the subfolder '/storage/emulated/0/Pictures/my_secret_pictures', and the file '/storage/emulated/0/somefile.txt'."
+    cecho "---"
+    cecho "Device folders are shown below for convenience."
+    adb shell ls -A /storage/emulated/0/
+    read -r -p "Exclusions: " exclusions_response
+    echo "$exclusions_list" | sed 's/ /\n/g' > $exclusions_file
+    cecho "Exporting internal storage - this will take a while."
+    mkdir ./backup-tmp/Storage
+    get_file_exclude /storage/emulated/0 . ./backup-tmp/Storage
+  else
+    cecho "Exporting internal storage - this will take a while."
+    mkdir ./backup-tmp/Storage
+    get_file /storage/emulated/0 . ./backup-tmp/Storage
+  fi
   # Run the third-party backup hook, if enabled.
   if [ "$use_hooks" = "yes" ] && [ "$(type -t backup_hook)" == "function" ]; then
     cecho "Running backup hooks in 5 seconds."
