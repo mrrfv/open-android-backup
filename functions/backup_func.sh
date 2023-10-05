@@ -81,9 +81,9 @@ function backup_func() {
   
   # Export internal storage
   if [ "$exclusions" = "yes" ]; then
-	# Creates a file for 'tar -X' to read from
-    exclusions_file="/storage/emulated/0/open-android-backup-temp/exclusions.txt"
-    adb shell touch $exclusions_file
+	# This is necessary because sometimes the directory is flaky
+	adb shell basedir="/storage/emulated/0/"
+    adb shell exclusions_file="$basedir/open-android-backup-temp/exclusions.txt"
 	# Continue with user interaction
     cecho "Please list files or directories you wish to exclude from the backup."
     cecho "Entries should be space-delimited, and relative to '/storage/emulated/0/'. Directories do NOT need a trailing slash."
@@ -93,7 +93,7 @@ function backup_func() {
     cecho "---"
     cecho "Top-level device folders:"
 	# TODO: better way to show this? The adb shell is pretty much limited to built-ins.
-    adb shell ls -A --color=auto /storage/emulated/0/
+	adb shell ls -A /storage/emulated/0/ | grep -v open-android-backup-temp
 	cecho "---"
 	# Receive user input
 	adb shell printf "Exclusions:\ "
