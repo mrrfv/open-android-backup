@@ -73,12 +73,6 @@ function backup_func() {
   # Get call logs
   mkdir ./backup-tmp/CallLogs
   mv ./backup-tmp/open-android-backup-temp/Call_Logs.csv ./backup-tmp/CallLogs
-  # Cleanup
-  cecho "Removing temporary files created by the companion app."
-  adb shell rm -rf /storage/emulated/0/open-android-backup-temp
-  rm -rf ./backup-tmp/open-android-backup-temp
-
-  
   # Export internal storage
   if [ "$exclusions" = "yes" ]; then
 	# Continue with user interaction
@@ -103,11 +97,19 @@ function backup_func() {
     get_file_exclude /storage/emulated/0 . ./backup-tmp/Storage
   else
 	# Fall back to old behavior
-    cecho "Exporting internal storage - this will take a while."
+    cecho "Failed to apply exclusions. Falling back to standard backup..."
+	cecho "Exporting internal storage - this will take a while."
     mkdir ./backup-tmp/Storage
     get_file /storage/emulated/0 . ./backup-tmp/Storage
   fi
+ 
+# Cleanup
+  cecho "Removing temporary files created by the companion app."
+  adb shell rm -rf /storage/emulated/0/open-android-backup-temp
+  rm -rf ./backup-tmp/open-android-backup-temp
+
   
+ 
   # Run the third-party backup hook, if enabled.
   if [ "$use_hooks" = "yes" ] && [ "$(type -t backup_hook)" == "function" ]; then
     cecho "Running backup hooks in 5 seconds."
