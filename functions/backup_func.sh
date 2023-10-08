@@ -89,8 +89,6 @@ function backup_func() {
 	# Receive user input
 	# TODO: this could be much less flaky by utilizing 'toybox vi' to edit the exclusions list. Ignoring for now.
 	adb shell printf "Exclusions:\ " && IFS= read -r exclusions_response
-	# sh will throw an error if this dir does not exist. This line can probably be removed. 
-#	adb shell [ -d "/storage/emulated/0/open-android-backup-temp" ] || mkdir -p /storage/emulated/0/open-android-backup-temp 
 	# This command MUST be contained in double quotes, or else adb shell chokes on the input and our 'tar -x' fails.
 	adb shell "echo "$exclusions_response" | sed 's/ /\n/g' > /storage/emulated/0/open-android-backup-temp/exclusions.txt"
     cecho "Exporting internal storage - this will take a while."
