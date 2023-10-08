@@ -83,18 +83,6 @@ fi
 
 clear
 
-# Allow the user to exclude specific files
-if [ ! -v exclusions ] && [ "$export_method" = "tar" ]; then
-  cecho "You may optionally choose to exclude certain directories and/or files from being backed up."
-  cecho "Press Enter to continue."
-  wait_for_enter
-
-  excluded_files=( 'no' 'yes' )
-  select_option_from_list "Do you wish to add any exclusions?" excluded_files[@] exclusions
-fi
-
-clear
-
 if [ ! -v use_hooks ]; then
   cecho "Would you like to use hooks?"
   cecho "Choose 'no' if you don't understand this question, or don't want to load hooks."
@@ -120,7 +108,18 @@ elif [ "$use_hooks" = "yes" ]; then
   exit 1
 fi
 
+# Allow the user to exclude specific files
+# Leaving this block after the hooks integration, as we do not know if the user wants their hooks to operate on only the chosen files or not.
+if [ ! -v exclusions ] && [ "$export_method" = "tar" ]; then
+  cecho "You may optionally choose to exclude certain directories and/or files from being backed up."
+  cecho "Press Enter to continue."
+  wait_for_enter
 
+  excluded_files=( 'no' 'yes' )
+  select_option_from_list "Do you wish to add any exclusions?" excluded_files[@] exclusions
+fi
+
+clear
 
 if command -v srm &> /dev/null
 then
