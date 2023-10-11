@@ -10,6 +10,25 @@ function wait_for_enter() {
   fi
 }
 
+# Checks if the user has at least 100GB of free space in a given directory
+# Usage: enough_free_space <directory> (optional size threshold in kilobytes)
+# Returns 0 (enough space) or 1 (not enough space)
+function enough_free_space() {
+  local directory="$1"
+  local size_threshold="$2"
+  if [ -z "$size_threshold" ]; then
+    size_threshold=100000000 # 100GB
+  fi
+  # Convert the size threshold to a normal number in case it's in scientific notation
+  size_threshold=$(echo "$size_threshold" | awk '{printf "%.0f\n", $1}')
+  # Get the free space in the directory in kilobytes
+  local free_space=$(df -k "$directory" | tail -n 1 | awk '{print $4}')
+  if [ "$free_space" -lt "$size_threshold" ]; then
+    return 1
+  fi
+  return 0
+}
+
 # "cecho" makes output messages yellow, if possible
 function cecho() {
   if tty -s; then

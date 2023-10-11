@@ -106,6 +106,7 @@ function backup_func() {
 
   # Compress
   cecho "Compressing & encrypting data - this will take a while."
+  # 7-Zip options:
   # -p: encrypt backup
   # -mhe=on: encrypt headers (metadata)
   # -mx=9: ultra compression
