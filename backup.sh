@@ -32,6 +32,12 @@ fi
 # Check if other dependencies are installed: adb, tar, pv, 7z
 # srm is optional so we don't check for it
 commands=("tar" "pv" "7z" "adb")
+
+# Add kdialog to the list of commands if we're running in WSL
+if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]; then
+  commands+=("kdialog")
+fi
+
 for cmd in "${commands[@]}"
 do
   # adb is a function in WSL so we're using type instead of command -v
