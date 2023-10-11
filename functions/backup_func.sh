@@ -130,5 +130,4 @@ function backup_func() {
   cecho "Backed up successfully."
   cecho "Note: SMS messages and call logs cannot be restored by Open Android Backup at the moment. They are included in the backup archive for your own purposes."
   cecho "You can find them by opening the backup archive using 7-Zip."
-  rm -rf backup-tmp > /dev/null
 }
