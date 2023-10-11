@@ -42,7 +42,7 @@ These things are the majority of what most people would want to keep safe, but e
 
 ### Linux
 
-1. Install p7zip, adb, curl, whiptail, pv and optionally secure-delete. If you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl whiptail pv secure-delete`.
+1. Install p7zip, adb, curl, whiptail, pv, bc and optionally secure-delete. If you're on Debian or Ubuntu, run this command: `sudo apt update; sudo apt install p7zip-full adb curl whiptail pv bc secure-delete`.
 On Fedora enable the RPM Sphere repo using instructions from here: https://rpmsphere.github.io/
 then execute this command `sudo dnf install p7zip p7zip-plugins adb curl newt pv secure-delete`
 2. [Download](https://github.com/mrrfv/open-android-backup/releases/latest) the Open Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/open-android-backup/archive/refs/heads/master.zip) or cloning.
