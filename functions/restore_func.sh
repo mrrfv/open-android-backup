@@ -27,7 +27,7 @@ function restore_func() {
   # Ensure there's enough space to extract the archive on the device
   # Note: this is a very rough estimate as we're not taking the compression ratio into account
   archive_size_kb=$(stat --printf="%s" "$archive_path" | awk '{print $1/1024}')
-  if ! enough_free_space "$DIR" "$archive_size_kb"; then
+  if ! enough_free_space "." "$archive_size_kb"; then
     cecho "Less than $archive_size_kb KB of free space available on the current directory - not enough to extract this backup."
     cecho "Please free up some space and try again."
     exit 1
