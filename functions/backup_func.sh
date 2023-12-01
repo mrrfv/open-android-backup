@@ -104,16 +104,26 @@ function backup_func() {
   cp "$DIR/extras/backup_archive_info.txt" ./backup-tmp/PLEASE_READ.txt
   echo "$APP_VERSION" > ./backup-tmp/version.txt
 
-  # Compress
-  cecho "Compressing & encrypting data - this will take a while."
-  # 7-Zip options:
-  # -p: encrypt backup
-  # -mhe=on: encrypt headers (metadata)
-  # -mx=9: ultra compression
-  # -bb3: verbose logging
-  # The undefined variable (archive_password) is set by the user if they're using unattended mode
-  declare backup_archive="$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
-  retry 5 7z a -p"$archive_password" -mhe=on -mx=7 -bb3 "$backup_archive" backup-tmp/*
+  # If the "discouraged_disable_archive" is set to "yes", then we'll only create a directory with the backup files.
+  if [ "$discouraged_disable_archive" = "yes" ]; then
+    cecho "Skipping compression & encryption due to the 'discouraged_disable_archive' option being set to 'yes'."
+    cecho "The backup data will be stored in a directory instead."
+    # TODO: clean up the code, i.e. remove the repetition
+    declare backup_archive="$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S)"
+    mkdir -p "$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S)"
+    mv ./backup-tmp "$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S)"
+  else
+    # Compress
+    cecho "Compressing & encrypting data - this will take a while."
+    # 7-Zip options:
+    # -p: encrypt backup
+    # -mhe=on: encrypt headers (metadata)
+    # -mx=9: ultra compression
+    # -bb3: verbose logging
+    # The undefined variable (archive_password) is set by the user if they're using unattended mode
+    declare backup_archive="$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
+    retry 5 7z a -p"$archive_password" -mhe=on -mx=7 -bb3 "$backup_archive" backup-tmp/*
+  fi
 
   # We're not using 7-Zip's -sdel option (delete files after compression) to honor the user's choice to securely delete temporary files after a backup
   remove_backup_tmp  

@@ -42,3 +42,13 @@ export export_method="tar"
 cp .github/test-hook.sh ./hooks.sh
 create_dummy_files
 ./backup.sh
+
+# discouraged_disable_archive enabled, ADB exporting method
+export discouraged_disable_archive="yes"
+export use_hooks="no"
+export export_method="adb"
+create_dummy_files
+./backup.sh
+
+# Show the contents of the backup location
+ls -la $archive_path
