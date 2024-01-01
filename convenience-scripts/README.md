@@ -4,6 +4,12 @@ These scripts allow you to quickly run the latest version of Open Android Backup
 
 ## get.openandroidbackup.me
 
+### Deprecated
+
+This convenience script has been deprecated and will stop functioning in April 2024. Please use the official usage instructions instead.
+
+## Usage
+
 You can access the convenience script from this domain. It automatically detects your operating system based on the user agent and serves the correct script.
 
 ### Linux or macOS

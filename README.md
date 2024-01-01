@@ -140,27 +140,9 @@ $ archive_password="456" ./backup.sh
 
 ## Convenience Script
 
-If you'd like to quickly run the latest version of Open Android Backup without having to follow the usage instructions, you can use the convenience script. It's a **work in progress**, but it should work on most systems.
+The `get.openandroidbackup.me` convenience script is deprecated starting January 1st 2024 due to potential security implications associated with running unverified code from the internet as well as its limited support for various system configurations. Please use the official usage instructions instead.
 
-Please note that there are **security risks** associated with running scripts from the internet. It's recommended that you review the script before running it. If you don't trust me or Cloudflare, you can always download the script and run it manually.
-
-### Linux or macOS
-
-Run the following command in your terminal:
-
-```bash
-curl -fsSL get.openandroidbackup.me | bash
-```
-
-### Windows
-
-Run the following command in PowerShell:
-
-```powershell
-irm https://get.openandroidbackup.me/ | iex
-```
-
-The same path is used because the server automatically detects your operating system based on the user agent and serves the correct script.
+Removal of the script is planned for April 2024, although it may stay up for longer if it's still being used by a significant number of people.
 
 ## Building companion app
 

@@ -2,6 +2,10 @@ echo "Detected operating system: Windows"
 echo "Sleeping for 5 seconds to allow you to cancel..."
 sleep 5
 
+# It makes more sense to put the deprecation warning after the OS detection, since the echo command is different in PowerShell.
+Write-Output "Warning: This convenience script has been deprecated and will stop functioning in April 2024. Please use the official usage instructions instead. Read the GitHub repository's README for more information."
+sleep 5
+
 Write-Output "Open Android Backup - Windows Convenience Script"
 Write-Output "This script lets you use open-android-backup on Windows."
 Write-Output "Please remember that this script hasn't been fully tested, and may contain bugs."

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo "Warning: This convenience script has been deprecated and will stop functioning in April 2024. Please use the official usage instructions instead. Read the GitHub repository's README for more information."
+
+# Sleeping to ensure the user doesn't just ignore the warning
+sleep 5
+
 echo "Detected operating system: Linux or macOS"
 echo "If you are running this script in WSL, please run it in Windows instead."
 echo "Sleeping for 5 seconds to allow you to cancel..."
