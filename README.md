@@ -68,13 +68,13 @@ brew install p7zip pv bash dialog
 ### Windows
 
 1. Install the [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install#install), a compatibility layer allowing you to run Linux applications (such as this one) on Windows. You only need to follow the `Install` step.
-2. [Download](https://github.com/mrrfv/open-android-backup/releases/latest) the Open Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/open-android-backup/archive/refs/heads/master.zip) or cloning.
-3. Open the repository in the file explorer. Right click on a file called `backup-windows.ps1`, and click on "Run with PowerShell". **IMPORTANT: If you see an error after running the script, search for "Developer Settings" in the Settings app, and apply the settings related to PowerShell.**
+2. [Download](https://github.com/mrrfv/open-android-backup/releases/latest) the Open Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/open-android-backup/archive/refs/heads/master.zip) or cloning the repository.
+3. Open the unzipped folder in the File Explorer. Right click on a file called `backup-windows.ps1`, and click on "Run with PowerShell". **IMPORTANT: If you see an error after running the script, search for "Developer Settings" in the Settings app, and apply the settings related to PowerShell. You may also have to open the file's Properties and ensure "Unblock" is checked next to "Security".**
 
 ![Powershell Developer Settings](.github/images/windows-powershell-developer-settings.png)
 ## Usage
 
-Just run `backup.sh` and the script will walk you through the process. This section covers advanced usage of this program.
+Just run `backup.sh` (or `backup-windows.ps1` on Windows) and the script will walk you through the process. This section covers advanced usage of this program.
 
 ### Hooks
 
