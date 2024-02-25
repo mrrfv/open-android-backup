@@ -95,6 +95,22 @@ fi
 
 clear
 
+if [ ! -v compression_level ]; then
+  cecho "Choose the compression level."
+  cecho "- 0 is no compression, and is the fastest."
+  cecho "- 3 is fast compression."
+  cecho "- 5 is normal compression, which is a balance between speed and file size."
+  cecho "- 7 is maximum compression, it was the previous default."
+  cecho "- 9 is the slowest, but provides the best compression."
+  cecho "Press Enter to pick your preferred compression level."
+  wait_for_enter
+
+  compression_levels=( '0' '1' '3' '5' '7' '9' )
+  select_option_from_list "Choose the compression level" compression_levels[@] compression_level
+fi
+
+clear
+
 if [ ! -v use_hooks ]; then
   cecho "Would you like to use hooks?"
   cecho "Choose 'no' if you don't understand this question, or don't want to load hooks."

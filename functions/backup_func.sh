@@ -122,7 +122,7 @@ function backup_func() {
     # -bb3: verbose logging
     # The undefined variable (archive_password) is set by the user if they're using unattended mode
     declare backup_archive="$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
-    retry 5 7z a -p"$archive_password" -mhe=on -mx=7 -bb3 "$backup_archive" backup-tmp/*
+    retry 5 7z a -p"$archive_password" -mhe=on -mx=$compression_level -bb3 "$backup_archive" backup-tmp/*
   fi
 
   # We're not using 7-Zip's -sdel option (delete files after compression) to honor the user's choice to securely delete temporary files after a backup
