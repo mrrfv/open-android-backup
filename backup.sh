@@ -98,12 +98,14 @@ clear
 if [ ! -v compression_level ]; then
   cecho "Choose the compression level."
   cecho "- 0 is no compression, and is the fastest."
+  cecho "- 3 is fast compression."
+  cecho "- 5 is normal compression, which is a balance between speed and file size."
+  cecho "- 7 is maximum compression, it was the previous default."
   cecho "- 9 is the slowest, but provides the best compression."
-  cecho "- 7 was the previous default"
   cecho "Press Enter to pick your preferred compression level."
   wait_for_enter
 
-  compression_levels=( '0' '1' '2' '3' '4' '5' '6' '7' '8' '9' )
+  compression_levels=( '0' '1' '3' '5' '7' '9' )
   select_option_from_list "Choose the compression level" compression_levels[@] compression_level
 fi
 
