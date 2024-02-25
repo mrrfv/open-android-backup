@@ -13,6 +13,7 @@ export mode="Wired"
 export TERM="xterm"
 export CI="true"
 export data_erase_choice="Fast"
+export compression_level="0"
 
 # Backup
 export selected_action="Backup"
