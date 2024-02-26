@@ -29,9 +29,9 @@ else
   fi
 fi
 
-# Check if other dependencies are installed: adb, tar, pv, 7z, bc
+# Check if other dependencies are installed: adb, tar, pv, 7z, bc, timeout
 # srm is optional so we don't check for it
-commands=("tar" "pv" "7z" "adb" "bc")
+commands=("tar" "pv" "7z" "adb" "bc" "timeout")
 
 # Add kdialog to the list of commands if we're running in WSL
 if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]; then

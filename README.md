@@ -52,7 +52,7 @@ then execute this command `sudo dnf install p7zip p7zip-plugins adb curl newt pv
 
 **Warning:** I've recently switched to an AMD CPU+NVIDIA GPU rig, making it impossible for me to test this script on macOS without buying a Mac. Whilst there is nothing that could prevent this script from running on macOS, you are on your own and support will be very limited. (script last tested on Janurary 11th 2023)
 
-1. Install p7zip and adb using [Homebrew](https://brew.sh/):
+1. Install dependencies using [Homebrew](https://brew.sh/):
 
 ```bash
 # Tip: Run these commands in the built-in Terminal app (or iTerm if you have that installed).
@@ -60,7 +60,7 @@ then execute this command `sudo dnf install p7zip p7zip-plugins adb curl newt pv
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 # If you already have Homebrew installed, just run these 2 commands:
 brew install --cask android-platform-tools
-brew install p7zip pv bash dialog
+brew install p7zip pv bash dialog coreutils
 ```
 
 2. Follow the steps 2 and 3 from the install guide for Linux.
