@@ -42,10 +42,15 @@ function restore_func() {
   set +e
   if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
     cecho "Windows/WSL detected"
+    # TODO: Add the 15 minute timeout to the Windows exec command too.
+    #       I'm leaving the old behavior for now since I have no way of testing the timeout on Windows at the moment.
     find ./backup-tmp/Apps -type f -name "*.apk" -exec ./windows-dependencies/adb/adb.exe install {} \;
   else
     cecho "macOS/Linux detected"
-    find ./backup-tmp/Apps -type f -name "*.apk" -exec adb install {} \;
+    # There's a 15 minute timeout for app installs just in case there is a
+    # misbehaving app blocking the whole restore process.
+    # Please note that this doesn't forcibly kill adb, rather it sends a simple SIGTERM signal.
+    find ./backup-tmp/Apps -type f -name "*.apk" -exec timeout 900 adb install {} \;
   fi
   set -e
 
