@@ -7,6 +7,8 @@ Write-Output "Warning: WSL 2 is required. WSL will be updated to fix potential i
 Write-Output "For more information, see here: https://github.com/microsoft/wslg#install-instructions-existing-wsl-install"
 Write-Output ""
 pause
+# Corrects the cwd if it's different than the script directory
+Set-Location -Path $PSScriptRoot
 Write-Output "Updating WSL..."
 wsl --update
 wsl --shutdown
