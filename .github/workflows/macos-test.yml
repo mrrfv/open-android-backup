@@ -20,7 +20,7 @@ jobs:
       uses: android-actions/setup-android@v2
     - name: Download Precompiled Companion App
       run: curl -L https://github.com/mrrfv/open-android-backup/releases/download/latest/app-release.apk -o open-android-backup-companion.apk
-    - run: brew install p7zip pv bash dialog
+    - run: brew install p7zip pv bash dialog coreutils
     - run: chmod +x ./.github/test-script.sh
 
     - uses: reactivecircus/android-emulator-runner@v2
