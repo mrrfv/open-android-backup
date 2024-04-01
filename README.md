@@ -14,7 +14,7 @@ Open Android Backup is a tiny shell script & Flutter app that makes securely bac
 
 The following data types can be automatically restored back to the device.
 
-- Apps (.apk files of installed apps - app data not included - split APK support is experimental and can be found in the `split-apk-support` branch)
+- Apps (app data not included due to system limitations)
 - Internal storage (pictures, downloads, videos, Signal backups if enabled, etc)
 - Contacts (exported in vCard format)
 
@@ -33,11 +33,12 @@ These things are the majority of what most people would want to keep safe, but e
 - Works on the 3 major operating systems, and supports *any* modern Android device.
 - Wireless backups that allow you to normally use your phone while it's being backed up.
 - Backs up data not normally accessible through ADB using a native companion app.
-- Tiny - the script is 5KB in size, and the companion app is around 15 megabytes.
+- Tiny - the whole package is about 20 MB.
 - Doesn't use proprietary formats - your data is safe even if you can't run the script. Simply open archives created by this script using 7-Zip.
 - Backups are encrypted along with their metadata.
 - Optionally securely erases all unencrypted temporary files created by the script.
-- All data is compressed using 7-Zip with maximum compression settings.
+- All data is compressed using 7-Zip with configurable compression settings.
+
 ## Installation
 
 ### Linux

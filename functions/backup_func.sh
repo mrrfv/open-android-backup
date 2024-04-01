@@ -52,8 +52,8 @@ function backup_func() {
     (
       apk_path=${app%=*}                                  # apk path on device
       apk_path=${apk_path/package:}                       # strip "package:"
-      apk_clean_name=$(echo "$app" | awk -F "=" '{print $NF}' | tr -dc '[:alnum:].' | tr '[:upper:]' '[:lower:]') # package name
-      apk_base="$apk_clean_name-$RANDOM$RANDOM.apk"  # apk filename in the backup archive
+      apk_clean_name=$(echo "$app" | awk -F "=" '{print $NF}' | tr -dc '[:alnum:]_.') # package name
+      #apk_base="$apk_clean_name-$RANDOM$RANDOM"  # apk filename in the backup archive. Unused, removal pending?
       # e.g.:
       # app=package:/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk=org.fdroid.fdroid
       # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk
@@ -62,8 +62,14 @@ function backup_func() {
       
       echo "Backing up app: $apk_clean_name ($apps_exported/$app_count)"
 
-      get_file "$(dirname "$apk_path")" "$(basename "$apk_path")" ./backup-tmp/Apps
-      mv "./backup-tmp/Apps/$(basename "$apk_path")" "./backup-tmp/Apps/$apk_base" || cecho "Couldn't find app $(basename "$apk_path") after exporting from device - ignoring." 1>&2
+      # Get all the APKs associated with the package name, including split APKs
+      # TODO: Ensure the changes made to apk_clean_name don't break this under certain conditions
+      for apk in $(adb shell pm path "$apk_clean_name" | sed 's/package://g' | tr -d '\r'); do
+        # Create a directory for the app to store all the APKs
+        mkdir -p ./backup-tmp/Apps/"$apk_clean_name"
+        # Save the APK to its directory
+        get_file "$(dirname "$apk")" "$(basename "$apk")" ./backup-tmp/Apps/"$apk_clean_name"
+      done
     )
   done
 

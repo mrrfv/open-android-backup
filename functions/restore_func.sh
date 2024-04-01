@@ -48,15 +48,45 @@ function restore_func() {
   cecho "Restoring applications."
   # We don't want a single app to break the whole script
   set +e
-  # There's a 15 minute timeout for app installs just in case there is a
-  # misbehaving app blocking the whole restore process.
-  # Please note that this doesn't forcibly kill adb, rather it sends a simple SIGTERM signal.
+  # Apps containing their own directories may contain split APKs, which need to be installed using adb install-multiple.
+  # Those without directories were created by past versions of this script and need to be imported the traditional way.
+
+  # Handle split APKs
+  # Find directories in the Apps directory
+  apk_dirs=$(find ./backup-tmp/Apps -mindepth 1 -maxdepth 1 -type d)
+  for apk_dir in $apk_dirs; do
+    # Install all APKs in the directory
+    # the APK files are sorted to ensure that base.apk is installed before split APKs
+    apk_files=$(find "$apk_dir" -type f -name "*.apk" | sort | tr '\n' ' ')
+    if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
+      cecho "Windows/WSL detected"
+      # shellcheck disable=SC2086
+      timeout 900 ./windows-dependencies/adb/adb.exe install-multiple $apk_files
+    else
+      cecho "macOS/Linux detected"
+      # shellcheck disable=SC2086
+      timeout 900 adb install-multiple $apk_files
+    fi
+  done
+
+  # Now all that's left is ensuring backwards compatibility with old backups
+  # Look for APK files in the Apps directory
+  apk_files=$(find ./backup-tmp/Apps -maxdepth 1 -type f -name "*.apk" | sort)
+  # Notify if an old backup is being restored
+  if [ -n "$apk_files" ]; then
+    cecho "Old backup with no split APKs detected."
+  fi
+  # Install all APKs
   if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
     cecho "Windows/WSL detected"
-    find ./backup-tmp/Apps -type f -name "*.apk" -exec timeout 900 ./windows-dependencies/adb/adb.exe install {} \;
+    for apk_file in $apk_files; do
+      timeout 900 ./windows-dependencies/adb/adb.exe install "$apk_file"
+    done
   else
     cecho "macOS/Linux detected"
-    find ./backup-tmp/Apps -type f -name "*.apk" -exec timeout 900 adb install {} \;
+    for apk_file in $apk_files; do
+      timeout 900 adb install "$apk_file"
+    done
   fi
   set -e
 
