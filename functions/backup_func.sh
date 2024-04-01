@@ -4,18 +4,26 @@
 function backup_func() {
   while true; do
   if [ ! -v archive_path ]; then
-  # Check if we're running on Windows.
-  # If we are, then we will open a file chooser instead of asking the user for the file path thru CLI
-  # due to compatibility issues.
-  # TODO: also do this on Linux if KDialog is available
-  if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ];
+  # Ask the user for the backup location
+  # If zenity is available, we'll use it to show a graphical directory chooser
+  # TODO: Extract this into a function since similar code is used when restoring
+  if command -v zenity >/dev/null 2>&1 && { [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ] || [ -z "$XDG_DATA_DIRS" ]; } ;
   then
-    cecho "Running on Windows (WSL) - a graphical file chooser dialog will be open."
+    cecho "A graphical directory chooser dialog will be open."
     cecho "You will be prompted for the backup location. Press Enter to continue."
     wait_for_enter
-    archive_path=$(kdialog --getexistingdirectory /mnt/c 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
+
+    # Dynamically set the default directory based on the operating system
+    zenity_backup_default_dir="$HOME"
+    if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]; then
+      zenity_backup_default_dir="/mnt/c/Users"
+    fi
+
+    archive_path=$(zenity --file-selection --title="Choose the backup location" --directory --filename="$zenity_backup_default_dir" 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
   else
+    # Fall back to the CLI if zenity isn't available (e.g. on macOS)
     get_text_input "Enter the backup location. Press Ok for the current working directory." archive_path "$(pwd)"
+    cecho "Install zenity to use a graphical directory chooser."
   fi
 
   fi

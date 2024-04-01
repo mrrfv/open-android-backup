@@ -33,9 +33,9 @@ fi
 # srm is optional so we don't check for it
 commands=("tar" "pv" "7z" "adb" "bc" "timeout")
 
-# Add kdialog to the list of commands if we're running in WSL
+# Add zenity to the list of commands if we're running in WSL
 if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]; then
-  commands+=("kdialog")
+  commands+=("zenity")
 fi
 
 for cmd in "${commands[@]}"

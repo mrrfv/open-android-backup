@@ -50,7 +50,7 @@ wsl --shutdown
 wsl -d $distro sudo apt update
 wsl -d $distro sudo apt dist-upgrade -y
 Write-Output "Installing dependencies and setting up environment..."
-wsl -d $distro sudo apt install p7zip-full secure-delete whiptail curl dos2unix pv kdialog '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev -y
+wsl -d $distro sudo apt install p7zip-full secure-delete whiptail curl dos2unix pv zenity '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev -y
 Write-Output "Downloading latest release of Open Android Backup..."
 
 $RANDOM = Get-Random -Minimum 1000 -Maximum 1000000
