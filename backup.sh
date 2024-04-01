@@ -65,7 +65,7 @@ for f in "$DIR"/functions/*.sh; do source "$f"; done
 # Ensure that there's enough space on the device
 # TODO: Check this based on the size of the backup (or the device's storage capacity) instead of a hardcoded value of 100GB
 if ! enough_free_space "."; then
-  cecho "Less than 100GB of free space available on the current directory. You may encounter issues if working with large backups."
+  cecho "Less than 100GB of free space available in the current directory. You may encounter issues if working with large backups."
 fi
 
 check_adb_connection
