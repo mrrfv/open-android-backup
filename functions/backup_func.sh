@@ -39,27 +39,32 @@ function backup_func() {
   # Export apps (.apk files)
   cecho "Exporting apps."
   mkdir -p backup-tmp/Apps
+  app_count=$(adb shell pm list packages -3 -f | wc -l)
+  apps_exported=0
+
   for app in $(adb shell pm list packages -3 -f)
   #   -f: see their associated file
   #   -3: filter to only show third party packages
   do
-  declare output=backup-tmp/Apps
-  (
-    apk_path=${app%=*}                                  # apk path on device
-    apk_path=${apk_path/package:}                       # strip "package:"
-    apk_clean_name=$(echo "$app" | awk -F "=" '{print $NF}' | tr -dc '[:alnum:].' | tr '[:upper:]' '[:lower:]') # package name
-    apk_base="$apk_clean_name-$RANDOM$RANDOM.apk"  # apk filename in the backup archive
-    # e.g.:
-    # app=package:/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk=org.fdroid.fdroid
-    # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk
-    # apk_clean_name=org.fdroid.fdroid
-    # apk_base=org.fdroid.fdroid-123456.apk
-    
-    echo "Backing up app: $apk_clean_name"
+    # Increment the amount of apps exported
+    apps_exported=$((apps_exported+1))
+    #output=backup-tmp/Apps
+    (
+      apk_path=${app%=*}                                  # apk path on device
+      apk_path=${apk_path/package:}                       # strip "package:"
+      apk_clean_name=$(echo "$app" | awk -F "=" '{print $NF}' | tr -dc '[:alnum:].' | tr '[:upper:]' '[:lower:]') # package name
+      apk_base="$apk_clean_name-$RANDOM$RANDOM.apk"  # apk filename in the backup archive
+      # e.g.:
+      # app=package:/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk=org.fdroid.fdroid
+      # apk_path=/data/app/~~4wyPu0QoTM3AByZS==/org.fdroid.fdroid-iaTC9-W1lyR1FxO==/base.apk
+      # apk_clean_name=org.fdroid.fdroid
+      # apk_base=org.fdroid.fdroid-123456.apk
+      
+      echo "Backing up app: $apk_clean_name ($apps_exported/$app_count)"
 
-    get_file "$(dirname "$apk_path")" "$(basename "$apk_path")" ./backup-tmp/Apps
-    mv "./backup-tmp/Apps/$(basename "$apk_path")" "./backup-tmp/Apps/$apk_base" || cecho "Couldn't find app $(basename "$apk_path") after exporting from device - ignoring." 1>&2
-  )
+      get_file "$(dirname "$apk_path")" "$(basename "$apk_path")" ./backup-tmp/Apps
+      mv "./backup-tmp/Apps/$(basename "$apk_path")" "./backup-tmp/Apps/$apk_base" || cecho "Couldn't find app $(basename "$apk_path") after exporting from device - ignoring." 1>&2
+    )
   done
 
   # Export contacts and SMS messages
