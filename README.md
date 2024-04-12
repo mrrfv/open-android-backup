@@ -51,7 +51,7 @@ then execute this command `sudo dnf install p7zip p7zip-plugins adb curl newt pv
 
 ### macOS
 
-**Warning:** I've recently switched to an AMD CPU+NVIDIA GPU rig, making it impossible for me to test this script on macOS without buying a Mac. Whilst there is nothing that could prevent this script from running on macOS, you are on your own and support will be very limited. (script last tested on Janurary 11th 2023)
+Warning: macOS testing is limited, please report any issues you encounter.
 
 1. Install dependencies using [Homebrew](https://brew.sh/):
 
