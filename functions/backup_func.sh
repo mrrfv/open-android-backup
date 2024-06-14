@@ -92,16 +92,42 @@ function backup_func() {
   # Get call logs
   mkdir ./backup-tmp/CallLogs
   mv ./backup-tmp/open-android-backup-temp/Call_Logs.csv ./backup-tmp/CallLogs
-  # Cleanup
+  # Export internal storage
+  if [ "$exclusions" = "yes" ]; then
+	# Continue with user interaction
+    cecho "Please list files or directories you wish to exclude from the backup."
+    cecho "Entries should be space-delimited, and relative to '/storage/emulated/0/'. Directories do NOT need a trailing slash."
+    cecho "---"
+    cecho "For example, the input: 'Documents Pictures/my_secret_pictures somefile.txt'"
+    cecho "will exclude the entire folder '/storage/emulated/0/Documents/', the subfolder '/storage/emulated/0/Pictures/my_secret_pictures', and the file '/storage/emulated/0/somefile.txt'."
+    cecho "---"
+    cecho "Top-level device folders:"
+	# TODO: better way to show this? The adb shell is pretty much limited to toybox/coreutils.
+	adb shell ls -A /storage/emulated/0/ | grep -v open-android-backup-temp
+	cecho "---"
+	# Receive user input
+	# TODO: this could be much less flaky by utilizing 'toybox vi' to edit the exclusions list. Ignoring for now.
+	adb shell printf "Exclusions:\ " && IFS= read -r exclusions_response
+	# This command MUST be contained in double quotes, or else adb shell chokes on the input and our 'tar -x' fails.
+	adb shell "echo "$exclusions_response" | sed 's/ /\n/g' > /storage/emulated/0/open-android-backup-temp/exclusions.txt"
+    cecho "Exporting internal storage - this will take a while."
+	mkdir ./backup-tmp/Storage
+    get_file_exclude /storage/emulated/0 . ./backup-tmp/Storage
+  else
+	# Fall back to old behavior
+    cecho "Failed to apply exclusions. Falling back to standard backup..."
+	cecho "Exporting internal storage - this will take a while."
+    mkdir ./backup-tmp/Storage
+    get_file /storage/emulated/0 . ./backup-tmp/Storage
+  fi
+ 
+# Cleanup
   cecho "Removing temporary files created by the companion app."
   adb shell rm -rf /storage/emulated/0/open-android-backup-temp
   rm -rf ./backup-tmp/open-android-backup-temp
 
-  # Export internal storage
-  cecho "Exporting internal storage - this will take a while."
-  mkdir ./backup-tmp/Storage
-  get_file /storage/emulated/0 . ./backup-tmp/Storage
-
+  
+ 
   # Run the third-party backup hook, if enabled.
   if [ "$use_hooks" = "yes" ] && [ "$(type -t backup_hook)" == "function" ]; then
     cecho "Running backup hooks in 5 seconds."

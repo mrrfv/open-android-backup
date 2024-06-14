@@ -5,3 +5,5 @@
 hooks.sh
 .vscode
 .idea
+backup-tmp/
+open-android-backup-temp/
