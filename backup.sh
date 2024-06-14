@@ -31,11 +31,19 @@ fi
 
 # Check if other dependencies are installed: adb, tar, pv, 7z, bc, timeout
 # srm is optional so we don't check for it
-commands=("tar" "pv" "7z" "adb" "bc" "timeout")
+commands=("tar" "pv" "7z" "adb" "bc")
 
 # Add zenity to the list of commands if we're running in WSL
 if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]; then
   commands+=("zenity")
+fi
+
+# Add gtimeout to the list of commands if we're running on macOS
+if [ "$(uname)" = "Darwin" ]; then
+  commands+=("gtimeout")
+else
+  # For the rest of the systems, we use the standard timeout command
+  commands+=("timeout")
 fi
 
 for cmd in "${commands[@]}"

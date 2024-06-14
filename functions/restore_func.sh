@@ -64,8 +64,13 @@ function restore_func() {
       timeout 900 ./windows-dependencies/adb/adb.exe install-multiple $apk_files
     else
       cecho "macOS/Linux detected"
+      if [[ "$(uname)" == "Darwin" ]]; then
+        timeout_cmd="gtimeout"
+      else
+        timeout_cmd="timeout"
+      fi
       # shellcheck disable=SC2086
-      timeout 900 adb install-multiple $apk_files
+      $timeout_cmd 900 adb install-multiple $apk_files
     fi
   done
 
@@ -84,8 +89,14 @@ function restore_func() {
     done
   else
     cecho "macOS/Linux detected"
+    if [[ "$(uname)" == "Darwin" ]]; then
+      timeout_cmd="gtimeout"
+    else
+      timeout_cmd="timeout"
+    fi
+
     for apk_file in $apk_files; do
-      timeout 900 adb install "$apk_file"
+      $timeout_cmd 900 adb install "$apk_file"
     done
   fi
   set -e
