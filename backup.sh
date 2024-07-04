@@ -91,14 +91,14 @@ fi
 clear
 
 if [ ! -v export_method ]; then
-  cecho "Choose the exporting method."
+  cecho "Choose the exporting/importing method."
   cecho "- Pick 'tar' first, as it is fast and most reliable, but might not work on all devices."
   cecho "- If the script crashes, pick 'adb' instead, which works on all devices."
   cecho "Press Enter to pick your preferred method."
   wait_for_enter
 
   export_methods=( 'tar' 'adb' )
-  select_option_from_list "Choose the exporting method." export_methods[@] export_method
+  select_option_from_list "Choose the exporting/importing method." export_methods[@] export_method
 fi
 
 clear
