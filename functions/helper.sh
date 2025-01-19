@@ -41,6 +41,7 @@ function cecho() {
 function check_adb_connection() {
   adb kill-server &> /dev/null || true
   cecho "Please enable developer options and USB debugging on your device, connect it to your computer and set it to file transfer mode. Then, press Enter to continue."
+  cecho "Samsung users may need to temporarily disable 'Auto Blocker' first."
   wait_for_enter
   adb devices > /dev/null
   cecho "If you have connected your device correctly, you should now see a message asking for access to your phone. Allow it, then press Enter to go to the last step."
@@ -82,6 +83,7 @@ function install_companion_app() {
     fi
     uninstall_companion_app
     cecho "Installing companion app."
+    cecho "IMPORTANT: If this appears to be stuck, check your device for any Play Protect warnings and press 'More details' -> 'Install anyway' to continue. The app is falsely flagged by Google."
     adb install -r open-android-backup-companion.apk
     cecho "Granting required permissions to companion app."
     permissions=(
