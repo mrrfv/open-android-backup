@@ -121,7 +121,6 @@ function select_option_from_list() {
     whiptail_options+=("$i" "${options[$i]}")
   done
 
-  # Use whiptail to display a menu and get the selected index
   local selected_index=$(whiptail --title "Select an option" --menu "$prompt" $LINES $COLUMNS $(( $LINES - 8 )) "${whiptail_options[@]}" 3>&1 1>&2 2>&3)
 
   # Check if whiptail exited with a non-zero status or if no option was selected
@@ -206,6 +205,17 @@ function get_file() {
   if [ "$export_method" = 'tar' ]; then
     (adb exec-out "tar -c -C $1 $2 2> /dev/null" | pv -p --timer --rate --bytes | tar -C "$3" -xf -) || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
   else # we're falling back to adb pull if the variable is empty/unset
+    adb pull "$1"/"$2" "$3" || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
+  fi
+}
+
+# There's probably a much better way to do this, but it's easier to build on existing functionality and style
+# Usage: get_file_exclude <directory> <file> <destination>
+function get_file_exclude() {
+  if [ "$export_method" = 'tar' ]; then
+    (adb exec-out "tar -c -C $1 $2 -X $1/open-android-backup-temp/exclusions.txt 2> /dev/null" | pv -p --timer --rate --bytes | tar -C "$3" -xf -) || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
+  else # we're falling back to adb pull if the variable is empty/unset
+	# leave this intact in case of tar failure  
     adb pull "$1"/"$2" "$3" || cecho "Errors occurred while backing up $2 - this file (or multiple files) might've been ignored." 1>&2
   fi
 }
