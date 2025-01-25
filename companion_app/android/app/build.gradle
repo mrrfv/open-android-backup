@@ -33,6 +33,7 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+    namespace 'mrrfv.backup.companion'
     compileSdkVersion flutter.compileSdkVersion
 
     compileOptions {
@@ -50,7 +51,7 @@ android {
 
     defaultConfig {
         applicationId "mrrfv.backup.companion"
-        minSdkVersion 19
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
