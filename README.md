@@ -140,12 +140,6 @@ $ unattended_mode="yes" selected_action="Backup" mode="Wired" export_method="tar
 $ archive_password="456" ./backup.sh
 ```
 
-## Convenience Script
-
-The `get.openandroidbackup.me` convenience script is deprecated starting January 1st 2024 due to potential security implications associated with running unverified code from the internet as well as its limited support for various system configurations. Please use the official usage instructions instead.
-
-Removal of the script is planned for April 2024, although it may stay up for longer if it's still being used by a significant number of people.
-
 ## Building companion app
 
 **Note:** You don't need to do this, as the precompiled companion app is automatically downloaded at runtime from GitHub Releases.
