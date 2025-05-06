@@ -21,10 +21,10 @@ packages:
     dependency: "direct main"
     description:
       name: call_log
-      sha256: "943fdc3cd1b2a395633817f4b66267c93accb38d359da4d95db1e389f8f898d6"
+      sha256: "871fa94c00abd69b71998a785b42822ad9613546069446be2fdc4be45bdc5b85"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "5.1.0"
   characters:
     dependency: transitive
     description:
@@ -53,18 +53,18 @@ packages:
     dependency: "direct main"
     description:
       name: csv
-      sha256: "63ed2871dd6471193dffc52c0e6c76fb86269c00244d244297abbb355c84a86e"
+      sha256: c6aa2679b2a18cb57652920f674488d89712efaf4d3fdf2e537215b35fc19d6c
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.1"
+    version: "6.0.0"
   device_info_plus:
     dependency: "direct main"
     description:
       name: device_info_plus
-      sha256: "77f757b789ff68e4eaf9c56d1752309bd9f7ad557cb105b938a7f8eb89e59110"
+      sha256: "0c6396126421b590089447154c5f98a5de423b70cfb15b1578fd018843ee6f53"
       url: "https://pub.dev"
     source: hosted
-    version: "9.1.2"
+    version: "11.4.0"
   device_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -114,10 +114,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: a25a15ebbdfc33ab1cd26c63a6ee519df92338a9c10f122adda92938253bef04
+      sha256: "5398f14efa795ffb7a33e9b6a08798b26a180edac4ad7db3f231e40f82ce11e1"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.3"
+    version: "5.0.0"
   flutter_sms_inbox:
     dependency: "direct main"
     description:
@@ -164,10 +164,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
+      sha256: c35bb79562d980e9a453fc715854e1ed39e24e7d0297a880ef54e17f9874a9d7
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "5.1.1"
   matcher:
     dependency: transitive
     description:
@@ -204,42 +204,50 @@ packages:
     dependency: "direct main"
     description:
       name: permission_handler
-      sha256: bc56bfe9d3f44c3c612d8d393bd9b174eb796d706759f9b495ac254e4294baa5
+      sha256: "2d070d8684b68efb580a5997eb62f675e8a885ef0be6e754fb9ef489c177470f"
       url: "https://pub.dev"
     source: hosted
-    version: "10.4.5"
+    version: "12.0.0+1"
   permission_handler_android:
     dependency: transitive
     description:
       name: permission_handler_android
-      sha256: "59c6322171c29df93a22d150ad95f3aa19ed86542eaec409ab2691b8f35f9a47"
+      sha256: "1e3bc410ca1bf84662104b100eb126e066cb55791b7451307f9708d4007350e6"
       url: "https://pub.dev"
     source: hosted
-    version: "10.3.6"
+    version: "13.0.1"
   permission_handler_apple:
     dependency: transitive
     description:
       name: permission_handler_apple
-      sha256: "99e220bce3f8877c78e4ace901082fb29fa1b4ebde529ad0932d8d664b34f3f5"
+      sha256: f000131e755c54cf4d84a5d8bd6e4149e262cc31c5a8b1d698de1ac85fa41023
       url: "https://pub.dev"
     source: hosted
-    version: "9.1.4"
+    version: "9.4.7"
+  permission_handler_html:
+    dependency: transitive
+    description:
+      name: permission_handler_html
+      sha256: "38f000e83355abb3392140f6bc3030660cfaef189e1f87824facb76300b4ff24"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.3+5"
   permission_handler_platform_interface:
     dependency: transitive
     description:
       name: permission_handler_platform_interface
-      sha256: "6760eb5ef34589224771010805bea6054ad28453906936f843a8cc4d3a55c4a4"
+      sha256: eb99b295153abce5d683cac8c02e22faab63e50679b937fa1bf67d58bb282878
       url: "https://pub.dev"
     source: hosted
-    version: "3.12.0"
+    version: "4.3.0"
   permission_handler_windows:
     dependency: transitive
     description:
       name: permission_handler_windows
-      sha256: cc074aace208760f1eee6aa4fae766b45d947df85bc831cde77009cdb4720098
+      sha256: "1a790728016f79a41216d88672dbc5df30e686e811ad4e698bfc51f76ad91f1e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.3"
+    version: "0.2.1"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -317,6 +325,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "14.3.1"
+  web:
+    dependency: transitive
+    description:
+      name: web
+      sha256: "868d88a33d8a87b18ffc05f9f030ba328ffefba92d6c127917a2ba740f9cfe4a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   win32:
     dependency: transitive
     description:
@@ -329,10 +345,10 @@ packages:
     dependency: transitive
     description:
       name: win32_registry
-      sha256: "21ec76dfc731550fd3e2ce7a33a9ea90b828fdf19a5c3bcf556fa992cfa99852"
+      sha256: "6f1b564492d0147b330dd794fee8f512cec4977957f310f9951b5f9d83618dae"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.5"
+    version: "2.1.0"
 sdks:
   dart: ">=3.7.0 <4.0.0"
-  flutter: ">=3.18.0-18.0.pre.54"
+  flutter: ">=3.27.0"
