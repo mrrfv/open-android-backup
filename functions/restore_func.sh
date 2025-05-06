@@ -47,24 +47,70 @@ function restore_func() {
   cecho "Extracting archive."
   7z x "$archive_path" # -obackup-tmp isn't needed
 
-  # Restore applications
-  cecho "Restoring applications."
-  # We don't want a single app to break the whole script
-  set +e
-  # Apps containing their own directories may contain split APKs, which need to be installed using adb install-multiple.
-  # Those without directories were created by past versions of this script and need to be imported the traditional way.
+  # Ask the user what data to restore
+  selected_items=$(whiptail --title "Restore data" --checklist "Select the categories of data to restore." 20 60 3 \
+    "Applications" "Installed apps" ON \
+    "Storage" "Photos, downloads, other files" ON \
+    "Contacts" "People & address book" ON 3>&1 1>&2 2>&3)
 
-  # Handle split APKs
-  # Find directories in the Apps directory
-  apk_dirs=$(find ./backup-tmp/Apps -mindepth 1 -maxdepth 1 -type d)
-  for apk_dir in $apk_dirs; do
-    # Install all APKs in the directory
-    # the APK files are sorted to ensure that base.apk is installed before split APKs
-    apk_files=$(find "$apk_dir" -type f -name "*.apk" | sort | tr '\n' ' ')
+  for item in $selected_items; do
+    case $item in
+      "\"Applications\"")
+        restore_apps="yes"
+        ;;
+      "\"Storage\"")
+        restore_storage="yes"
+        ;;
+      "\"Contacts\"")
+        restore_contacts="yes"
+        ;;
+    esac
+  done
+
+  if [ "$restore_apps" = "yes" ]; then
+    # Restore applications
+    cecho "Restoring applications."
+    # We don't want a single app to break the whole script
+    set +e
+    # Apps containing their own directories may contain split APKs, which need to be installed using adb install-multiple.
+    # Those without directories were created by past versions of this script and need to be imported the traditional way.
+
+    # Handle split APKs
+    # Find directories in the Apps directory
+    apk_dirs=$(find ./backup-tmp/Apps -mindepth 1 -maxdepth 1 -type d)
+    for apk_dir in $apk_dirs; do
+      # Install all APKs in the directory
+      # the APK files are sorted to ensure that base.apk is installed before split APKs
+      apk_files=$(find "$apk_dir" -type f -name "*.apk" | sort | tr '\n' ' ')
+      if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
+        cecho "Windows/WSL detected"
+        # shellcheck disable=SC2086
+        timeout 900 ./windows-dependencies/adb/adb.exe install-multiple $apk_files
+      else
+        cecho "macOS/Linux detected"
+        if [[ "$(uname)" == "Darwin" ]]; then
+          timeout_cmd="gtimeout"
+        else
+          timeout_cmd="timeout"
+        fi
+        # shellcheck disable=SC2086
+        $timeout_cmd 900 adb install-multiple $apk_files
+      fi
+    done
+
+    # Now all that's left is ensuring backwards compatibility with old backups
+    # Look for APK files in the Apps directory
+    apk_files=$(find ./backup-tmp/Apps -maxdepth 1 -type f -name "*.apk" | sort)
+    # Notify if an old backup is being restored
+    if [ -n "$apk_files" ]; then
+      cecho "Old backup with no split APKs detected."
+    fi
+    # Install all APKs
     if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
       cecho "Windows/WSL detected"
-      # shellcheck disable=SC2086
-      timeout 900 ./windows-dependencies/adb/adb.exe install-multiple $apk_files
+      for apk_file in $apk_files; do
+        timeout 900 ./windows-dependencies/adb/adb.exe install "$apk_file"
+      done
     else
       cecho "macOS/Linux detected"
       if [[ "$(uname)" == "Darwin" ]]; then
@@ -72,51 +118,31 @@ function restore_func() {
       else
         timeout_cmd="timeout"
       fi
-      # shellcheck disable=SC2086
-      $timeout_cmd 900 adb install-multiple $apk_files
-    fi
-  done
 
-  # Now all that's left is ensuring backwards compatibility with old backups
-  # Look for APK files in the Apps directory
-  apk_files=$(find ./backup-tmp/Apps -maxdepth 1 -type f -name "*.apk" | sort)
-  # Notify if an old backup is being restored
-  if [ -n "$apk_files" ]; then
-    cecho "Old backup with no split APKs detected."
-  fi
-  # Install all APKs
-  if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
-    cecho "Windows/WSL detected"
-    for apk_file in $apk_files; do
-      timeout 900 ./windows-dependencies/adb/adb.exe install "$apk_file"
-    done
-  else
-    cecho "macOS/Linux detected"
-    if [[ "$(uname)" == "Darwin" ]]; then
-      timeout_cmd="gtimeout"
-    else
-      timeout_cmd="timeout"
+      for apk_file in $apk_files; do
+        $timeout_cmd 900 adb install "$apk_file"
+      done
     fi
-
-    for apk_file in $apk_files; do
-      $timeout_cmd 900 adb install "$apk_file"
-    done
+    set -e
   fi
-  set -e
 
   # TODO: use tar to restore data to internal storage instead of adb push
 
-  # Restore internal storage
-  cecho "Restoring internal storage."
-  adb push ./backup-tmp/Storage/ /storage/emulated/0/
+  if [ "$restore_storage" = "yes" ]; then
+    # Restore internal storage
+    cecho "Restoring internal storage."
+    adb push ./backup-tmp/Storage/ /storage/emulated/0/
+  fi
 
-  # Restore contacts
-  cecho "Pushing backed up contacts to device."
-  adb push ./backup-tmp/Contacts /storage/emulated/0/Contacts_Backup
+  if [ "$restore_contacts" = "yes" ]; then
+    # Restore contacts
+    cecho "Pushing backed up contacts to device."
+    adb push ./backup-tmp/Contacts /storage/emulated/0/Contacts_Backup
 
-  adb shell am start -n mrrfv.backup.companion/.MainActivity
-  cecho "The companion app has been opened on your device. Please press the 'Auto-restore contacts' button - this will import your contacts to the device's contact database. Press Enter to continue."
-  wait_for_enter
+    adb shell am start -n mrrfv.backup.companion/.MainActivity
+    cecho "The companion app has been opened on your device. Please press the 'Auto-restore contacts' button - this will import your contacts to the device's contact database. Press Enter to continue."
+    wait_for_enter
+  fi
 
   # Run the third-party restore hook, if enabled.
   if [ "$use_hooks" = "yes" ] && [ "$(type -t restore_hook)" == function ]; then
@@ -124,13 +150,15 @@ function restore_func() {
     sleep 5
     restore_hook
   elif [ "$use_hooks" = "yes" ] && [ ! "$(type -t restore_hook)" == function ]; then
-    cecho "WARNING! Hooks are enabled, but the restore hook hasn't been found in hooks.sh."
+    cecho "WARNING: Hooks are enabled, but the restore hook hasn't been found in hooks.sh."
     cecho "Skipping in 5 seconds."
     sleep 5
   fi
 
   cecho "Cleaning up..."
-  adb shell rm -rfv /storage/emulated/0/Contacts_Backup
+  if [ "$restore_contacts" = "yes" ]; then
+    adb shell rm -rfv /storage/emulated/0/Contacts_Backup
+  fi
   uninstall_companion_app
   remove_backup_tmp
 
