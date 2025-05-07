@@ -118,7 +118,7 @@ You need 3 functions in your hook for it to be properly initialized by the scrip
 
 Please keep in mind that this project has minimal support for automation and very little support will be provided. In order to export contacts, you still need to have physical access to the device you're backing up as an "unattended mode" for the companion app hasn't been implemented yet.
 
-There are 10 environment variables that control what the script does without user input:
+There are 11 environment variables that control what the script does without user input:
 
 1. `unattended_mode` - Instead of waiting for a key press, sleeps for 5 seconds. Can be any value.
 2. `selected_action` - What the script should do when run. Possible values are `Backup` and `Restore` (case sensitive).
