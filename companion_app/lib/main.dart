@@ -180,9 +180,9 @@ class _HomeState extends State<Home> {
   Future<void> autoRestoreContacts(BuildContext context) async {
     // Requests contacts & internal storage permissions
     if (await FlutterContacts.requestPermission() &&
-        await Permission.storage.request().isGranted) {
+        ((await DeviceInfoPlugin().androidInfo).version.sdkInt > 29 || await Permission.storage.request().isGranted)) {
       // On Android 11 and later, request additional permissions.
-      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt> 29 &&
+      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt > 29 &&
           !await Permission.manageExternalStorage.request().isGranted) {
         // Open app settings if the permission wasn't granted
         await openAppSettings();

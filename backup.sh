@@ -5,7 +5,7 @@ set -e
 # This is used to download a stable, compatible version of the Android companion app as well as ensure backwards compatibility,
 # so it should match the tag name in GitHub Releases.
 # TODO: load this dynamically, i.e. configure our build system to automatically update the APP_VERSION
-APP_VERSION="v1.0.18"
+APP_VERSION="v1.1.0"
 
 # We use whiptail for showing dialogs.
 # Whiptail is used similarly as dialog, but we can't install it on macOS using Homebrew IIRC.
@@ -31,11 +31,19 @@ fi
 
 # Check if other dependencies are installed: adb, tar, pv, 7z, bc, timeout
 # srm is optional so we don't check for it
-commands=("tar" "pv" "7z" "adb" "bc" "timeout")
+commands=("tar" "pv" "7z" "adb" "bc")
 
 # Add zenity to the list of commands if we're running in WSL
 if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]; then
   commands+=("zenity")
+fi
+
+# Add gtimeout to the list of commands if we're running on macOS
+if [ "$(uname)" = "Darwin" ]; then
+  commands+=("gtimeout")
+else
+  # For the rest of the systems, we use the standard timeout command
+  commands+=("timeout")
 fi
 
 for cmd in "${commands[@]}"
@@ -188,4 +196,4 @@ if [ "$mode" = 'Wireless' ]; then
   adb disconnect
 fi
 
-cecho "If this project helped you, please star the GitHub repository. It lets me know that there are people using this script and I should continue working on it. Donations are available in my GitHub profile and will be appreciated too."
+cecho "If this project helped you, please star the GitHub repository. It lets me know that there are people using this script and I should continue working on it."
