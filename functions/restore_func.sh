@@ -126,13 +126,13 @@ function restore_func() {
     set -e
   fi
 
-  # TODO: use tar to restore data to internal storage instead of adb push
 
   if [ "$restore_storage" = "yes" ]; then
     # Restore internal storage
     cecho "Restoring internal storage."
-    adb push ./backup-tmp/Storage/ /storage/emulated/0/
+    send_file ./backup-tmp/Storage/ . /storage/emulated/0/
   fi
+
 
   if [ "$restore_contacts" = "yes" ]; then
     # Restore contacts

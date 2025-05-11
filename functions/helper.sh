@@ -207,6 +207,15 @@ function get_file() {
   fi
 }
 
+# Usage: send_file <directory> <file> <destination>
+function send_file() {
+  if [ "$export_method" = 'tar' ]; then
+    (tar -c -C "$1" "$2" 2> /dev/null | pv -p --timer --rate --bytes | adb exec-in tar -C "$3" -xf -) || cecho "Errors occurred while restoring $2 - this file (or multiple files) might've been ignored." 1>&2
+  else # we're falling back to adb push if the variable is empty/unset
+    adb push "$1"/"$2" "$3" || cecho "Errors occurred while restoring $2 - this file (or multiple files) might've been ignored." 1>&2
+  fi
+}
+
 # Usage: directory_ok <directory>
 # Returns 0 (true) or 1 (false)
 function directory_ok() {
