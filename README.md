@@ -104,6 +104,7 @@ Open Android Backup doesn't automatically load hooks, and you have to allow the 
 - `cecho <text>` lets you have yellow terminal output.
 - `wait_for_enter` waits for a keypress, and is compatible with unattended mode.
 - `get_file <phone_directory> <phone_file> <destination>` lets you copy files off the device with the best reliability and speed, an alternative to `adb pull`. Useful for backing up data.
+- `send_file <directory> <file> <destination>` is used to send files to the device, utilizing either `adb` or `tar` depending on user preference.
 - `adb push <file> <destination>` lets you upload files to the device, useful when restoring your data.
 
 *Required functions*
