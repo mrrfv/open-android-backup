@@ -128,9 +128,10 @@ function backup_func() {
     cecho "Skipping compression & encryption due to the 'discouraged_disable_archive' option being set to 'yes'."
     cecho "The backup data will be stored in a directory instead."
     # TODO: clean up the code, i.e. remove the repetition
-    declare backup_archive="$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S)"
-    mkdir -p "$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S)"
-    mv ./backup-tmp "$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S)"
+    backup_timestamp=$(date +%m-%d-%Y-%H-%M-%S)
+    declare backup_archive="$archive_path/open-android-backup-$backup_timestamp"
+    mkdir -p "$archive_path/open-android-backup-$backup_timestamp"
+    mv ./backup-tmp "$archive_path/open-android-backup-$backup_timestamp"
   else
     # Compress
     cecho "Compressing & encrypting data - this will take a while."
