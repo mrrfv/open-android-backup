@@ -75,6 +75,17 @@ function restore_func() {
     # Apps containing their own directories may contain split APKs, which need to be installed using adb install-multiple.
     # Those without directories were created by past versions of this script and need to be imported the traditional way.
 
+    # Determine OS and set a command to install apks
+    if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
+      cecho "Windows/WSL detected"
+      install_cmd="timeout 900 ./windows-dependencies/adb/adb.exe install-multiple"
+    elif [[ "$(uname)" == "Darwin" ]]; then
+      cecho "macOS detected"
+      install_cmd="gtimeout 900 adb install-multiple"
+    else
+      cecho "Linux detected"
+      install_cmd="timeout 900 adb install-multiple"
+    fi
     # Handle split APKs
     # Find directories in the Apps directory
     apk_dirs=$(find ./backup-tmp/Apps -mindepth 1 -maxdepth 1 -type d)
@@ -82,20 +93,8 @@ function restore_func() {
       # Install all APKs in the directory
       # the APK files are sorted to ensure that base.apk is installed before split APKs
       apk_files=$(find "$apk_dir" -type f -name "*.apk" | sort | tr '\n' ' ')
-      if [[ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]]; then
-        cecho "Windows/WSL detected"
-        # shellcheck disable=SC2086
-        timeout 900 ./windows-dependencies/adb/adb.exe install-multiple $apk_files
-      else
-        cecho "macOS/Linux detected"
-        if [[ "$(uname)" == "Darwin" ]]; then
-          timeout_cmd="gtimeout"
-        else
-          timeout_cmd="timeout"
-        fi
-        # shellcheck disable=SC2086
-        $timeout_cmd 900 adb install-multiple $apk_files
-      fi
+      # shellcheck disable=SC2086
+      $install_cmd $apk_files
     done
 
     # Now all that's left is ensuring backwards compatibility with old backups
