@@ -141,8 +141,26 @@ function backup_func() {
     # -mx=9: ultra compression
     # -bb3: verbose logging
     # The undefined variable (archive_password) is set by the user if they're using unattended mode
+    if [ -z "$archive_password" ]; then
+      while true; do
+        cecho "Enter a password to encrypt the backup archive (input will be hidden):"
+        IFS= read -s archive_password
+        echo
+        cecho "Re-enter the password to confirm:"
+        IFS= read -s archive_password_confirm
+        echo
+        if [ "$archive_password" = "$archive_password_confirm" ]; then
+          unset archive_password_confirm
+          break
+        else
+          cecho "Passwords do not match. Please try again."
+        fi
+      done
+    fi
     declare backup_archive="$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
-    retry 5 7z a -p"$archive_password" -mhe=on -mx=$compression_level -bb3 "$backup_archive" backup-tmp/*
+    retry 5 7z a -p"$archive_password" -mhe=on -mx=$compression_level -bb3 "$backup_archive" backup-tmp/* < <(echo "$archive_password")
+    # Immediately clear sensitive password data
+    unset archive_password 
   fi
 
   # We're not using 7-Zip's -sdel option (delete files after compression) to honor the user's choice to securely delete temporary files after a backup
