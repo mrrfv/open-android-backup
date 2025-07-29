@@ -158,7 +158,7 @@ function backup_func() {
       done
     fi
     declare backup_archive="$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
-    retry 5 7z a -p"$archive_password" -mhe=on -mx=$compression_level -bb3 "$backup_archive" backup-tmp/* < <(echo "$archive_password")
+    retry 5 7z a -p -mhe=on -mx=$compression_level -bb3 "$backup_archive" backup-tmp/* < <(echo "$archive_password")
     # Immediately clear sensitive password data
     unset archive_password 
   fi
