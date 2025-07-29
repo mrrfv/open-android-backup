@@ -3,7 +3,7 @@ Write-Output "Please ensure that you've installed the Windows Subsystem for Linu
 Write-Output "If not, close this window, and refer to the README for instructions (https://github.com/mrrfv/open-android-backup#windows=)"
 Write-Output "If sudo asks you for your account password, don't enter your Windows password!"
 Write-Output ""
-Write-Output "Warning: WSL 2 is required. WSL will be updated to fix potential issues with the GUI."
+Write-Output "Warning: WSL 2 is required. WSL will be updated to fix potential issues with the GUI. Ensure Ubuntu/Debian is your default distro."
 Write-Output "For more information, see here: https://github.com/microsoft/wslg#install-instructions-existing-wsl-install"
 Write-Output ""
 pause
