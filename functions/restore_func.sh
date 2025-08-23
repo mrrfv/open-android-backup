@@ -44,7 +44,12 @@ function restore_func() {
   fi
 
   cecho "Extracting archive."
-  7z x "$archive_path" # -obackup-tmp isn't needed
+  # Archive is encrypted, ask for password
+  get_password_input "Enter the password to decrypt the backup archive (input will be hidden):" archive_password
+  # Extract with password
+  7z x "$archive_path" < <(echo "$archive_password")
+  # Clear sensitive data
+  unset archive_password
 
   # Check if directories are empty
   apps_empty=$(find ./backup-tmp/Apps -mindepth 1 | read -r && echo "no" || echo "yes")

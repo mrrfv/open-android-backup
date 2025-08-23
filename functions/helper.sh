@@ -231,4 +231,26 @@ function directory_ok() {
     fi
     return 0
 }
-# ---
+
+# Prompts the user to enter and confirm a password
+# Usage: get_password_input <prompt_message> <result_variable>
+function get_password_input() {
+  local prompt_message="$1"
+  local -n password_ref="$2"  # Use nameref for indirect assignment
+
+  while true; do
+    cecho "$prompt_message"
+    IFS= read -s password_input
+    echo
+    cecho "Re-enter the password to confirm:"
+    IFS= read -s password_confirm
+    echo
+    if [ "$password_input" = "$password_confirm" ]; then
+      password_ref="$password_input"
+      unset password_confirm
+      break
+    else
+      cecho "Passwords do not match. Please try again."
+    fi
+  done
+}
