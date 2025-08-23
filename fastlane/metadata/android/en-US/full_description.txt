@@ -1,1 +1,28 @@
-<p>Back up your device without vendor lock-ins, using insecure software or root. Supports encryption and compression out of the box. Works cross-platform. Despite its name, this project works on Windows, macOS and Linux.</p><p><i>Linux Android Backup Companion</i> is the Android companion app, giving the backup script access to data otherwise not available to ADB.</p><p><i>Linux Android Backup</i> is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated adb backup command.</p><p><br><b>Data backed up:</b></p><ul><li>Apps (.apk files of installed apps)</li><li>Internal storage (pictures, downloads, videos, Signal backups if enabled, etc)</li><li>Contacts (exported in vCard format)</li></ul><p>These 3 things are the majority of what anyone would want to keep safe, but we all have different expectations and requirements, so suggestions are welcome.</p><p><br><b>Features:</b></p><ul><li>Automatically restores backed up data.</li><li>Works on the 3 major operating systems, and supports any Android device.</li><li>Backs up data not normally accessible through ADB using a native companion app.</li><li>Tiny - the script is 5KB in size, and the companion app is around 15 megabytes.</li><li>Doesn't use proprietary formats: your data is safe even if this script ever gets lost. Simply open archives created by this script using 7-Zip.</li><li>Encryption is forced - you can't disable it.</li><li>All data is compressed using 7-Zip with maximum compression settings.</li></ul><p>For installation instructions (Linux, Mac, Windows) and usage instructions, head over to the project.</p>
+<p>Back up your device without vendor lock-ins, using insecure software or root. Supports encryption and compression out of the box. Works cross-platform.</p>
+<p>
+  <i>Open Android Backup Companion</i> is the Android companion app, giving the backup script access to data otherwise not available to ADB. <i>Open Android Backup</i> is a tiny shell script & Flutter app that makes securely backing up Android devices easy, without vendor lock-ins or using closed-source software that could put your data at risk. It's based on ADB but doesn't use the deprecated adb backup command.
+</p>
+<p>
+  <br>
+  <b>Data backed up:</b>
+</p>
+<ul>
+  <li>Apps (app data not included due to system limitations)</li>
+  <li>Internal storage (pictures, downloads, videos, Signal backups if enabled, etc)</li>
+  <li>Contacts (exported in vCard format)</li>
+</ul>
+<p>SMS messages and call logs are also exported, albeit can't be restored.</p>
+<p>
+  <br>
+  <b>Features:</b>
+</p>
+<ul>
+  <li>Automatically restores backed up data.</li>
+  <li>Works on the 3 major operating systems, and supports any Android device.</li>
+  <li>Backs up data not normally accessible through ADB using a native companion app.</li>
+  <li>Tiny - the whole package is about 20 MB.</li>
+  <li>Doesn't use proprietary formats: your data is safe even if this script ever gets lost. Simply open archives created by this script using 7-Zip.</li>
+  <li>Backups are always encrypted along with their metadata.</li>
+  <li>All data is compressed using 7-Zip with maximum compression settings.</li>
+</ul>
+<p>For installation instructions (Linux, Mac, Windows) and usage instructions, head over to the project. This app cannot be used standalone yet, but such functionality is planned.</p>
