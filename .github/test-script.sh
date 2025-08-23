@@ -17,6 +17,9 @@ export compression_level="0"
 
 # Backup
 export selected_action="Backup"
+export backup_apps="yes"
+export backup_storage="yes"
+export backup_contacts="yes"
 
 # Hooks disabled, ADB exporting method
 export use_hooks="no"

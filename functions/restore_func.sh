@@ -3,28 +3,27 @@
 
 function restore_func() {
   if [ ! -v archive_path ]; then
-  # Ask the user for the backup location
-  # If zenity is available, we'll use it to show a graphical file chooser
-  # TODO: Extract this into a function since similar code is used when backing up
-  if command -v zenity >/dev/null 2>&1 && { [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ] || [ -z "$XDG_DATA_DIRS" ]; } ;
-  then
-    cecho "A graphical file chooser dialog will be open."
-    cecho "You will be prompted for the location of the backup archive to restore. Press Enter to continue."
-    wait_for_enter
+    # Ask the user for the backup location
+    # If zenity is available, we'll use it to show a graphical file chooser
+    # TODO: Extract this into a function since similar code is used when backing up
+    if command -v zenity >/dev/null 2>&1 && { [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ] || [ -v "$XDG_DATA_DIRS" ]; } ;
+    then
+      cecho "A graphical file chooser dialog will be open."
+      cecho "You will be prompted for the location of the backup archive to restore. Press Enter to continue."
+      wait_for_enter
 
-    # Dynamically set the default directory based on the operating system
-    zenity_backup_default_dir="$HOME"
-    if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]; then
-      zenity_backup_default_dir="/mnt/c/Users"
+      # Dynamically set the default directory based on the operating system
+      zenity_backup_default_dir="$HOME"
+      if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]; then
+        zenity_backup_default_dir="/mnt/c/Users"
+      fi
+
+      archive_path=$(zenity --file-selection --title="Choose the backup location" --filename="$zenity_backup_default_dir" 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
+    else
+      # Fall back to the CLI if zenity isn't available (e.g. on macOS)
+      get_text_input "Please provide the location of the backup archive to restore (drag-n-drop, remove quotation marks):" archive_path ""
+      cecho "Install zenity to use a graphical file chooser."
     fi
-
-    archive_path=$(zenity --file-selection --title="Choose the backup location" --filename="$zenity_backup_default_dir" 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
-  else
-    # Fall back to the CLI if zenity isn't available (e.g. on macOS)
-    get_text_input "Please provide the location of the backup archive to restore (drag-n-drop, remove quotation marks):" archive_path ""
-    cecho "Install zenity to use a graphical file chooser."
-  fi
-
   fi
 
   if [ ! -f "$archive_path" ]; then
@@ -47,11 +46,32 @@ function restore_func() {
   cecho "Extracting archive."
   7z x "$archive_path" # -obackup-tmp isn't needed
 
+  # Check if directories are empty
+  apps_empty=$(find ./backup-tmp/Apps -mindepth 1 | read -r && echo "no" || echo "yes")
+  storage_empty=$(find ./backup-tmp/Storage -mindepth 1 | read -r && echo "no" || echo "yes")
+  contacts_empty=$(find ./backup-tmp/Contacts -mindepth 1 | read -r && echo "no" || echo "yes")
+
+  # Prepare whiptail options based on directory content
+  whiptail_options=()
+  if [ "$apps_empty" = "no" ]; then
+    whiptail_options+=("Applications" "Installed apps" ON)
+  fi
+  if [ "$storage_empty" = "no" ]; then
+    whiptail_options+=("Storage" "Photos, downloads, other files" ON)
+  fi
+  if [ "$contacts_empty" = "no" ]; then
+    whiptail_options+=("Contacts" "People & address book" ON)
+  fi
+
   # Ask the user what data to restore
-  selected_items=$(whiptail --title "Restore data" --checklist "Select the categories of data to restore." 20 60 3 \
-    "Applications" "Installed apps" ON \
-    "Storage" "Photos, downloads, other files" ON \
-    "Contacts" "People & address book" ON 3>&1 1>&2 2>&3)
+  if [ ${#whiptail_options[@]} -eq 0 ]; then
+    # TODO: DRY - safely jump to the ending cleanup section of the script instead
+    uninstall_companion_app
+    remove_backup_tmp
+    cecho "No data to restore - this archive appears to be empty. Try opening it with 7-Zip - if there is valid data inside, please file a bug report."
+    exit 0
+  fi
+  selected_items=$(whiptail --title "Restore data" --checklist "Select the categories of data to restore." 20 60 3 "${whiptail_options[@]}" 3>&1 1>&2 2>&3)
 
   for item in $selected_items; do
     case $item in
@@ -125,13 +145,11 @@ function restore_func() {
     set -e
   fi
 
-
   if [ "$restore_storage" = "yes" ]; then
     # Restore internal storage
     cecho "Restoring internal storage."
     send_file ./backup-tmp/Storage/ . /storage/emulated/0/
   fi
-
 
   if [ "$restore_contacts" = "yes" ]; then
     # Restore contacts

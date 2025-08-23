@@ -119,7 +119,7 @@ You need 3 functions in your hook for it to be properly initialized by the scrip
 
 Please keep in mind that this project has minimal support for automation and very little support will be provided. In order to export contacts, you still need to have physical access to the device you're backing up as an "unattended mode" for the companion app hasn't been implemented yet.
 
-There are 11 environment variables that control what the script does without user input:
+There are 12 environment variables that control what the script does without user input:
 
 1. `unattended_mode` - Instead of waiting for a key press, sleeps for 5 seconds. Can be any value.
 2. `selected_action` - What the script should do when run. Possible values are `Backup` and `Restore` (case sensitive).
@@ -130,8 +130,9 @@ There are 11 environment variables that control what the script does without use
 7. `use_hooks` - Whether to use hooks or not. Possible values are `yes` or `no` (case sensitive).
 8. `data_erase_choice` - Whether to securely erase temporary files or not. Possible values are `Fast`, `Slow` and `Extra Slow` (case sensitive). The value of this variable is ignored if the command `srm` isn't present on your computer.
 9. `discouraged_disable_archive` - Disables the creation of a backup archive, only creates a backup *directory* with no compression, encryption or other features. This is not recommended, although some may find it useful to deduplicate backups and save space. Restoring backups created with this option enabled is not supported by default; you must manually create an archive from the backup directory and then restore it. Possible values are `yes` or `no` (case sensitive).
-10. `compression_level` - One of 0, 1, 3, 5, 7, 9. Where 9 is the best an slowest copression and 0 is no compression and the fastest level. If most of your data is already compressed, for example jpg pictures or mp3 videos, you will not loose much volume by compressing it. 
+10. `compression_level` - One of 0, 1, 3, 5, 7, 9. Where 9 is the best an slowest copression and 0 is no compression and the fastest level. If most of your data is already compressed, for example jpg pictures or mp3 videos, you will not loose much volume by compressing it.
 11. `restore_apps`, `restore_storage`, `restore_contacts` - Whether to restore apps, internal storage and contacts or not. Possible values are `yes` or `no` (case sensitive).
+12. `backup_apps`, `backup_storage`, `backup_contacts` - Same as above, but for backups.
 
 Examples:
 
