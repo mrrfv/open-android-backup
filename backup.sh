@@ -15,20 +15,28 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-# ---
-
 # Load all functions in ./functions
 for f in "$DIR"/functions/*.sh; do source "$f"; done
 
-check_adb_connection
-
+mode=Wireless
 if [ ! -v mode ]; then
   modes=( 'Wired' 'Wireless' )
   select_option_from_list "Choose the connection method. Wireless is experimental and still requires a device connected for pairing." modes[@] mode
 fi
 
+#For now require connection to be pre-existing for wireless mode.
+if [ "$mode" = 'Wireless' ]; then
+  do_connection='false'
+else
+  do_connection='true'
+fi
+
 
 check_install
+
+# ---
+
+check_adb_connection
 
 if [ "$mode" = 'Wireless' ]; then
   # See ./functions/wireless_connection.sh
