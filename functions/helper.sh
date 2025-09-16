@@ -39,7 +39,11 @@ function cecho() {
 }
 
 function check_adb_connection() {
-  adb kill-server &> /dev/null || true
+  #FIXME: this breaks ability to do pure wireless. Reinstate to allow wireless initiated using USB.
+  if [ "$do_connection" = "true" ]
+  then
+    adb kill-server &> /dev/null || true
+  fi
   cecho "Please enable developer options and USB debugging on your device, connect it to your computer and set it to file transfer mode. Then, press Enter to continue."
   cecho "Samsung users may need to temporarily disable 'Auto Blocker' first."
   wait_for_enter
