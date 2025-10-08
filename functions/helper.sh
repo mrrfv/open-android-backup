@@ -10,20 +10,46 @@ function wait_for_enter() {
   fi
 }
 
-# Checks if the user has at least 100GB of free space in a given directory
-# Usage: enough_free_space <directory> (optional size threshold in kilobytes)
-# Returns 0 (enough space) or 1 (not enough space)
+# Estimate the backup size based on what is backed up
+function estimate_backup_size() {
+  local backup_size=0
+
+  if [ "$backup_contacts" = "yes" ]; then
+    local contacts_count=$(adb shell content query --uri content://contacts/people | wc -l)
+    local sms_count=$(adb shell content query --uri content://sms/ | wc -l)
+    local call_log_count=$(adb shell content query --uri content://call_log/calls | wc -l)
+    
+    # Here we estimate that a contact is 4 KB, an SMS is 1 KB and a call log is 0,5 KB
+    local contacts_size=$(echo "$contacts_count * 4" | bc)
+    local sms_size=$(echo "$sms_count * 1" | bc)
+    local calls_size=$(echo "$call_log_count * 0.5" | bc)
+    backup_size=$(echo "$backup_size + $contacts_size + $sms_size + $calls_size" | bc)
+  fi
+
+  if [ "$backup_storage" = "yes" ]; then
+    local storage_size=$(adb shell df -k /storage/self/primary | tail -n 1 | awk '{print $3}')
+    backup_size=$(echo "$backup_size + $storage_size" | bc)
+  fi
+
+  if [ "$backup_apps" = "yes" ]; then
+    local apks_size=$(adb shell 'for p in $(pm list packages -3 -f | sed -E "s/package://; s/=.*//"); do stat -c%s "$p" 2>/dev/null; done' | awk '{s+=$1} END {print int(s/1024)}')
+    backup_size=$(echo "$backup_size + $apks_size" | bc)
+  fi
+
+  backup_size=$(echo "$backup_size" | awk '{print int($1)}')
+  echo "$backup_size"
+}
+
+# Checks if the user has enough free space to backup the device in the current directory
+# Usage: enough_free_space <directory>
+# Returns 0 (enough space) or 1 (not enough space) and echoes the estimated size of the backup
 function enough_free_space() {
   local directory="$1"
-  local size_threshold="$2"
-  if [ -z "$size_threshold" ]; then
-    size_threshold=100000000 # 100GB
-  fi
-  # Convert the size threshold to a normal number in case it's in scientific notation
-  size_threshold=$(echo "$size_threshold" | awk '{printf "%.0f\n", $1}')
+  local backup_size=$(estimate_backup_size)
   # Get the free space in the directory in kilobytes
   local free_space=$(df -k "$directory" | tail -n 1 | awk '{print $4}')
-  if [ "$free_space" -lt "$size_threshold" ]; then
+  if [ "$free_space" -lt "$backup_size" ]; then
+    echo "$backup_size"
     return 1
   fi
   return 0

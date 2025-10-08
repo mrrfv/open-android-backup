@@ -51,6 +51,17 @@ function backup_func() {
     esac
   done
 
+  # Ensure that there's enough space in the directory according to what is backed up
+  local space=$(enough_free_space "$archive_path")
+  if [[ -n "$space" && "$space" -ne 0 ]]; then
+    local bkp_size_mb=$(echo "scale=2; $space/1024" | bc)
+    echo -e "\033[31mThere isn't enough space in the selected directory for the backup. Estimated backup size: $bkp_size_mb MB\033[0m"
+    cecho "Exiting..."
+    exit 1
+  else
+    cecho "Enough space in the current directory. Estimated backup size: $bkp_size_mb MB"
+  fi
+
   # The companion app is needed only for contact backups.
   mkdir -p ./backup-tmp/Contacts # Always created for backwards compatibility
   mkdir -p ./backup-tmp/SMS
