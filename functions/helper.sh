@@ -27,7 +27,7 @@ function estimate_backup_size() {
   fi
 
   if [ "$backup_storage" = "yes" ]; then
-    local storage_size=$(adb shell df -k /storage/self/primary | tail -n 1 | awk '{print $3}')
+    local storage_size=$(adb shell df -k /storage/emulated/0 | tail -n 1 | awk '{print $3}')
     backup_size=$(echo "$backup_size + $storage_size" | bc)
   fi
 
