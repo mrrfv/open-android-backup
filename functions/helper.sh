@@ -18,7 +18,7 @@ function estimate_backup_size() {
     local contacts_count=$(adb shell content query --uri content://contacts/people | wc -l)
     local sms_count=$(adb shell content query --uri content://sms/ | wc -l)
     local call_log_count=$(adb shell content query --uri content://call_log/calls | wc -l)
-    
+
     # Here we estimate that a contact is 4 KB, an SMS is 1 KB and a call log is 0,5 KB
     local contacts_size=$(echo "$contacts_count * 4" | bc)
     local sms_size=$(echo "$sms_count * 1" | bc)
@@ -27,7 +27,8 @@ function estimate_backup_size() {
   fi
 
   if [ "$backup_storage" = "yes" ]; then
-    local storage_size=$(adb shell df -k /storage/emulated/0 | tail -n 1 | awk '{print $3}')
+    # Use du to get the actual used space in KB
+    local storage_size=$(adb shell du -sk /storage/emulated/0 | awk '{print $1}')
     backup_size=$(echo "$backup_size + $storage_size" | bc)
   fi
 
@@ -41,17 +42,38 @@ function estimate_backup_size() {
 }
 
 # Checks if the user has enough free space to backup the device in the current directory
-# Usage: enough_free_space <directory>
-# Returns 0 (enough space) or 1 (not enough space) and echoes the estimated size of the backup
+# Usage: enough_free_space <directory> <estimated_size_var>
+# Returns 0 (enough space) or 1 (not enough space)
+# Stores the estimated size in the variable named by the second parameter
 function enough_free_space() {
   local directory="$1"
+  local -n estimated_size_ref="$2" # Use nameref for indirect assignment
+
   local backup_size=$(estimate_backup_size)
-  # Get the free space in the directory in kilobytes
-  local free_space=$(df -k "$directory" | tail -n 1 | awk '{print $4}')
-  if [ "$free_space" -lt "$backup_size" ]; then
-    echo "$backup_size"
+  estimated_size_ref=$backup_size
+  local required_size=$backup_size
+
+  # The script first gathers all data to ./backup-tmp, compresses it into an archive and finally deletes the temporary directory.
+  # Therefore, we need to bear both cases in mind.
+
+  # Get device IDs to check if directories are on the same drive
+  local current_dir_device=$(stat -c %m .)
+  local target_dir_device=$(stat -c %m "$directory")
+
+  # Double required space if that's the case
+  if [ "$current_dir_device" = "$target_dir_device" ]; then
+    required_size=$((backup_size * 2))
+  fi
+
+  # Check free space in both the target directory and current working directory
+  local target_free_space=$(df -k "$directory" | tail -n 1 | awk '{print $4}')
+  local current_free_space=$(df -k . | tail -n 1 | awk '{print $4}')
+
+  # Check if either directory has insufficient space
+  if [ "$target_free_space" -lt "$required_size" ] || [ "$current_free_space" -lt "$required_size" ]; then
     return 1
   fi
+
   return 0
 }
 
