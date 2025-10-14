@@ -10,22 +10,70 @@ function wait_for_enter() {
   fi
 }
 
-# Checks if the user has at least 100GB of free space in a given directory
-# Usage: enough_free_space <directory> (optional size threshold in kilobytes)
+# Estimate the backup size based on what is backed up
+function estimate_backup_size() {
+  local backup_size=0
+
+  if [ "$backup_contacts" = "yes" ]; then
+    local contacts_count=$(adb shell content query --uri content://contacts/people | wc -l)
+    local sms_count=$(adb shell content query --uri content://sms/ | wc -l)
+    local call_log_count=$(adb shell content query --uri content://call_log/calls | wc -l)
+
+    # Here we estimate that a contact is 4 KB, an SMS is 1 KB and a call log is 0,5 KB
+    local contacts_size=$(echo "$contacts_count * 4" | bc)
+    local sms_size=$(echo "$sms_count * 1" | bc)
+    local calls_size=$(echo "$call_log_count * 0.5" | bc)
+    backup_size=$(echo "$backup_size + $contacts_size + $sms_size + $calls_size" | bc)
+  fi
+
+  if [ "$backup_storage" = "yes" ]; then
+    # Use du to get the actual used space in KB
+    local storage_size=$(adb shell du -sk /storage/emulated/0 | awk '{print $1}')
+    backup_size=$(echo "$backup_size + $storage_size" | bc)
+  fi
+
+  if [ "$backup_apps" = "yes" ]; then
+    local apks_size=$(adb shell 'for p in $(pm list packages -3 -f | sed -E "s/package://; s/=.*//"); do stat -c%s "$p" 2>/dev/null; done' | awk '{s+=$1} END {print int(s/1024)}')
+    backup_size=$(echo "$backup_size + $apks_size" | bc)
+  fi
+
+  backup_size=$(echo "$backup_size" | awk '{print int($1)}')
+  echo "$backup_size"
+}
+
+# Checks if the user has enough free space to backup the device in the current directory
+# Usage: enough_free_space <directory> <estimated_size_var>
 # Returns 0 (enough space) or 1 (not enough space)
+# Stores the estimated size in the variable named by the second parameter
 function enough_free_space() {
   local directory="$1"
-  local size_threshold="$2"
-  if [ -z "$size_threshold" ]; then
-    size_threshold=100000000 # 100GB
+  local -n estimated_size_ref="$2" # Use nameref for indirect assignment
+
+  local backup_size=$(estimate_backup_size)
+  estimated_size_ref=$backup_size
+  local required_size=$backup_size
+
+  # The script first gathers all data to ./backup-tmp, compresses it into an archive and finally deletes the temporary directory.
+  # Therefore, we need to bear both cases in mind.
+
+  # Get device IDs to check if directories are on the same drive
+  local current_dir_device=$(stat -c %m .)
+  local target_dir_device=$(stat -c %m "$directory")
+
+  # Double required space if that's the case
+  if [ "$current_dir_device" = "$target_dir_device" ]; then
+    required_size=$((backup_size * 2))
   fi
-  # Convert the size threshold to a normal number in case it's in scientific notation
-  size_threshold=$(echo "$size_threshold" | awk '{printf "%.0f\n", $1}')
-  # Get the free space in the directory in kilobytes
-  local free_space=$(df -k "$directory" | tail -n 1 | awk '{print $4}')
-  if [ "$free_space" -lt "$size_threshold" ]; then
+
+  # Check free space in both the target directory and current working directory
+  local target_free_space=$(df -k "$directory" | tail -n 1 | awk '{print $4}')
+  local current_free_space=$(df -k . | tail -n 1 | awk '{print $4}')
+
+  # Check if either directory has insufficient space
+  if [ "$target_free_space" -lt "$required_size" ] || [ "$current_free_space" -lt "$required_size" ]; then
     return 1
   fi
+
   return 0
 }
 
