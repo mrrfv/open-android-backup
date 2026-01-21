@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import './main_screen.dart';
+import './advanced_screen.dart';
 import './info_screen.dart';
 
 void main() {
@@ -37,6 +38,7 @@ class _HomeState extends State<Home> {
   int _selectedScreenIndex = 0;
   final List _screens = [
     {"screen": const MainScreen(), "title": "Open Android Backup Companion"},
+    {"screen": const AdvancedScreen(), "title": "Advanced Mode"},
     {"screen": const InfoScreen(), "title": "About"}
   ];
 
@@ -68,6 +70,7 @@ class _HomeState extends State<Home> {
         onTap: _selectScreen,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Advanced"),
           BottomNavigationBarItem(icon: Icon(Icons.info), label: "About")
         ],
       ),

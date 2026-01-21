@@ -41,6 +41,9 @@ dependencies:
   csv: ^6.0.0
   call_log: ^6.0.1
   url_launcher: ^6.3.2
+  shared_preferences: ^2.2.2
+  path_provider: ^2.1.1
+  file_picker: ^10.3.8
 
 dev_dependencies:
   flutter_test:
