@@ -4,7 +4,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 
 class FileService {
   /// Check if we have necessary storage permissions for file operations
-  Future<bool> _checkStoragePermissions() async {
+  Future<bool> checkStoragePermissions() async {
     // Check storage permissions based on Android version
     final androidInfo = await DeviceInfoPlugin().androidInfo;
     if (androidInfo.version.sdkInt <= 29) {
@@ -23,7 +23,7 @@ class FileService {
   /// Verify that we have permissions and the directory is accessible
   Future<bool> verifyDirectoryAccess(String directoryPath) async {
     // First check storage permissions
-    if (!(await _checkStoragePermissions())) {
+    if (!(await checkStoragePermissions())) {
       return false;
     }
 
@@ -94,7 +94,7 @@ class FileService {
   Future<String?> readFile(String filePath) async {
     try {
       // Verify we have storage permissions
-      if (!(await _checkStoragePermissions())) {
+      if (!(await checkStoragePermissions())) {
         // DEBUG: No storage permissions to read file
         return null;
       }

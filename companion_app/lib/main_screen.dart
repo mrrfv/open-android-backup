@@ -3,6 +3,7 @@ import 'dart:io';
 
 import './services/backup_service.dart';
 import './widgets/progress_widgets.dart';
+import 'services/file_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -26,6 +27,8 @@ class _MainScreenState extends State<MainScreen> {
   bool showRestoreProgress = false;
   int contactsAmountFilesystem = 0;
   int contactsImported = 0;
+
+  final FileService fileService = FileService();
 
   // No directory paths needed for main screen - uses hardcoded directories
 
@@ -78,6 +81,11 @@ class _MainScreenState extends State<MainScreen> {
     });
 
     try {
+      // First check permissions
+      if (!(await fileService.checkStoragePermissions())) {
+        throw Error();
+      }
+
       // Recreate the temp directory if it already exists
       final directory = Directory(exportDir);
       if (await directory.exists()) {
