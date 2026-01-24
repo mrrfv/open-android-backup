@@ -5,7 +5,7 @@ set -e
 # This is used to download a stable, compatible version of the Android companion app as well as ensure backwards compatibility,
 # so it should match the tag name in GitHub Releases.
 # TODO: load this dynamically, i.e. configure our build system to automatically update the APP_VERSION
-APP_VERSION="v1.2.1"
+APP_VERSION="v1.2.2"
 
 # We use whiptail for showing dialogs.
 # Whiptail is used similarly as dialog, but we can't install it on macOS using Homebrew IIRC.
