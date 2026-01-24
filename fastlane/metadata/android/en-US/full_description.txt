@@ -25,4 +25,4 @@
   <li>Backups are always encrypted along with their metadata.</li>
   <li>All data is compressed using 7-Zip with maximum compression settings.</li>
 </ul>
-<p>For installation instructions (Linux, Mac, Windows) and usage instructions, head over to the project. This app cannot be used standalone yet, but such functionality is planned.</p>
+<p>For installation instructions (Linux, Mac, Windows) and usage instructions, head over to the project. You can also use this app standalone.</p>

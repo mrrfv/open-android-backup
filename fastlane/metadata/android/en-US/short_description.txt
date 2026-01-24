@@ -1,1 +1,1 @@
-Companion app for Open Android Backup, an Android device backup tool
+An Android device backup tool
