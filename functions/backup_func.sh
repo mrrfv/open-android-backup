@@ -104,10 +104,10 @@ function backup_func() {
   mkdir -p backup-tmp/Apps
   if [ "$backup_apps" = "yes" ]; then
     cecho "Exporting apps."
-    app_count=$(adb shell pm list packages -3 -f | wc -l)
+    app_count=$(adb shell pm list packages -3 -f --user 0 | wc -l)
     apps_exported=0
 
-    for app in $(adb shell pm list packages -3 -f)
+    for app in $(adb shell pm list packages -3 -f --user 0)
     #   -f: see their associated file
     #   -3: filter to only show third party packages
     do
