@@ -41,46 +41,13 @@
           ];
 
           shellHook = ''
-            # Set environment variables
-            export OAB_COMPRESSION_LEVEL="5"
-            export TMPDIR="/tmp"
-
-            echo "🚀 Open Android Backup Nix shell ready!"
-            echo ""
-            echo "Available tools:"
-            echo "  - adb (Android Debug Bridge)"
-            echo "  - p7zip (compression/decompression)"
-            echo "  - whiptail (dialog boxes)"
-            echo "  - pv (progress viewer)"
-            echo "  - srm (secure file deletion)"
-            echo "  - zenity (GUI dialogs)"
+            echo "Open Android Backup Nix shell ready."
             echo ""
             echo "Usage:"
             echo "  1. Enable USB debugging on your Android device"
             echo "  2. Run: ./backup.sh"
             echo ""
-            echo "Environment variables for automation:"
-            echo "  - unattended_mode=yes"
-            echo "  - selected_action=Backup|Restore"
-            echo "  - archive_path=<path>"
-            echo "  - archive_password=<password>"
-            echo "  - mode=Wired|Wireless"
-            echo "  - export_method=tar|adb"
-            echo ""
-
-            # Check if adb is working
-            if command -v adb >/dev/null 2>&1; then
-              echo "✅ ADB is available"
-            else
-              echo "❌ ADB not found"
-            fi
-
-            # Check if device is connected
-            if adb devices 2>/dev/null | grep -q "device$"; then
-              echo "✅ Android device detected"
-            else
-              echo "⚠️  No Android device detected (make sure USB debugging is enabled)"
-            fi
+            echo "For automation options and advanced usage, see README.md"
           '';
         };
       }
