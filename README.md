@@ -49,6 +49,20 @@ then execute this command `sudo dnf install p7zip p7zip-plugins adb curl newt pv
 2. [Download](https://github.com/mrrfv/open-android-backup/releases/latest) the Open Android Backup bundle, which contains the script and companion app in one package. You can also grab an experimental build (heavily discouraged) by clicking on [this link](https://github.com/mrrfv/open-android-backup/archive/refs/heads/master.zip) or cloning.
 3. Enable [developer options](https://developer.android.com/studio/debug/dev-options#enable) and USB debugging on your device, then run `backup.sh` in a terminal.
 
+**Alternative: Using Nix (recommended for Nix/NixOS users)**
+
+If you use Nix or NixOS, you can get a complete environment with all dependencies:
+
+```bash
+# Enter the development shell
+# Retry with --extra-experimental-features 'nix-command flakes' if this doesn't work
+nix develop
+# Then run the backup script
+./backup.sh
+```
+
+This will automatically provide all required dependencies without affecting your system packages.
+
 ### macOS
 
 Warning: macOS testing is limited, please report any issues you encounter.
