@@ -5,7 +5,6 @@
 BACKUP_TMP_DIR="./backup-tmp"
 COMPANION_TEMP_DIR="/storage/emulated/0/open-android-backup-temp"
 COMPANION_PACKAGE="mrrfv.backup.companion"
-COMPANION_ACTIVITY="$COMPANION_PACKAGE/.MainActivity"
 ARCHIVE_PREFIX="open-android-backup"
 TIMESTAMP_FORMAT="%m-%d-%Y-%H-%M-%S"
 ARCHIVE_EXT=".7z"
@@ -83,7 +82,7 @@ function backup_func() {
   mkdir -p "$BACKUP_TMP_DIR/SMS"
   mkdir -p "$BACKUP_TMP_DIR/CallLogs"
   if [ "$backup_contacts" = "yes" ]; then
-    adb shell am start -n "$COMPANION_ACTIVITY"
+    adb shell am start -n "$COMPANION_PACKAGE/.MainActivity"
     cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts/messages to internal storage, allowing this script to back them up. When this is complete, press Enter to continue."
     wait_for_enter
 
