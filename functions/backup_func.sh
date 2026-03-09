@@ -103,12 +103,14 @@ function backup_func() {
       cecho "Cannot continue - exiting."
       exit 1
     fi
+    
     # Get contacts
-    mv "$BACKUP_TMP_DIR/open-android-backup-temp/open-android-backup-contact*.vcf" "$BACKUP_TMP_DIR/Contacts" || cecho "No contacts found on device - ignoring." 1>&2
+    mv "$BACKUP_TMP_DIR/open-android-backup-temp"/open-android-backup-contact*.vcf "$BACKUP_TMP_DIR/Contacts/" || cecho "No contacts found on device - ignoring." 1>&2
     # Get SMS messages
-    mv "$BACKUP_TMP_DIR/open-android-backup-temp/SMS_Messages.csv" "$BACKUP_TMP_DIR/SMS"
+    mv "$BACKUP_TMP_DIR/open-android-backup-temp/SMS_Messages.csv" "$BACKUP_TMP_DIR/SMS/" || true
     # Get call logs
-    mv "$BACKUP_TMP_DIR/open-android-backup-temp/Call_Logs.csv" "$BACKUP_TMP_DIR/CallLogs"
+    mv "$BACKUP_TMP_DIR/open-android-backup-temp/Call_Logs.csv" "$BACKUP_TMP_DIR/CallLogs/" || true
+    
     # Cleanup
     cecho "Removing temporary files created by the companion app."
     adb shell rm -rf "$COMPANION_TEMP_DIR"
@@ -211,7 +213,7 @@ backup_contacts: $backup_contacts
       get_password_input "Enter a password to encrypt the backup archive (input will be hidden):" archive_password
     fi
     declare backup_archive="$archive_path/$ARCHIVE_PREFIX-$(date +"$TIMESTAMP_FORMAT").$ARCHIVE_EXT"
-    retry 5 7z a -p -mhe=on -mx=$compression_level -bb3 "$backup_archive" "$BACKUP_TMP_DIR/*" < <(echo "$archive_password")
+    retry 5 7z a -p -mhe=on -mx=$compression_level "$backup_archive" "$BACKUP_TMP_DIR/*" < <(echo "$archive_password")
     # Immediately clear sensitive password data
     unset archive_password
   fi
