@@ -2,7 +2,6 @@
 # This file is imported by backup.sh
 
 # Configuration variables - customize these as needed
-BACKUP_TMP_DIR="./backup-tmp"
 COMPANION_TEMP_DIR="/storage/emulated/0/open-android-backup-temp"
 COMPANION_PACKAGE="mrrfv.backup.companion"
 ARCHIVE_PREFIX="open-android-backup"
@@ -77,7 +76,8 @@ function backup_func() {
     cecho "Enough space in the current directory. Estimated backup size: ${bkp_size_mb} MB"
   fi
 
-  # The companion app is needed only for contact backups.
+
+  BACKUP_TMP_DIR="$archive_path/.tmp"
   mkdir -p "$BACKUP_TMP_DIR/Contacts" # Always created for backwards compatibility
   mkdir -p "$BACKUP_TMP_DIR/SMS"
   mkdir -p "$BACKUP_TMP_DIR/CallLogs"
