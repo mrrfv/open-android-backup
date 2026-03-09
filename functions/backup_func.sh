@@ -34,6 +34,13 @@ function backup_func() {
     cecho "Install zenity to use a graphical directory chooser."
   fi
 
+  # Create directory if it doesn't exist
+  mkdir -p "$archive_path" || {
+    cecho "Failed to create directory: $archive_path"
+    unset archive_path
+    continue
+  }
+
   fi
   directory_ok "$archive_path" && break
   unset archive_path
