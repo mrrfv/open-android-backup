@@ -6,7 +6,7 @@ COMPANION_TEMP_DIR="/storage/emulated/0/open-android-backup-temp"
 COMPANION_PACKAGE="mrrfv.backup.companion"
 ARCHIVE_PREFIX="open-android-backup"
 TIMESTAMP_FORMAT="%m-%d-%Y-%H-%M-%S"
-ARCHIVE_EXT=".7z"
+ARCHIVE_EXT="7z"
 PLEASE_READ_FILE="PLEASE_READ.txt"
 
 function backup_func() {
@@ -207,7 +207,6 @@ backup_contacts: $backup_contacts
     # -p: encrypt backup
     # -mhe=on: encrypt headers (metadata)
     # -mx=9: ultra compression
-    # -bb3: verbose logging
     # The undefined variable (archive_password) is set by the user if they're using unattended mode
     if [ -z "$archive_password" ]; then
       get_password_input "Enter a password to encrypt the backup archive (input will be hidden):" archive_password

@@ -53,7 +53,7 @@ function enough_free_space() {
   estimated_size_ref=$backup_size
   local required_size=$backup_size
 
-  # The script first gathers all data to ./backup-tmp, compresses it into an archive and finally deletes the temporary directory.
+  # The script first gathers all data to ./.tmp, compresses it into an archive and finally deletes the temporary directory.
   # Therefore, we need to bear both cases in mind.
 
   # Get device IDs to check if directories are on the same drive
@@ -211,22 +211,25 @@ function get_text_input() {
 }
 
 function remove_backup_tmp() {
-  # only run if backup-tmp exists
-  if [ -d backup-tmp ]; then
-    cecho "Cleaning up after backup/restore..."
+  local cleaned=false
+  
+  # 1. Check BACKUP_TMP_DIR variable (backup/restore scripts set this)
+  if [ -n "$BACKUP_TMP_DIR" ] && [ -e "$BACKUP_TMP_DIR" ]; then
+    cecho "Cleaning up target dir: $BACKUP_TMP_DIR"
     if [ "$data_erase_choice" = "Slow" ]; then
-      cecho "Securely erasing temporary files, this will take a while."
-      srm -v -r -l ./backup-tmp
+      srm -v -r -l "$BACKUP_TMP_DIR"
     elif [ "$data_erase_choice" = "Extra Slow" ]; then
-      cecho "Very securely erasing temporary files, this will take a long time."
-      srm -v -r ./backup-tmp
+      srm -v -r "$BACKUP_TMP_DIR"
     else
-      cecho "Using the 'Fast' data erase mode."
-      rm -rf backup-tmp
+      rm -rf "$BACKUP_TMP_DIR"
     fi
-    cecho "Cleanup complete."
+    cleaned=true
+  fi
+  
+  if [ "$cleaned" = false ]; then
+    cecho "No temporary files found."
   else
-    cecho "Couldn't find any temporary files to cleanup, continuing. This is not an error."
+    cecho "Cleanup complete."
   fi
 }
 

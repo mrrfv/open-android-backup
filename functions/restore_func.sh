@@ -18,12 +18,16 @@ function restore_func() {
         zenity_backup_default_dir="/mnt/c/Users"
       fi
 
-      archive_path=$(zenity --file-selection --title="Choose the backup location" --filename="$zenity_backup_default_dir" 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
+      archive_path=$(zenity --file-selection --title="Choose the backup location" --filename="$zenity_backup_default_dir" 2>/dev/null | tail -n 1 | sed 's/\r$//;s/[[:space:]]*$//' || true)
     else
       # Fall back to the CLI if zenity isn't available (e.g. on macOS)
       get_text_input "Please provide the location of the backup archive to restore (drag-n-drop, remove quotation marks):" archive_path ""
+      archive_path=$(echo "$archive_path" | sed 's/\r$//;s/[[:space:]]*$//')  # Trim whitespace
       cecho "Install zenity to use a graphical file chooser."
     fi
+  else
+    # Trim existing archive_path variable too
+    archive_path=$(echo "$archive_path" | sed 's/\r$//;s/[[:space:]]*$//')
   fi
 
   if [ ! -f "$archive_path" ]; then
@@ -43,18 +47,21 @@ function restore_func() {
     fi
   fi
 
-  cecho "Extracting archive."
-  # Archive is encrypted, ask for password
-  get_password_input "Enter the password to decrypt the backup archive (input will be hidden):" archive_password
-  # Extract with password
-  7z x "$archive_path" < <(echo "$archive_password")
-  # Clear sensitive data
-  unset archive_password
+# Use clean temp name to avoid 7z path conflict
+BACKUP_TMP_DIR="${archive_path%.*}.tmp"
+cecho "Extracting archive to $BACKUP_TMP_DIR"
+
+# Clean previous failed extractions
+rm -rf "$BACKUP_TMP_DIR"
+
+get_password_input "Enter the password to decrypt the backup archive (input will be hidden):" archive_password
+7z x "$archive_path" "-o$BACKUP_TMP_DIR" < <(echo "$archive_password")
+unset archive_password
 
   # Check if directories are empty
-  apps_empty=$(find ./backup-tmp/Apps -mindepth 1 | read -r && echo "no" || echo "yes")
-  storage_empty=$(find ./backup-tmp/Storage -mindepth 1 | read -r && echo "no" || echo "yes")
-  contacts_empty=$(find ./backup-tmp/Contacts -mindepth 1 | read -r && echo "no" || echo "yes")
+  apps_empty=$(find "$BACKUP_TMP_DIR/Apps" -mindepth 1 | read -r && echo "no" || echo "yes")
+  storage_empty=$(find "$BACKUP_TMP_DIR/Storage" -mindepth 1 | read -r && echo "no" || echo "yes")
+  contacts_empty=$(find "$BACKUP_TMP_DIR/Contacts" -mindepth 1 | read -r && echo "no" || echo "yes")
 
   # Prepare whiptail options based on directory content
   whiptail_options=()
@@ -113,7 +120,7 @@ function restore_func() {
     fi
     # Handle split APKs
     # Find directories in the Apps directory
-    apk_dirs=$(find ./backup-tmp/Apps -mindepth 1 -maxdepth 1 -type d)
+    apk_dirs=$(find "$BACKUP_TMP_DIR/Apps" -mindepth 1 -maxdepth 1 -type d)
     for apk_dir in $apk_dirs; do
       # Install all APKs in the directory
       # the APK files are sorted to ensure that base.apk is installed before split APKs
@@ -124,7 +131,7 @@ function restore_func() {
 
     # Now all that's left is ensuring backwards compatibility with old backups
     # Look for APK files in the Apps directory
-    apk_files=$(find ./backup-tmp/Apps -maxdepth 1 -type f -name "*.apk" | sort)
+    apk_files=$(find "$BACKUP_TMP_DIR/Apps" -maxdepth 1 -type f -name "*.apk" | sort)
     # Notify if an old backup is being restored
     if [ -n "$apk_files" ]; then
       cecho "Old backup with no split APKs detected."
@@ -153,13 +160,15 @@ function restore_func() {
   if [ "$restore_storage" = "yes" ]; then
     # Restore internal storage
     cecho "Restoring internal storage."
-    send_file ./backup-tmp/Storage/ . /storage/emulated/0/
+    get_file "$BACKUP_TMP_DIR/Storage" . /storage/emulated/0/
   fi
 
   if [ "$restore_contacts" = "yes" ]; then
     # Restore contacts
     cecho "Pushing backed up contacts to device."
-    adb push ./backup-tmp/Contacts /storage/emulated/0/Contacts_Backup
+    # mkdir -p /storage/emulated/0/open-android-backup-temp
+    # get_file "$BACKUP_TMP_DIR/Contacts" . /storage/emulated/0/open-android-backup-temp/
+    adb push "$BACKUP_TMP_DIR/Contacts" /storage/emulated/0/Contacts_Backup
 
     adb shell am start -n mrrfv.backup.companion/.MainActivity
     cecho "The companion app has been opened on your device. Please press the 'Auto-restore contacts' button - this will import your contacts to the device's contact database. Press Enter to continue."
@@ -167,11 +176,11 @@ function restore_func() {
   fi
 
   # Run the third-party restore hook, if enabled.
-  if [ "$use_hooks" = "yes" ] && [ "$(type -t restore_hook)" == function ]; then
+  if [ "$use_hooks" = "yes" ] && [ "$(type -t restore_hook)" == "function" ]; then
     cecho "Running restore hook in 5 seconds."
     sleep 5
     restore_hook
-  elif [ "$use_hooks" = "yes" ] && [ ! "$(type -t restore_hook)" == function ]; then
+  elif [ "$use_hooks" = "yes" ] && [ ! "$(type -t restore_hook)" == "function" ]; then
     cecho "WARNING: Hooks are enabled, but the restore hook hasn't been found in hooks.sh."
     cecho "Skipping in 5 seconds."
     sleep 5
@@ -179,10 +188,11 @@ function restore_func() {
 
   cecho "Cleaning up..."
   if [ "$restore_contacts" = "yes" ]; then
-    adb shell rm -rfv /storage/emulated/0/Contacts_Backup
+    adb shell rm -rf /storage/emulated/0/open-android-backup-temp
   fi
   uninstall_companion_app
   remove_backup_tmp
 
   cecho "Data restored!"
+  rm -rf "$BACKUP_TMP_DIR"
 }

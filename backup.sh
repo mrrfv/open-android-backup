@@ -173,7 +173,8 @@ install_companion_app
 
 remove_backup_tmp
 
-mkdir backup-tmp
+# TODO: why this?
+# mkdir backup-tmp
 
 if [ "$selected_action" = 'Backup' ]
 then
