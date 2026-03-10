@@ -15,21 +15,20 @@ function backup_func() {
   # Ask the user for the backup location
   # If zenity is available, we'll use it to show a graphical directory chooser
   # TODO: Extract this into a function since similar code is used when restoring
-  if command -v zenity >/dev/null 2>&1 && { [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ] || [ -v "$XDG_DATA_DIRS" ]; } ;
-  then
+  if command -v zenity >/dev/null 2>&1; then
     cecho "A graphical directory chooser dialog will be open."
     cecho "You will be prompted for the backup location. Press Enter to continue."
     wait_for_enter
 
-    # Dynamically set the default directory based on the operating system
     zenity_backup_default_dir="$HOME"
     if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]; then
       zenity_backup_default_dir="/mnt/c/Users"
     fi
 
     archive_path=$(zenity --file-selection --title="Choose the backup location" --directory --filename="$zenity_backup_default_dir" 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
+    cecho "DEBUG: Zenity returned: '$archive_path'"
   else
-    # Fall back to the CLI if zenity isn't available (e.g. on macOS)
+    cecho "DEBUG: No Zenity, using CLI"
     get_text_input "Enter the backup location. Press Ok for the current working directory." archive_path "$(pwd)"
     cecho "Install zenity to use a graphical directory chooser."
   fi
