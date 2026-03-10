@@ -2,12 +2,12 @@
 # This file is imported by backup.sh
 
 function restore_func() {
+  while true; do
   if [ ! -v archive_path ]; then
     # Ask the user for the backup location
     # If zenity is available, we'll use it to show a graphical file chooser
     # TODO: Extract this into a function since similar code is used when backing up
-    if command -v zenity >/dev/null 2>&1 && { [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ] || [ -v "$XDG_DATA_DIRS" ]; } ;
-    then
+    if command -v zenity >/dev/null 2>&1; then
       cecho "A graphical file chooser dialog will be open."
       cecho "You will be prompted for the location of the backup archive to restore. Press Enter to continue."
       wait_for_enter
@@ -19,8 +19,9 @@ function restore_func() {
       fi
 
       archive_path=$(zenity --file-selection --title="Choose the backup location" --filename="$zenity_backup_default_dir" 2>/dev/null | tail -n 1 | sed 's/\r$//;s/[[:space:]]*$//' || true)
+      cecho "DEBUG: Zenity returned: '$archive_path'"
     else
-      # Fall back to the CLI if zenity isn't available (e.g. on macOS)
+      cecho "DEBUG: No Zenity, using CLI"
       get_text_input "Please provide the location of the backup archive to restore (drag-n-drop, remove quotation marks):" archive_path ""
       archive_path=$(echo "$archive_path" | sed 's/\r$//;s/[[:space:]]*$//')  # Trim whitespace
       cecho "Install zenity to use a graphical file chooser."
@@ -32,8 +33,12 @@ function restore_func() {
 
   if [ ! -f "$archive_path" ]; then
     cecho "The specified backup location doesn't exist or isn't a file."
-    exit 1
+    unset archive_path
+    continue
   fi
+  
+  break
+  done
 
   # Ensure there's enough space to extract the archive on the device
   # Note: this is a very rough estimate as we're not taking the compression ratio into account
