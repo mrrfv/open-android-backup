@@ -40,28 +40,30 @@ function restore_func() {
   break
   done
 
+  # Use clean temp name to avoid 7z path conflict
+  BACKUP_TMP_DIR="${archive_path%.*}.tmp"
+  cecho "Extracting archive to $BACKUP_TMP_DIR"
+
+  # Clean previous failed extractions
+  rm -rf "$BACKUP_TMP_DIR"
+  mkdir -p "$BACKUP_TMP_DIR" # Create the directory for the free space check
+
   # Ensure there's enough space to extract the archive on the device
   # Note: this is a very rough estimate as we're not taking the compression ratio into account
   # This doesn't work on macOS so we'll skip it there
   if [[ "$(uname)" != "Darwin" ]]; then
     archive_size_kb=$(stat --printf="%s" "$archive_path" | awk '{print $1/1024}')
-    if ! enough_free_space "." "$archive_size_kb"; then
-      cecho "Less than $archive_size_kb KB of free space available on the current directory - not enough to extract this backup."
+    # Note: the lack of $ in archive_size_kb is intentional. The function expects the variable name.
+    if ! enough_free_space "$BACKUP_TMP_DIR" "archive_size_kb"; then
+      cecho "Less than $archive_size_kb KB of free space available in $BACKUP_TMP_DIR - not enough to extract this backup."
       cecho "Please free up some space and try again."
       exit 1
     fi
   fi
 
-# Use clean temp name to avoid 7z path conflict
-BACKUP_TMP_DIR="${archive_path%.*}.tmp"
-cecho "Extracting archive to $BACKUP_TMP_DIR"
-
-# Clean previous failed extractions
-rm -rf "$BACKUP_TMP_DIR"
-
-get_password_input "Enter the password to decrypt the backup archive (input will be hidden):" archive_password
-7z x "$archive_path" "-o$BACKUP_TMP_DIR" < <(echo "$archive_password")
-unset archive_password
+  get_password_input "Enter the password to decrypt the backup archive (input will be hidden):" archive_password
+  7z x "$archive_path" "-o$BACKUP_TMP_DIR" < <(echo "$archive_password")
+  unset archive_password
 
   # Check if directories are empty
   apps_empty=$(find "$BACKUP_TMP_DIR/Apps" -mindepth 1 | read -r && echo "no" || echo "yes")
@@ -165,7 +167,7 @@ unset archive_password
   if [ "$restore_storage" = "yes" ]; then
     # Restore internal storage
     cecho "Restoring internal storage."
-    get_file "$BACKUP_TMP_DIR/Storage" . /storage/emulated/0/
+    send_file "$BACKUP_TMP_DIR/Storage" . /storage/emulated/0/
   fi
 
   if [ "$restore_contacts" = "yes" ]; then
