@@ -1,30 +1,44 @@
 #!/bin/bash
 # This file is imported by backup.sh
 
+# Configuration variables - customize these as needed
+COMPANION_TEMP_DIR="/storage/emulated/0/open-android-backup-temp"
+COMPANION_PACKAGE="mrrfv.backup.companion"
+ARCHIVE_PREFIX="open-android-backup"
+TIMESTAMP_FORMAT="%m-%d-%Y-%H-%M-%S"
+ARCHIVE_EXT="7z"
+PLEASE_READ_FILE="PLEASE_READ.txt"
+
 function backup_func() {
   while true; do
   if [ ! -v archive_path ]; then
   # Ask the user for the backup location
   # If zenity is available, we'll use it to show a graphical directory chooser
   # TODO: Extract this into a function since similar code is used when restoring
-  if command -v zenity >/dev/null 2>&1 && { [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ] || [ -v "$XDG_DATA_DIRS" ]; } ;
-  then
+  if command -v zenity >/dev/null 2>&1; then
     cecho "A graphical directory chooser dialog will be open."
     cecho "You will be prompted for the backup location. Press Enter to continue."
     wait_for_enter
 
-    # Dynamically set the default directory based on the operating system
     zenity_backup_default_dir="$HOME"
     if [ "$(uname -r | sed -n 's/.*\( *Microsoft *\).*/\1/ip')" ]; then
       zenity_backup_default_dir="/mnt/c/Users"
     fi
 
     archive_path=$(zenity --file-selection --title="Choose the backup location" --directory --filename="$zenity_backup_default_dir" 2>/dev/null | tail -n 1 | sed 's/\r$//' || true)
+    cecho "DEBUG: Zenity returned: '$archive_path'"
   else
-    # Fall back to the CLI if zenity isn't available (e.g. on macOS)
+    cecho "DEBUG: No Zenity, using CLI"
     get_text_input "Enter the backup location. Press Ok for the current working directory." archive_path "$(pwd)"
     cecho "Install zenity to use a graphical directory chooser."
   fi
+
+  # Create directory if it doesn't exist
+  mkdir -p "$archive_path" || {
+    cecho "Failed to create directory: $archive_path"
+    unset archive_path
+    continue
+  }
 
   fi
   directory_ok "$archive_path" && break
@@ -68,40 +82,43 @@ function backup_func() {
     cecho "Enough space in the current directory. Estimated backup size: ${bkp_size_mb} MB"
   fi
 
-  # The companion app is needed only for contact backups.
-  mkdir -p ./backup-tmp/Contacts # Always created for backwards compatibility
-  mkdir -p ./backup-tmp/SMS
-  mkdir -p ./backup-tmp/CallLogs
+
+  BACKUP_TMP_DIR="$archive_path/.tmp"
+  mkdir -p "$BACKUP_TMP_DIR/Contacts" # Always created for backwards compatibility
+  mkdir -p "$BACKUP_TMP_DIR/SMS"
+  mkdir -p "$BACKUP_TMP_DIR/CallLogs"
   if [ "$backup_contacts" = "yes" ]; then
-    adb shell am start -n mrrfv.backup.companion/.MainActivity
+    adb shell am start -n "$COMPANION_PACKAGE/.MainActivity"
     cecho "The companion app has been opened on your device. Please press the 'Export Data' button - this will export contacts/messages to internal storage, allowing this script to back them up. When this is complete, press Enter to continue."
     wait_for_enter
 
     # Export contacts and SMS messages
     cecho "Exporting contacts (as vCard), call logs as well as SMS messages (as CSV)."
     # Get the entire oab-temp directory
-    mkdir -p ./backup-tmp/open-android-backup-temp
-    if ! get_file /storage/emulated/0/open-android-backup-temp . ./backup-tmp/open-android-backup-temp; then
+    mkdir -p "$BACKUP_TMP_DIR/open-android-backup-temp"
+    if ! get_file "$COMPANION_TEMP_DIR" . "$BACKUP_TMP_DIR/open-android-backup-temp"; then
       cecho "Error: Failed to get data from the Companion App! Please make sure that you have pressed the 'Export Data' button in the app."
       cecho "If you have already done that, please report this issue on GitHub."
       cecho "Cannot continue - exiting."
       exit 1
     fi
+    
     # Get contacts
-    mv ./backup-tmp/open-android-backup-temp/open-android-backup-contact*.vcf ./backup-tmp/Contacts || cecho "No contacts found on device - ignoring." 1>&2
+    mv "$BACKUP_TMP_DIR/open-android-backup-temp"/open-android-backup-contact*.vcf "$BACKUP_TMP_DIR/Contacts/" || cecho "No contacts found on device - ignoring." 1>&2
     # Get SMS messages
-    mv ./backup-tmp/open-android-backup-temp/SMS_Messages.csv ./backup-tmp/SMS
+    mv "$BACKUP_TMP_DIR/open-android-backup-temp/SMS_Messages.csv" "$BACKUP_TMP_DIR/SMS/" || true
     # Get call logs
-    mv ./backup-tmp/open-android-backup-temp/Call_Logs.csv ./backup-tmp/CallLogs
+    mv "$BACKUP_TMP_DIR/open-android-backup-temp/Call_Logs.csv" "$BACKUP_TMP_DIR/CallLogs/" || true
+    
     # Cleanup
     cecho "Removing temporary files created by the companion app."
-    adb shell rm -rf /storage/emulated/0/open-android-backup-temp
-    rm -rf ./backup-tmp/open-android-backup-temp
+    adb shell rm -rf "$COMPANION_TEMP_DIR"
+    rm -rf "$BACKUP_TMP_DIR/open-android-backup-temp"
   fi
   uninstall_companion_app # we're uninstalling it so that it isn't included in the backup, regardless of the settings
 
   # Export apps (.apk files)
-  mkdir -p backup-tmp/Apps
+  mkdir -p "$BACKUP_TMP_DIR/Apps"
   if [ "$backup_apps" = "yes" ]; then
     cecho "Exporting apps."
     app_count=$(adb shell pm list packages -3 -f --user 0 | wc -l)
@@ -131,19 +148,19 @@ function backup_func() {
         # TODO: Ensure the changes made to apk_clean_name don't break this under certain conditions
         for apk in $(adb shell pm path "$apk_clean_name" | sed 's/package://g' | tr -d '\r'); do
           # Create a directory for the app to store all the APKs
-          mkdir -p ./backup-tmp/Apps/"$apk_clean_name"
+          mkdir -p "$BACKUP_TMP_DIR/Apps/$apk_clean_name"
           # Save the APK to its directory
-          get_file "$(dirname "$apk")" "$(basename "$apk")" ./backup-tmp/Apps/"$apk_clean_name"
+          get_file "$(dirname "$apk")" "$(basename "$apk")" "$BACKUP_TMP_DIR/Apps/$apk_clean_name"
         done
       )
     done
   fi
 
   # Export internal storage
-  mkdir -p ./backup-tmp/Storage
+  mkdir -p "$BACKUP_TMP_DIR/Storage"
   if [ "$backup_storage" = "yes" ]; then
     cecho "Exporting internal storage - this will take a while."
-    get_file /storage/emulated/0 . ./backup-tmp/Storage
+    get_file /storage/emulated/0 . "$BACKUP_TMP_DIR/Storage"
   fi
 
   # Run the third-party backup hook, if enabled.
@@ -164,24 +181,24 @@ function backup_func() {
   sleep 4
 
   # Copy backup_archive_info.txt to the archive
-  cp "$DIR/extras/backup_archive_info.txt" ./backup-tmp/PLEASE_READ.txt
+  cp "$DIR/extras/backup_archive_info.txt" "$BACKUP_TMP_DIR/$PLEASE_READ_FILE"
   echo """
 Backed up with settings:
 backup_apps: $backup_apps
 backup_storage: $backup_storage
 backup_contacts: $backup_contacts
-""" >> ./backup-tmp/PLEASE_READ.txt
-  echo "$APP_VERSION" > ./backup-tmp/version.txt
+""" >> "$BACKUP_TMP_DIR/$PLEASE_READ_FILE"
+  echo "$APP_VERSION" > "$BACKUP_TMP_DIR/version.txt"
 
   # If the "discouraged_disable_archive" is set to "yes", then we'll only create a directory with the backup files.
   if [ "$discouraged_disable_archive" = "yes" ]; then
     cecho "Skipping compression & encryption due to the 'discouraged_disable_archive' option being set to 'yes'."
     cecho "The backup data will be stored in a directory instead."
     # TODO: clean up the code, i.e. remove the repetition
-    backup_timestamp=$(date +%m-%d-%Y-%H-%M-%S)
-    declare backup_archive="$archive_path/open-android-backup-$backup_timestamp"
-    mkdir -p "$archive_path/open-android-backup-$backup_timestamp"
-    mv ./backup-tmp "$archive_path/open-android-backup-$backup_timestamp"
+    backup_timestamp=$(date +"$TIMESTAMP_FORMAT")
+    declare backup_archive="$archive_path/$ARCHIVE_PREFIX-$backup_timestamp"
+    mkdir -p "$archive_path/$ARCHIVE_PREFIX-$backup_timestamp"
+    mv "$BACKUP_TMP_DIR" "$archive_path/$ARCHIVE_PREFIX-$backup_timestamp"
   else
     # Compress
     cecho "Compressing & encrypting data - this will take a while."
@@ -189,13 +206,12 @@ backup_contacts: $backup_contacts
     # -p: encrypt backup
     # -mhe=on: encrypt headers (metadata)
     # -mx=9: ultra compression
-    # -bb3: verbose logging
     # The undefined variable (archive_password) is set by the user if they're using unattended mode
     if [ -z "$archive_password" ]; then
       get_password_input "Enter a password to encrypt the backup archive (input will be hidden):" archive_password
     fi
-    declare backup_archive="$archive_path/open-android-backup-$(date +%m-%d-%Y-%H-%M-%S).7z"
-    retry 5 7z a -p -mhe=on -mx=$compression_level -bb3 "$backup_archive" backup-tmp/* < <(echo "$archive_password")
+    declare backup_archive="$archive_path/$ARCHIVE_PREFIX-$(date +"$TIMESTAMP_FORMAT").$ARCHIVE_EXT"
+    retry 5 7z a -p -mhe=on -mx=$compression_level "$backup_archive" "$BACKUP_TMP_DIR/*" < <(echo "$archive_password")
     # Immediately clear sensitive password data
     unset archive_password
   fi
