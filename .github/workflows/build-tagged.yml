@@ -4,6 +4,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write # Required for creating releases
+
 jobs:
   build:
     name: "Tagged Release"
