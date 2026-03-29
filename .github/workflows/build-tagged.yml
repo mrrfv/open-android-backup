@@ -55,3 +55,4 @@ jobs:
         makeLatest: true
         name: "Open Android Backup Stable - ${{ github.ref_name }}"
         discussionCategory: "New Versions"
+        immutableCreate: true
