@@ -45,13 +45,13 @@ jobs:
         rm -rf /home/runner/.android
         rm -rf ${{ env.working-directory }}/android/key.properties
 
-    - run: cp -v companion_app/build/app/outputs/apk/release/app-release.apk ./open-android-backup-companion.apk
+    - run: cp -v companion_app/build/app/outputs/flutter-apk/app-release.apk ./open-android-backup-companion.apk
     - run: sudo apt update && sudo apt install p7zip-full
     - run: 7z a -bb3 -tzip -mx9  -x!.*\* -x!website\* -x!companion_app\* -x!convenience-scripts\* Open_Android_Backup_${{ github.ref_name }}_Bundle.zip .
 
     - uses: ncipollo/release-action@v1
       with:
-        artifacts: "Open_Android_Backup_${{ github.ref_name }}_Bundle.zip,companion_app/build/app/outputs/apk/release/app-release.apk,companion_app/build/app/outputs/apk/release/app-armeabi-v7a-release.apk,companion_app/build/app/outputs/apk/release/app-arm64-v8a-release.apk,companion_app/build/app/outputs/apk/release/app-x86_64-release.apk"
+        artifacts: "Open_Android_Backup_${{ github.ref_name }}_Bundle.zip,companion_app/build/app/outputs/flutter-apk/app-release.apk,companion_app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk,companion_app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk,companion_app/build/app/outputs/flutter-apk/app-x86_64-release.apk"
         allowUpdates: false
         artifactErrorsFailBuild: true
         generateReleaseNotes: true
