@@ -38,6 +38,7 @@ jobs:
       working-directory: ${{ env.working-directory }}
     - name: Build split per ABI APKs
       run: flutter build apk --release --split-per-abi
+      working-directory: ${{ env.working-directory }}
     - name: Delete keystore and other secrets
       run: |
         rm -rf /home/runner/.android
