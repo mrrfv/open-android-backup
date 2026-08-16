@@ -51,26 +51,14 @@ function enough_free_space() {
 
   local backup_size=$(estimate_backup_size)
   estimated_size_ref=$backup_size
-  local required_size=$backup_size
 
-  # The script first gathers all data to ./.tmp, compresses it into an archive and finally deletes the temporary directory.
-  # Therefore, we need to bear both cases in mind.
+  # tmp and the archive will coexist, so use backup_size*2 as ceiling
+  local required_size=$((backup_size * 2))
 
-  # Get device IDs to check if directories are on the same drive
-  local current_dir_device=$(stat -c %m .)
-  local target_dir_device=$(stat -c %m "$directory")
-
-  # Double required space if that's the case
-  if [ "$current_dir_device" = "$target_dir_device" ]; then
-    required_size=$((backup_size * 2))
-  fi
-
-  # Check free space in both the target directory and current working directory
+  # simlper way to get free space
   local target_free_space=$(df -k "$directory" | tail -n 1 | awk '{print $4}')
-  local current_free_space=$(df -k . | tail -n 1 | awk '{print $4}')
 
-  # Check if either directory has insufficient space
-  if [ "$target_free_space" -lt "$required_size" ] || [ "$current_free_space" -lt "$required_size" ]; then
+  if [ "$target_free_space" -lt "$required_size" ]; then
     return 1
   fi
 
@@ -90,8 +78,8 @@ function cecho() {
     if stty -g &>/dev/null; then
       local old_stty=$(stty -g)
       stty -echo -icanon min 0 time 5 2>/dev/null
-      printf '\e]11;?\a' > /dev/tty
-      bg_response=$(dd bs=30 count=1 2>/dev/null < /dev/tty)
+      printf '\e]11;?\a' >/dev/tty
+      bg_response=$(dd bs=30 count=1 2>/dev/null </dev/tty)
       stty "$old_stty"
     fi
 
@@ -99,12 +87,12 @@ function cecho() {
     # Expected format: rgb:RRRR/GGGG/BBBB
     if [[ $bg_response =~ rgb:([0-9a-fA-F]{1,4})/([0-9a-fA-F]{1,4})/([0-9a-fA-F]{1,4}) ]]; then
       # Convert from 16-bit to 8-bit
-      local r=$(( 16#${BASH_REMATCH[1]} >> 8 ))
-      local g=$(( 16#${BASH_REMATCH[2]} >> 8 ))
-      local b=$(( 16#${BASH_REMATCH[3]} >> 8 ))
+      local r=$((16#${BASH_REMATCH[1]} >> 8))
+      local g=$((16#${BASH_REMATCH[2]} >> 8))
+      local b=$((16#${BASH_REMATCH[3]} >> 8))
       # sRGB luminance, scaled
-      local lum=$(( (2126 * r + 7152 * g + 722 * b) / 10000 ))
-      (( lum > 128 )) && _TERM_BG_LIGHT=1
+      local lum=$(((2126 * r + 7152 * g + 722 * b) / 10000))
+      ((lum > 128)) && _TERM_BG_LIGHT=1
     fi
   fi
 
@@ -112,7 +100,7 @@ function cecho() {
   # Checking $lum instead of $bg_response because the former is set only if $bg_response passes the validation regex.
   # Better safe than sorry.
   if [ -n "$lum" ]; then
-    if (( _TERM_BG_LIGHT )); then
+    if ((_TERM_BG_LIGHT)); then
       # Bold black
       tput setaf 0
       tput bold
@@ -129,11 +117,11 @@ function cecho() {
 }
 
 function check_adb_connection() {
-  adb kill-server &> /dev/null || true
+  adb kill-server &>/dev/null || true
   cecho "Please enable developer options and USB debugging on your device, connect it to your computer and set it to file transfer mode. Then, press Enter to continue."
   cecho "Samsung users may need to temporarily disable 'Auto Blocker' first."
   wait_for_enter
-  adb devices > /dev/null
+  adb devices >/dev/null
   cecho "If you have connected your device correctly, you should now see a message asking for access to your phone. Allow it, then press Enter to go to the last step."
   cecho "Tip: If this is not the first time you're using this script, you might not need to allow anything."
   wait_for_enter
@@ -147,8 +135,8 @@ function uninstall_companion_app() {
   # Don't run this function in GitHub Actions or another CI
   if [ ! -v CI ]; then
     cecho "Attempting to uninstall companion app."
-    adb uninstall com.example.companion_app &> /dev/null || true # Legacy companion app
-    adb uninstall mrrfv.backup.companion &> /dev/null || true
+    adb uninstall com.example.companion_app &>/dev/null || true # Legacy companion app
+    adb uninstall mrrfv.backup.companion &>/dev/null || true
   fi
 }
 
@@ -160,7 +148,7 @@ function install_companion_app() {
     if [ ! -f open-android-backup-companion.apk ]; then
       cecho "Downloading companion app."
       # -L makes curl follow redirects, -f returns an exit code different than 0 when the request fails
-      if curl -L -f -o open-android-backup-companion.apk "https://github.com/mrrfv/open-android-backup/releases/download/$APP_VERSION/app-release.apk" ; then
+      if curl -L -f -o open-android-backup-companion.apk "https://github.com/mrrfv/open-android-backup/releases/download/$APP_VERSION/app-release.apk"; then
         echo "Stable version downloaded successfully"
       else
         # A fallback to the unstable build prevents a 'race condition' where the user executes the latest version of the script while
@@ -177,10 +165,10 @@ function install_companion_app() {
     adb install -r open-android-backup-companion.apk
     cecho "Granting required permissions to companion app."
     permissions=(
-    'android.permission.READ_CONTACTS'
-    'android.permission.WRITE_CONTACTS'
-    'android.permission.READ_EXTERNAL_STORAGE'
-    'android.permission.READ_SMS'
+      'android.permission.READ_CONTACTS'
+      'android.permission.WRITE_CONTACTS'
+      'android.permission.READ_EXTERNAL_STORAGE'
+      'android.permission.READ_SMS'
     )
     # Grant permissions
     for permission in "${permissions[@]}"; do
@@ -207,12 +195,12 @@ function select_option_from_list() {
 
   # Build an array of whiptail options from the options array
   local whiptail_options=()
-  for ((i=0; i<${#options[@]}; i++)); do
+  for ((i = 0; i < ${#options[@]}; i++)); do
     whiptail_options+=("$i" "${options[$i]}")
   done
 
   # Use whiptail to display a menu and get the selected index
-  local selected_index=$(whiptail --title "Select an option" --menu "$prompt" $LINES $COLUMNS $(( $LINES - 8 )) "${whiptail_options[@]}" 3>&1 1>&2 2>&3)
+  local selected_index=$(whiptail --title "Select an option" --menu "$prompt" $LINES $COLUMNS $(($LINES - 8)) "${whiptail_options[@]}" 3>&1 1>&2 2>&3)
 
   # Check if whiptail exited with a non-zero status or if no option was selected
   if [[ $? -ne 0 || -z "$selected_index" ]]; then
@@ -226,7 +214,6 @@ function select_option_from_list() {
   # Use indirect assignment to store the selected option in the result variable
   eval $result_var="'$selected_option'"
 }
-
 
 function get_text_input() {
   local prompt="$1"
@@ -276,19 +263,18 @@ function remove_backup_tmp() {
 }
 
 function retry() {
-    local -r -i max_attempts="$1"; shift
-    local -i attempt_num=1
-    until "$@"
-    do
-        if ((attempt_num==max_attempts))
-        then
-            echo "Attempt $attempt_num failed and there are no more attempts left!"
-            return 1
-        else
-            echo "Attempt $attempt_num failed! Trying again in $attempt_num seconds..."
-            sleep $((attempt_num++))
-        fi
-    done
+  local -r -i max_attempts="$1"
+  shift
+  local -i attempt_num=1
+  until "$@"; do
+    if ((attempt_num == max_attempts)); then
+      echo "Attempt $attempt_num failed and there are no more attempts left!"
+      return 1
+    else
+      echo "Attempt $attempt_num failed! Trying again in $attempt_num seconds..."
+      sleep $((attempt_num++))
+    fi
+  done
 }
 
 # Usage: get_file <directory> <file> <destination>
@@ -303,7 +289,7 @@ function get_file() {
 # Usage: send_file <directory> <file> <destination>
 function send_file() {
   if [ "$export_method" = 'tar' ]; then
-    (tar -c -C "$1" "$2" 2> /dev/null | pv -p --timer --rate --bytes | adb exec-in tar -C "$3" -xf -) || cecho "Errors occurred while restoring $2 - this file (or multiple files) might've been ignored." 1>&2
+    (tar -c -C "$1" "$2" 2>/dev/null | pv -p --timer --rate --bytes | adb exec-in tar -C "$3" -xf -) || cecho "Errors occurred while restoring $2 - this file (or multiple files) might've been ignored." 1>&2
   else # we're falling back to adb push if the variable is empty/unset
     adb push "$1"/"$2" "$3" || cecho "Errors occurred while restoring $2 - this file (or multiple files) might've been ignored." 1>&2
   fi
@@ -312,24 +298,24 @@ function send_file() {
 # Usage: directory_ok <directory>
 # Returns 0 (true) or 1 (false)
 function directory_ok() {
-    if [ ! -d "$1" ]; then
-      cecho "Can't find directory '$1'"
-      echo "Please re-enter the path, or hit ^C to exit"
-      return 1
-    fi
-    if [ ! -w "$1" ]; then
-      cecho "No write permission for directory '$1'"
-      echo "Please enter  a new path, or hit ^C to exit"
-      return 1
-    fi
-    return 0
+  if [ ! -d "$1" ]; then
+    cecho "Can't find directory '$1'"
+    echo "Please re-enter the path, or hit ^C to exit"
+    return 1
+  fi
+  if [ ! -w "$1" ]; then
+    cecho "No write permission for directory '$1'"
+    echo "Please enter  a new path, or hit ^C to exit"
+    return 1
+  fi
+  return 0
 }
 
 # Prompts the user to enter and confirm a password
 # Usage: get_password_input <prompt_message> <result_variable>
 function get_password_input() {
   local prompt_message="$1"
-  local -n password_ref="$2"  # Use nameref for indirect assignment
+  local -n password_ref="$2" # Use nameref for indirect assignment
 
   while true; do
     cecho "$prompt_message"
