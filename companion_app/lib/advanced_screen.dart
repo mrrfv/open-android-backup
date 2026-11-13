@@ -122,7 +122,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
 
   Future<void> _requestExportDirectory() async {
     // Use file picker to select export directory
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    String? selectedDirectory = await FilePicker.getDirectoryPath();
 
     if (selectedDirectory != null) {
       setState(() {
@@ -141,7 +141,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
 
   Future<void> _requestImportDirectory() async {
     // Use file picker to select import directory
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    String? selectedDirectory = await FilePicker.getDirectoryPath();
 
     if (selectedDirectory != null) {
       setState(() {

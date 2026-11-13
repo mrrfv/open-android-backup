@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:flutter_contacts/flutter_contacts.dart' hide PermissionStatus;
+import 'package:flutter_contacts/flutter_contacts.dart' as fc show PermissionStatus;
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:csv/csv.dart';
 import 'package:call_log/call_log.dart';
@@ -23,7 +24,9 @@ class BackupService {
 
   /// Check if we have necessary permissions for contacts operations
   Future<bool> _checkContactsPermission() async {
-    return await FlutterContacts.requestPermission();
+    final status =
+        await FlutterContacts.permissions.request(PermissionType.readWrite);
+    return status == fc.PermissionStatus.granted;
   }
 
   /// Check if we have necessary permissions for SMS operations
@@ -39,8 +42,8 @@ class BackupService {
     }
 
     try {
-      final List<Contact> contacts = await FlutterContacts.getContacts(
-          withProperties: true, withPhoto: true, withGroups: true);
+      final List<Contact> contacts = await FlutterContacts.getAll(
+          properties: ContactProperties.all);
 
       if (onContactsProgress != null) {
         onContactsProgress!(0, contacts.length);
@@ -48,7 +51,7 @@ class BackupService {
 
       // Export each contact
       for (var i = 0; i < contacts.length; i++) {
-        final String vCard = contacts[i].toVCard(withPhoto: true);
+        final String vCard = FlutterContacts.vCard.export(contacts[i]);
         final fileName = 'open-android-backup-contact-$i.vcf';
 
         final exportedPath = await _fileService.exportFile(
@@ -107,7 +110,7 @@ class BackupService {
         }
       }
 
-      String csvProcessedMessages = const ListToCsvConverter().convert(processedMessages);
+      String csvProcessedMessages = csv.encode(processedMessages);
 
       // Export SMS CSV
       final exportedPath = await _fileService.exportFile(
@@ -150,7 +153,7 @@ class BackupService {
         }
       }
 
-      String csvCallLogs = const ListToCsvConverter().convert(processedCallLogs);
+      String csvCallLogs = csv.encode(processedCallLogs);
 
       // Export call logs CSV
       final exportedPath = await _fileService.exportFile(
@@ -186,9 +189,10 @@ class BackupService {
         if (files[i].path.endsWith(".vcf")) {
           final String vcard = await _fileService.readFile(files[i].path) ?? '';
           if (vcard.isNotEmpty) {
-            final Contact contact = Contact.fromVCard(vcard);
-            await contact.insert();
-            importedCount++;
+            for (final Contact contact in FlutterContacts.vCard.import(vcard)) {
+              await FlutterContacts.create(contact);
+              importedCount++;
+            }
           }
         }
 
@@ -206,7 +210,7 @@ class BackupService {
 
   /// Request export directory using file picker
   Future<String?> requestExportDirectory(BuildContext context) async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    String? selectedDirectory = await FilePicker.getDirectoryPath();
 
     if (selectedDirectory != null) {
       await _prefsService.setExportDirectory(selectedDirectory);
@@ -218,7 +222,7 @@ class BackupService {
 
   /// Request import directory using file picker
   Future<String?> requestImportDirectory(BuildContext context) async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    String? selectedDirectory = await FilePicker.getDirectoryPath();
 
     if (selectedDirectory != null) {
       await _prefsService.setImportDirectory(selectedDirectory);
