@@ -166,7 +166,7 @@ function install_companion_app() {
         # A fallback to the unstable build prevents a 'race condition' where the user executes the latest version of the script while
         # GitHub hasn't finished building the companion app yet.
         cecho "Couldn't download stable version! Trying an unstable build."
-        curl -L -f -o open-android-backup-companion.apk "https://github.com/mrrfv/open-android-backup/releases/download/latest/app-release.apk"
+        curl -L -f -o open-android-backup-companion.apk "https://github.com/mrrfv/open-android-backup/releases/download/preview/app-release.apk"
       fi
     else
       cecho "Companion app already downloaded."

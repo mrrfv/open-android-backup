@@ -54,6 +54,6 @@ jobs:
         artifactErrorsFailBuild: true
         generateReleaseNotes: true
         prerelease: true
-        tag: "latest" # we need to keep this tag for legacy scripts to work (and as a fallback)
+        tag: "preview" # this used to be "latest" until it was erroneously made immutable. It was used by legacy script versions.
         name: "Open Android Backup - Unstable Version"
         body: "This is an unstable version of Open Android Backup, containing the latest updates which have not yet been tested thoroughly. Use at your own risk."
