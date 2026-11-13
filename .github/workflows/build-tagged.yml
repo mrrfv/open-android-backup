@@ -24,6 +24,7 @@ jobs:
     - uses: subosito/flutter-action@v2
       with:
         channel: 'stable' # or: 'beta', 'dev' or 'master'
+        flutter-version-file: pubspec.yaml
     - run: flutter pub get
       working-directory: ${{ env.working-directory }}
     - name: Setup keystore
